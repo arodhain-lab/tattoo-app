@@ -375,6 +375,14 @@ export default function App() {
     notes: "",
   });
 
+  const [showQuickClientForm, setShowQuickClientForm] = useState(false);
+const [quickClientForm, setQuickClientForm] = useState({
+  lastName: "",
+  firstName: "",
+  phone: "",
+  notes: "",
+});
+
   const [artistForm, setArtistForm] = useState({
     name: "",
     color: "#111111",
@@ -773,6 +781,16 @@ const monthTotal = scopedAppointments.reduce((sum, item) => {
     setEditingClientId(null);
   };
 
+  const resetQuickClientForm = () => {
+  setQuickClientForm({
+    lastName: "",
+    firstName: "",
+    phone: "",
+    notes: "",
+  });
+  setShowQuickClientForm(false);
+};
+
   const resetArtistForm = () => {
     setArtistForm({
       name: "",
@@ -838,6 +856,37 @@ const resetAppointmentForm = () => {
 
   await loadSupabaseData();
   resetClientForm();
+};
+
+const saveQuickClient = async () => {
+  if (!quickClientForm.lastName.trim() || !quickClientForm.firstName.trim()) return;
+  if (!session?.user) return;
+
+  const { data: insertedClient, error } = await supabase
+    .from("clients")
+    .insert({
+      user_id: session.user.id,
+      last_name: quickClientForm.lastName.trim(),
+      first_name: quickClientForm.firstName.trim(),
+      phone: quickClientForm.phone.trim(),
+      notes: quickClientForm.notes.trim(),
+    })
+    .select()
+    .single();
+
+  if (error) {
+    alert(error.message);
+    return;
+  }
+
+  await loadSupabaseData();
+
+  setAppointmentForm((prev) => ({
+    ...prev,
+    clientId: String(insertedClient.id),
+  }));
+
+  resetQuickClientForm();
 };
 
 const saveArtist = async () => {
@@ -2273,27 +2322,127 @@ const goNext = () => {
                 : "Créer un rendez-vous"}
             </h2>
 
-            <select
-              value={appointmentForm.clientId}
-              onChange={(e) =>
-                setAppointmentForm({
-                  ...appointmentForm,
-                  clientId: e.target.value,
-                })
-              }
-            >
-              <option value="">Sélectionner un client</option>
-              {clients
-                .slice()
-                .sort((a, b) =>
-                  formatClientName(a).localeCompare(formatClientName(b))
-                )
-                .map((client) => (
-                  <option key={client.id} value={client.id}>
-                    {formatClientName(client)}
-                  </option>
-                ))}
-            </select>
+<div
+  style={{
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginTop: "10px",
+    marginBottom: "6px",
+    border: "2px solid red",
+    padding: "6px",
+  }}
+>
+  <span style={{ fontSize: "14px", fontWeight: "700", color: "#02404b" }}>
+    Client
+  </span>
+
+  <button
+    type="button"
+    onClick={() => setShowQuickClientForm((prev) => !prev)}
+    style={{
+      width: "auto",
+      marginTop: 0,
+      padding: 0,
+      border: "none",
+      background: "transparent",
+      color: "#02404b",
+      fontWeight: "700",
+      cursor: "pointer",
+    }}
+  >
+    {showQuickClientForm ? "Fermer" : "+ Nouveau client"}
+  </button>
+</div>
+
+<select
+  value={appointmentForm.clientId}
+  onChange={(e) =>
+    setAppointmentForm({
+      ...appointmentForm,
+      clientId: e.target.value,
+    })
+  }
+>
+  <option value="">Sélectionner un client</option>
+  {clients
+    .slice()
+    .sort((a, b) =>
+      formatClientName(a).localeCompare(formatClientName(b))
+    )
+    .map((client) => (
+      <option key={client.id} value={client.id}>
+        {formatClientName(client)}
+      </option>
+    ))}
+</select>
+
+            {showQuickClientForm && (
+  <div className="card inner-card">
+    <h3>Créer une fiche client sans quitter le rendez-vous</h3>
+
+    <input
+      type="text"
+      placeholder="Nom"
+      value={quickClientForm.lastName}
+      onChange={(e) =>
+        setQuickClientForm({
+          ...quickClientForm,
+          lastName: e.target.value,
+        })
+      }
+    />
+
+    <input
+      type="text"
+      placeholder="Prénom"
+      value={quickClientForm.firstName}
+      onChange={(e) =>
+        setQuickClientForm({
+          ...quickClientForm,
+          firstName: e.target.value,
+        })
+      }
+    />
+
+    <input
+      type="text"
+      placeholder="Téléphone"
+      value={quickClientForm.phone}
+      onChange={(e) =>
+        setQuickClientForm({
+          ...quickClientForm,
+          phone: e.target.value,
+        })
+      }
+    />
+
+    <textarea
+      placeholder="Notes client"
+      value={quickClientForm.notes}
+      onChange={(e) =>
+        setQuickClientForm({
+          ...quickClientForm,
+          notes: e.target.value,
+        })
+      }
+    />
+
+    <div className="action-buttons">
+      <button type="button" onClick={saveQuickClient}>
+        Ajouter ce client
+      </button>
+
+      <button
+        type="button"
+        className="secondary-button"
+        onClick={resetQuickClientForm}
+      >
+        Annuler
+      </button>
+    </div>
+  </div>
+)}
 
             <select
               value={appointmentForm.artistId}

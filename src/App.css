@@ -56,9 +56,11 @@ h4 {
 }
 
 .inner-card {
+  margin-top: 12px;
   padding: 18px;
   box-shadow: none;
   border: 1px solid #8b8989;
+  border-radius: 12px;
   background: #f1f7f8;
 }
 
@@ -1134,4 +1136,36 @@ button:hover {
   display: block;
   width: 100%;
   text-align: left;
+}
+
+.field-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  margin-top: 10px;
+  margin-bottom: 6px;
+}
+
+.field-header span {
+  font-size: 14px;
+  font-weight: 700;
+  color: #02404b;
+}
+
+.inline-link-button {
+  width: auto;
+  margin-top: 0;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: #02404b;
+  cursor: pointer;
+  font-weight: 700;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.inline-link-button:hover {
+  text-decoration: underline;
 }
