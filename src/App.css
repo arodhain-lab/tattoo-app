@@ -1274,3 +1274,7 @@ button:hover {
     line-height: 1.25;
   }
 }
+
+.mobile-home-logout {
+  margin-top: 16px;
+}

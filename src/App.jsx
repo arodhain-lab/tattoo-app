@@ -1618,12 +1618,14 @@ const goNext = () => {
             </button>
           )}
 
-          <button
-            className="secondary-button"
-            onClick={() => supabase.auth.signOut()}
-          >
-            Déconnexion
-          </button>
+          {!(isMobile && page === "home") && (
+            <button
+              className="secondary-button"
+              onClick={() => supabase.auth.signOut()}
+            >
+              Déconnexion
+            </button>
+          )}
         </div>
       </header>
 
@@ -1694,6 +1696,15 @@ const goNext = () => {
         </span>
       </button>
     </div>
+
+    {isMobile && (
+      <button
+        className="secondary-button mobile-home-logout"
+        onClick={() => supabase.auth.signOut()}
+      >
+        Déconnexion
+      </button>
+    )}
   </section>
 )}
 
