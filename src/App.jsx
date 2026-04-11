@@ -1662,8 +1662,13 @@ const goNext = () => {
           : undefined
       }
     >
-      <button className="home-menu-button home-menu-primary" onClick={() => setPage("appointments")}>
-        <span className="home-menu-icon">+</span>
+      <button
+        className="home-menu-button home-menu-primary"
+        onClick={() => setPage("appointments")}
+      >
+        <span className="home-menu-icon home-menu-icon-image">
+          <img src="/icons/add-rdv.png" alt="Ajouter un RDV" />
+        </span>
         <span className="home-menu-title">Ajouter un rendez-vous</span>
         <span className="home-menu-subtitle">Créer rapidement un nouveau RDV</span>
       </button>
@@ -1738,10 +1743,11 @@ const goNext = () => {
 
               <div className="small-actions">
                 <button
-                  className="secondary-button"
+                  className="btn-add-rdv"
                   onClick={() => setPage("appointments")}
                 >
-                  Créer rendez-vous
+                  <img src="/icons/add-rdv.png" alt="Ajouter un RDV" />
+                  <span>Ajouter un RDV</span>
                 </button>
               </div>
             </div>
