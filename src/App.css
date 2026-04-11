@@ -1275,21 +1275,23 @@ button:hover {
   }
 }
 
-.mobile-home-logout {
-  margin-top: 16px;
-}
-
 .home-card {
   display: flex;
   flex-direction: column;
 }
 
 .home-logout-row {
-  display: flex;
+  display: flex !important;
   justify-content: flex-end;
-  margin-top: 20px;
+  align-items: center;
+  width: 100%;
+  margin-top: 24px;
 }
 
 .home-logout-button {
-  width: auto;
+  display: inline-block !important;
+  width: auto !important;
+  min-width: 160px;
+  margin-top: 0 !important;
+  flex: 0 0 auto;
 }
