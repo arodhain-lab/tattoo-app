@@ -1663,14 +1663,14 @@ const goNext = () => {
       }
     >
       <button
-        className="home-menu-button home-menu-primary"
+        className="home-menu-button home-menu-primary home-menu-logo-button"
         onClick={() => setPage("appointments")}
       >
-        <span className="home-menu-icon home-menu-icon-image">
-          <img src="/icons/add-rdv.png" alt="Ajouter un RDV" />
-        </span>
-        <span className="home-menu-title">Ajouter un rendez-vous</span>
-        <span className="home-menu-subtitle">Créer rapidement un nouveau RDV</span>
+        <img
+          src="/icons/add-rdv.png"
+          alt="Ajouter un rendez-vous"
+          className="home-menu-full-logo"
+        />
       </button>
 
       <button className="home-menu-button" onClick={() => setPage("agenda")}>
