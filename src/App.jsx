@@ -1691,7 +1691,7 @@ const goNext = () => {
 
     <div className="home-menu-grid">
       <button className="home-menu-button home-menu-primary" onClick={() => setPage("appointments")}>
-        <span className="home-menu-icon">＋</span>
+        <span className="home-menu-icon">+</span>
         <span className="home-menu-title">Ajouter un rendez-vous</span>
         <span className="home-menu-subtitle">Créer rapidement un nouveau RDV</span>
       </button>
