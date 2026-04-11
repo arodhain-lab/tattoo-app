@@ -1703,7 +1703,6 @@ const goNext = () => {
         justifyContent: "flex-end",
         width: "100%",
         marginTop: "24px",
-        border: "2px solid red",
         padding: "10px",
       }}
     >
