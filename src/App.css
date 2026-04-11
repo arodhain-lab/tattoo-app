@@ -1278,3 +1278,18 @@ button:hover {
 .mobile-home-logout {
   margin-top: 16px;
 }
+
+.home-card {
+  display: flex;
+  flex-direction: column;
+}
+
+.home-logout-row {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 20px;
+}
+
+.home-logout-button {
+  width: auto;
+}

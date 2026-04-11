@@ -1618,7 +1618,7 @@ const goNext = () => {
             </button>
           )}
 
-          {!(isMobile && page === "home") && (
+          {page !== "home" && (
             <button
               className="secondary-button"
               onClick={() => supabase.auth.signOut()}
@@ -1645,7 +1645,7 @@ const goNext = () => {
       )}
 
 {page === "home" && setupComplete && (
-  <section className="card">
+  <section className="card home-card">
     <h2>Accueil</h2>
     <p className="muted-text">
       Choisissez une rubrique
