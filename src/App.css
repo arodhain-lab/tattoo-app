@@ -1358,3 +1358,15 @@ button:hover {
   object-fit: cover;
   border-radius: 16px;
 }
+
+.home-menu-logo-button {
+  padding: 0;
+  overflow: hidden;
+}
+
+.home-menu-full-logo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}

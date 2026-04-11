@@ -1698,12 +1698,15 @@ const goNext = () => {
         </span>
       </button>
 
-      <button className="home-menu-button" onClick={() => setPage("settings")}>
-        <span className="home-menu-icon">⚙️</span>
-        <span className="home-menu-title">Paramètres</span>
-        <span className="home-menu-subtitle">
-          Prestations, tatoueurs, fiches clients
-        </span>
+      <button
+        className="home-menu-button home-menu-primary home-menu-logo-button"
+        onClick={() => setPage("settings")}
+      >
+        <img
+          src="/icons/settings.png"
+          alt="Paramètres"
+          className="home-menu-full-logo"
+        />
       </button>
     </div>
 
