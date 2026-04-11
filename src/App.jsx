@@ -766,17 +766,6 @@ const revenueStats = useMemo(() => {
     );
   }
 
-  const revenueStats = useMemo(() => {
-  let scopedAppointments = appointmentsWithClient.filter(
-    (item) => item.appointment && !item.cancelled
-  );
-
-  if (revenueArtistFilter !== "all") {
-    scopedAppointments = scopedAppointments.filter(
-      (item) => String(item.artistId) === revenueArtistFilter
-    );
-  }
-
   const selectedWeekDays = getWeekDays(selectedDate).map((d) => formatDateKey(d));
   const [selectedYear, selectedMonth] = selectedDate.split("-");
 
@@ -824,35 +813,6 @@ const globalStats = useMemo(() => {
     totalRevenue,
   };
 }, [clients, artists, appointments, appointmentTypes]);
-
-  const selectedWeekDays = getWeekDays(selectedDate).map((d) => formatDateKey(d));
-  const [selectedYear, selectedMonth] = selectedDate.split("-");
-
-const dayTotal = scopedAppointments.reduce((sum, item) => {
-  return item.appointment.slice(0, 10) === selectedDate
-    ? sum + getDisplayedPrice(item, appointments)
-    : sum;
-}, 0);
-
-const weekTotal = scopedAppointments.reduce((sum, item) => {
-  return selectedWeekDays.includes(item.appointment.slice(0, 10))
-    ? sum + getDisplayedPrice(item, appointments)
-    : sum;
-}, 0);
-
-const monthTotal = scopedAppointments.reduce((sum, item) => {
-  const [year, month] = item.appointment.slice(0, 7).split("-");
-  return year === selectedYear && month === selectedMonth
-    ? sum + getDisplayedPrice(item, appointments)
-    : sum;
-}, 0);
-
-  return {
-    dayTotal,
-    weekTotal,
-    monthTotal,
-  };
-}, [appointmentsWithClient, appointments, selectedDate, revenueArtistFilter]);
 
   const resetClientForm = () => {
     setClientForm({
