@@ -1697,36 +1697,55 @@ const goNext = () => {
       </button>
     </div>
 
-    {isMobile && (
+    <div
+      style={{
+        display: "flex",
+        justifyContent: "flex-end",
+        width: "100%",
+        marginTop: "24px",
+        border: "2px solid red",
+        padding: "10px",
+      }}
+    >
       <button
-        className="secondary-button mobile-home-logout"
         onClick={() => supabase.auth.signOut()}
+        style={{
+          width: "auto",
+          minWidth: "160px",
+          marginTop: 0,
+          padding: "12px 20px",
+          borderRadius: "10px",
+          border: "none",
+          background: "#02404b",
+          color: "#fff",
+          cursor: "pointer",
+        }}
       >
         Déconnexion
       </button>
+    </div>
+      </section>
     )}
-  </section>
-)}
 
-{page === "agenda" && setupComplete && (
-  <>
-    <div className="home-layout">
-      <section className="card agenda-main-card">
-        <div className="agenda-topbar">
-          <div>
-            <h2 translate="no">PLANNING</h2>
-            <p className="muted-text">{homeAgendaTitle}</p>
-          </div>
+    {page === "agenda" && setupComplete && (
+      <>
+        <div className="home-layout">
+          <section className="card agenda-main-card">
+            <div className="agenda-topbar">
+              <div>
+                <h2 translate="no">PLANNING</h2>
+                <p className="muted-text">{homeAgendaTitle}</p>
+              </div>
 
-          <div className="small-actions">
-            <button
-              className="secondary-button"
-              onClick={() => setPage("appointments")}
-            >
-              Créer rendez-vous
-            </button>
-          </div>
-        </div>
+              <div className="small-actions">
+                <button
+                  className="secondary-button"
+                  onClick={() => setPage("appointments")}
+                >
+                  Créer rendez-vous
+                </button>
+              </div>
+            </div>
 
         <div className="agenda-toolbar">
           <div className="view-switch">
