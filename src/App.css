@@ -1175,6 +1175,7 @@ button:hover {
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: 16px;
   margin-top: 20px;
+  align-items: stretch;
 }
 
 .home-menu-button {
@@ -1186,7 +1187,7 @@ button:hover {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  justify-content: center;
+  justify-content: flex-start;
   text-align: left;
   cursor: pointer;
   transition: 0.2s ease;
@@ -1243,4 +1244,33 @@ button:hover {
 .stats-box strong {
   font-size: 24px;
   color: #02404b;
+}
+
+@media (max-width: 768px) {
+  .home-menu-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+
+  .home-menu-button {
+    min-height: 118px;
+    padding: 12px;
+    border-radius: 14px;
+  }
+
+  .home-menu-icon {
+    font-size: 24px;
+    margin-bottom: 8px;
+  }
+
+  .home-menu-title {
+    font-size: 15px;
+    margin-bottom: 4px;
+    line-height: 1.2;
+  }
+
+  .home-menu-subtitle {
+    font-size: 12px;
+    line-height: 1.25;
+  }
 }

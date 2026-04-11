@@ -1648,8 +1648,18 @@ const goNext = () => {
     <p className="muted-text">
       Choisissez une rubrique
     </p>
-
-    <div className="home-menu-grid">
+    <div
+      className="home-menu-grid"
+      style={
+        isMobile
+          ? {
+              display: "grid",
+              gridTemplateColumns: "1fr 1fr",
+              gap: "12px",
+            }
+          : undefined
+      }
+    >
       <button className="home-menu-button home-menu-primary" onClick={() => setPage("appointments")}>
         <span className="home-menu-icon">+</span>
         <span className="home-menu-title">Ajouter un rendez-vous</span>
@@ -1668,19 +1678,19 @@ const goNext = () => {
         <span className="home-menu-subtitle">Consulter uniquement le CA</span>
       </button>
 
-      <button className="home-menu-button" onClick={() => setPage("settings")}>
-        <span className="home-menu-icon">⚙️</span>
-        <span className="home-menu-title">Paramètres</span>
-        <span className="home-menu-subtitle">
-          Prestations, tatoueurs, fiches clients
-        </span>
-      </button>
-
       <button className="home-menu-button" onClick={() => setPage("stats")}>
         <span className="home-menu-icon">📊</span>
         <span className="home-menu-title">Statistiques</span>
         <span className="home-menu-subtitle">
           Clients, prestations, tatoueurs, rendez-vous
+        </span>
+      </button>
+
+      <button className="home-menu-button" onClick={() => setPage("settings")}>
+        <span className="home-menu-icon">⚙️</span>
+        <span className="home-menu-title">Paramètres</span>
+        <span className="home-menu-subtitle">
+          Prestations, tatoueurs, fiches clients
         </span>
       </button>
     </div>
@@ -2135,6 +2145,23 @@ const goNext = () => {
     <p className="muted-text">
       Gérez les données principales de l’application
     </p>
+
+    <div className="card inner-card" style={{ marginBottom: "16px" }}>
+      <h3>Vacances scolaires</h3>
+      <p className="muted-text">
+        Sélectionnez la zone scolaire utilisée dans l’agenda
+      </p>
+
+      <select
+        value={schoolZone}
+        onChange={(e) => setSchoolZone(e.target.value)}
+        className="zone-select"
+      >
+        <option value="A">Zone scolaire A</option>
+        <option value="B">Zone scolaire B</option>
+        <option value="C">Zone scolaire C</option>
+      </select>
+    </div>
 
     <div className="home-menu-grid">
       <button className="home-menu-button" onClick={() => setPage("services")}>
@@ -2855,7 +2882,6 @@ const goNext = () => {
             <div className="calendar-summary">
               <p><strong>Date sélectionnée :</strong> {selectedDate}</p>
               <p><strong>Rendez-vous ce jour :</strong> {selectedDayAppointments.length}</p>
-              <p><strong>Zone scolaire :</strong> {schoolZone}</p>
             </div>
 
             <div className="clients-list">
@@ -2907,18 +2933,6 @@ const goNext = () => {
             </div>
           </section>
         </div>
-      )}
-
-      {setupComplete && (
-        <select
-          value={schoolZone}
-          onChange={(e) => setSchoolZone(e.target.value)}
-          className="zone-select"
-        >
-          <option value="A">Zone scolaire A</option>
-          <option value="B">Zone scolaire B</option>
-          <option value="C">Zone scolaire C</option>
-        </select>
       )}
     </div>
   );
