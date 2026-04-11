@@ -1673,10 +1673,15 @@ const goNext = () => {
         />
       </button>
 
-      <button className="home-menu-button" onClick={() => setPage("agenda")}>
-        <span className="home-menu-icon">🗓️</span>
-        <span className="home-menu-title">Agenda</span>
-        <span className="home-menu-subtitle">Vue jour, semaine et mois</span>
+      <button
+        className="home-menu-button home-menu-primary home-menu-logo-button"
+        onClick={() => setPage("agenda")}
+      >
+        <img
+          src="/icons/agenda.png"
+          alt="Agenda"
+          className="home-menu-full-logo"
+        />
       </button>
 
       <button className="home-menu-button" onClick={() => setPage("revenue")}>
@@ -2594,7 +2599,7 @@ const goNext = () => {
     alignItems: "center",
     marginTop: "10px",
     marginBottom: "6px",
-    border: "2px solid red",
+    border: "none",
     padding: "6px",
   }}
 >
