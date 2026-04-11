@@ -349,6 +349,8 @@ function buildSystemDepositNotes(appointments, appointmentItem) {
 export default function App() {
   const [session, setSession] = useState(null);
   const [loadingSession, setLoadingSession] = useState(true);
+  const [checkingSetup, setCheckingSetup] = useState(true);
+  const [setupComplete, setSetupComplete] = useState(false);
   const [page, setPage] = useState("home");
   const [data, setData] = useState({
     clients: [],
@@ -356,6 +358,19 @@ export default function App() {
     artists: [],
     appointmentTypes: ["TATTOO", "PIERCING", "VENTE", "ACOMPTE"],
   });
+
+const evaluateSetup = (artistsList, servicesList) => {
+  const hasArtists = (artistsList || []).length > 0;
+  const hasServices = (servicesList || []).some(
+    (service) => service?.name?.trim()?.toUpperCase() !== ACOMPTE_TYPE
+  );
+  const ok = hasArtists && hasServices;
+
+  setSetupComplete(ok);
+  setCheckingSetup(false);
+
+  return ok;
+};
 
   const [selectedDate, setSelectedDate] = useState(getTodayDateOnly());
   const [agendaView, setAgendaView] = useState("week");
@@ -468,8 +483,15 @@ useEffect(() => {
   const appointments = data.appointments || [];
   const artists = data.artists || [];
   const appointmentTypes = data.appointmentTypes || [];
-const loadSupabaseData = async () => {
-  if (!session) return;
+  const canFinishSetup =
+  artists.length > 0 &&
+  appointmentTypes.some(
+    (type) => type && type.trim().toUpperCase() !== ACOMPTE_TYPE
+  );
+  const loadSupabaseData = async () => {
+    if (!session) return;
+
+  setCheckingSetup(true);
 
 const [
   { data: clients, error: clientsError },
@@ -505,10 +527,11 @@ const [
   const firstError =
     clientsError || artistsError || appointmentsError || servicesError;
 
-  if (firstError) {
-    alert(firstError.message);
-    return;
-  }
+    if (firstError) {
+      alert(firstError.message);
+      setCheckingSetup(false);
+      return;
+    }
 
   setData({
     clients: (clients || []).map((client) => ({
@@ -544,6 +567,7 @@ const [
       new Set([...(services?.map((s) => s.name) || []), "ACOMPTE"])
     ),
   });
+    evaluateSetup(artists || [], services || []);
 };
 
   const appointmentsWithClient = useMemo(() => {
@@ -741,6 +765,24 @@ const revenueStats = useMemo(() => {
       (item) => String(item.artistId) === revenueArtistFilter
     );
   }
+const globalStats = useMemo(() => {
+  const activeAppointments = appointments.filter((item) => !item.cancelled);
+  const activeAppointmentsWithDate = activeAppointments.filter((item) => item.appointment);
+
+  const totalRevenue = activeAppointmentsWithDate.reduce(
+    (sum, item) => sum + getDisplayedPrice(item, appointments),
+    0
+  );
+
+  return {
+    clientsCount: clients.length,
+    artistsCount: artists.length,
+    appointmentsCount: appointments.length,
+    activeAppointmentsCount: activeAppointments.length,
+    servicesCount: appointmentTypes.filter((type) => type !== ACOMPTE_TYPE).length,
+    totalRevenue,
+  };
+}, [clients, artists, appointments, appointmentTypes]);
 
   const selectedWeekDays = getWeekDays(selectedDate).map((d) => formatDateKey(d));
   const [selectedYear, selectedMonth] = selectedDate.split("-");
@@ -1492,7 +1534,7 @@ const goNext = () => {
     );
   };
 
-    if (loadingSession) {
+  if (loadingSession) {
     return (
       <div className="container">
         <div className="card">Chargement...</div>
@@ -1502,6 +1544,60 @@ const goNext = () => {
 
   if (!session) {
     return <Auth />;
+  }
+
+  if (checkingSetup) {
+    return (
+      <div className="container">
+        <div className="card">Chargement de la configuration...</div>
+      </div>
+    );
+  }
+
+  if (!setupComplete && page !== "artists" && page !== "services") {
+    return (
+      <div className="container">
+        <div className="card">
+          <h1>Configuration initiale</h1>
+          <p>
+            Avant d’utiliser l’application, vous devez ajouter au moins un tatoueur
+            et au moins une prestation.
+          </p>
+
+          <div className="setup-status">
+            <p>
+              <strong>Tatoueurs :</strong> {artists.length > 0 ? "OK" : "À compléter"}
+            </p>
+            <p>
+              <strong>Prestations :</strong> {canFinishSetup ? "OK" : "À compléter"}
+            </p>
+          </div>
+
+          <div className="action-buttons" style={{ marginBottom: "16px" }}>
+            <button onClick={() => setPage("artists")}>
+              Configurer les tatoueurs
+            </button>
+            <button onClick={() => setPage("services")}>
+              Configurer les prestations
+            </button>
+          </div>
+
+          <button
+            onClick={() => {
+              if (!canFinishSetup) {
+                alert("Ajoute au moins un tatoueur et une prestation.");
+                return;
+              }
+              setSetupComplete(true);
+              setPage("home");
+            }}
+            disabled={!canFinishSetup}
+          >
+            Commencer à utiliser l’application
+          </button>
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -1515,7 +1611,7 @@ const goNext = () => {
         </div>
 
         <div className="small-actions">
-          {page !== "home" && (
+          {page !== "home" && setupComplete && (
             <button className="back-button" onClick={() => setPage("home")}>
               ← Retour accueil
             </button>
@@ -1530,473 +1626,579 @@ const goNext = () => {
         </div>
       </header>
 
-      {page === "home" && (
-        <>
-          <div className="home-layout">
-            <section className="card agenda-main-card">
-              <div className="agenda-topbar">
-                <div>
-                  <h2 translate="no">PLANNING</h2>
-                  <p className="muted-text">{homeAgendaTitle}</p>
-                </div>
+      {!setupComplete && (
+        <div className="card" style={{ marginBottom: "16px" }}>
+          <h2>Configuration requise</h2>
+          <p>
+            Vous devez d’abord créer au moins un tatoueur et une prestation avant
+            d’utiliser le reste de l’application.
+          </p>
 
-                <div className="small-actions">
-                  <button className="secondary-button" onClick={() => setPage("clients")}>
-                    Créer fiche client
-                  </button>
-                  <button
-                    className="secondary-button"
-                    onClick={() => setPage("appointments")}
-                  >
-                    Créer rendez-vous
-                  </button>
-                  <button
-                    className="secondary-button"
-                    onClick={() => setPage("artists")}
-                  >
-                    Gérer les tatoueurs
-                  </button>
-                  <button
-                    className="secondary-button"
-                    onClick={() => setPage("services")}
-                  >
-
-  Gérer les prestations
-</button>
-                </div>
-              </div>
-
-              <div className="dashboard-grid dashboard-grid-single">
-                <div className="card revenue-card inner-card">
-                  <div className="revenue-header">
-                    <div>
-                      <h3>Chiffre d’affaires</h3>
-                      <p className="muted-text">
-                        Calculé selon la date affichée et le tatoueur sélectionné
-                      </p>
-                    </div>
-
-                    <select
-                      value={revenueArtistFilter}
-                      onChange={(e) => setRevenueArtistFilter(e.target.value)}
-                      className="compact-select"
-                    >
-                      <option value="all">Tous les tatoueurs</option>
-                      {artists.map((artist) => (
-                        <option key={artist.id} value={artist.id}>
-                          {artist.name}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-
-                  <div className="revenue-stats">
-                    <div className="revenue-box">
-                      <span>Jour</span>
-                      <strong>{formatCurrency(revenueStats.dayTotal)}</strong>
-                    </div>
-                    <div className="revenue-box">
-                      <span>Semaine</span>
-                      <strong>{formatCurrency(revenueStats.weekTotal)}</strong>
-                    </div>
-                    <div className="revenue-box">
-                      <span>Mois</span>
-                      <strong>{formatCurrency(revenueStats.monthTotal)}</strong>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="agenda-toolbar">
-                <div className="view-switch">
-                  <button
-                    type="button"
-                    className={agendaView === "day" ? "active-view" : ""}
-                    onClick={() => {
-                      setAgendaView("day");
-                      setShowMobileWeek(false);
-                    }}
-                  >
-                    Vue jour
-                  </button>
-
-                  {!isMobile && (
-                    <button
-                      type="button"
-                      className={agendaView === "week" ? "active-view" : ""}
-                      onClick={() => setAgendaView("week")}
-                    >
-                      Vue semaine
-                    </button>
-                  )}
-
-                  {isMobile && (
-                    <button
-                      type="button"
-                      className={showMobileWeek ? "active-view" : ""}
-                      onClick={() => {
-                        if (showMobileWeek) {
-                          setShowMobileWeek(false);
-                          setAgendaView("day");
-                        } else {
-                          setShowMobileWeek(true);
-                          setAgendaView("week");
-                        }
-                      }}
-                    >
-                      {showMobileWeek ? "Masquer semaine" : "Voir semaine"}
-                    </button>
-                  )}
-
-                  <button
-                    type="button"
-                    className={agendaView === "month" ? "active-view" : ""}
-                    onClick={() => {
-                      setAgendaView("month");
-                      setShowMobileWeek(false);
-                    }}
-                  >
-                    Vue mois
-                  </button>
-                </div>
-
-                <div className="agenda-controls">
-                  <div className="agenda-nav-buttons">
-                    <button
-                      type="button"
-                      className="nav-arrow-button"
-                      onClick={goPrevious}
-                    >
-                      ←
-                    </button>
-                    <button
-                      type="button"
-                      className="nav-arrow-button"
-                      onClick={goNext}
-                    >
-                      →
-                    </button>
-                  </div>
-
-                  <input
-                    type="date"
-                    value={selectedDate}
-                    onChange={(e) => setSelectedDate(e.target.value)}
-                  />
-                </div>
-              </div>
-
-              {agendaView === "day" && (
-                <div className="agenda-panel">
-                  <h3>Planning du jour</h3>
-
-                  {renderSpecialDayBadge(selectedDate)}
-
-                  {selectedDayAppointments.length === 0 ? (
-                    <p>Aucun rendez-vous pour cette date.</p>
-                  ) : (
-                    selectedDayAppointments.map((appointmentItem) => (
-                      <div
-                        key={appointmentItem.id}
-                        className={`agenda-item artist-bordered ${appointmentItem.cancelled ? "cancelled-appointment" : ""}`}
-                        style={{
-                          borderLeftColor: appointmentItem.artistColor,
-                          backgroundColor: appointmentItem.cancelled ? "#d3d3d3" : "",
-                        }}
-                      >
-                        <div className="agenda-item-time">
-                          {formatTimeOnly(appointmentItem.appointment)}
-                        </div>
-                        <div className="agenda-item-content">
-                          <h4 className="appointment-project-title">
-                            {appointmentItem.project}
-                          </h4>
-                          <p><strong>Tatoueur :</strong> {appointmentItem.artistName}</p>
-                          <p><strong>Titre :</strong> {appointmentItem.title || "Sans titre"}</p>
-                          <p>
-                            <strong>Tarif :</strong>{" "}
-                            {appointmentItem.price !== ""
-                              ? formatCurrency(getDisplayedPrice(appointmentItem, appointments))
-                              : "Non renseigné"}
-                          </p>
-                          <p>
-                            <strong>Durée estimée :</strong>{" "}
-                            {formatDuration(
-                              appointmentItem.durationHours,
-                              appointmentItem.durationMinutes
-                            )}
-                          </p>
-                          <p>
-                            <strong>Notes :</strong>{" "}
-                            {[appointmentItem.notes, buildSystemDepositNotes(appointments, appointmentItem)]
-                              .filter(Boolean)
-                              .join(" | ") || "Aucune note"}
-                          </p>
-                        </div>
-                      </div>
-                    ))
-                  )}
-                </div>
-              )}
-
-{agendaView === "week" && (!isMobile || showMobileWeek) && (
-                <div className={`week-planner ${isMobile ? "week-planner-mobile" : ""}`}>
-                  <div className="week-planner-scroll">
-                    <div className="week-planner-header">
-                      <div className="week-time-header"></div>
-
-                      {weekDays.map((day, index) => {
-                        const key = formatDateKey(day);
-                        const specialDayInfo = getSpecialDayInfo(key, schoolZone);
-
-                        return (
-                          <div
-                            key={key}
-                            className={`week-column-header ${
-                              specialDayInfo?.type === "publicHoliday"
-                                ? "public-holiday-cell"
-                                : specialDayInfo?.type === "schoolHoliday"
-                                ? "school-holiday-cell"
-                                : ""
-                            }`}
-                          >
-                            <strong>
-                              {isMobile
-                                ? (() => {
-                                    const dayLabel = new Intl.DateTimeFormat("fr-FR", {
-                                      weekday: "long",
-                                    }).format(day);
-                                    return dayLabel.charAt(0).toUpperCase() + dayLabel.slice(1);
-                                  })()
-                                : new Intl.DateTimeFormat("fr-FR", {
-                                    weekday: "short",
-                                  }).format(day)}
-                            </strong>
-
-                            <span>
-                              {isMobile
-                                ? `${pad(day.getDate())}/${pad(day.getMonth() + 1)}`
-                                : formatDateOnly(day)}
-                            </span>
-
-                            {specialDayInfo && (
-                              <small className="special-day-text">{specialDayInfo.label}</small>
-                            )}
-                          </div>
-                        );
-                      })}
+          <div className="action-buttons">
+            <button onClick={() => setPage("artists")}>Tatoueurs</button>
+            <button onClick={() => setPage("services")}>Prestations</button>
           </div>
-
-      <div className="week-planner-body">
-        <div className="week-time-column" style={{ height: `${DAY_COLUMN_HEIGHT}px` }}>
-          {timeSlots
-            .filter((slot) => !(isMobile && slot.isHalfHour))
-            .map((slot) => (
-              <div
-                key={slot.label}
-                className={`week-time-slot ${slot.isHalfHour ? "half-hour-slot" : "full-hour-slot"}`}
-                style={{ top: `${(slot.minutesFromStart / 60) * HOUR_HEIGHT}px` }}
-              >
-                {slot.label}
-              </div>
-            ))}
         </div>
-
-        {weekDays.map((day) => {
-          const key = formatDateKey(day);
-          const items = appointmentsByDate[key] || [];
-          const specialDayInfo = getSpecialDayInfo(key, schoolZone);
-
-          return (
-            <div
-              key={key}
-              className={`week-day-column ${
-                specialDayInfo?.type === "publicHoliday"
-                  ? "public-holiday-cell"
-                  : specialDayInfo?.type === "schoolHoliday"
-                  ? "school-holiday-cell"
-                  : ""
-              }`}
-              style={{ height: `${DAY_COLUMN_HEIGHT}px` }}
-            >
-              {Array.from({ length: DAY_END_HOUR - DAY_START_HOUR + 1 }).map((_, index) => (
-                <div
-                  key={index}
-                  className="week-hour-line"
-                  style={{ top: `${index * HOUR_HEIGHT}px` }}
-                ></div>
-              ))}
-
-              {Array.from({ length: (DAY_END_HOUR - DAY_START_HOUR) * 2 }).map((_, index) => (
-                <div
-                  key={`half-${index}`}
-                  className="week-half-line"
-                  style={{ top: `${index * (HOUR_HEIGHT / 2)}px` }}
-                ></div>
-              ))}
-
-              {items.length === 0
-                ? null
-                : items.map((appointmentItem) => {
-                    const startMinutes = clamp(
-                      getMinutesSinceStartOfDay(appointmentItem.appointment, DAY_START_HOUR),
-                      0,
-                      TOTAL_DAY_MINUTES
-                    );
-
-                    const durationMinutes = getAppointmentDurationInMinutes(appointmentItem);
-
-                    const top = (startMinutes / 60) * HOUR_HEIGHT;
-                    const height = Math.max(
-                      (durationMinutes / 60) * HOUR_HEIGHT,
-                      isMobile ? 34 : 20
-                    );
-
-                    return (
-                      <button
-                        key={appointmentItem.id}
-                        className={`week-appointment-block ${appointmentItem.cancelled ? "cancelled-appointment" : ""}`}
-                        style={{
-                          top: `${top}px`,
-                          height: `${height}px`,
-                          backgroundColor: appointmentItem.cancelled
-                            ? "#d3d3d3"
-                            : appointmentItem.artistColor,
-                        }}
-                        onClick={() => editAppointment(appointmentItem)}
-                      >
-                        {isMobile ? (
-                          <div className="week-chip-mobile-content">
-                            <div className="week-chip-hour">
-                              {appointmentItem.title || "Sans type"}
-                            </div>
-                        
-                            <div className="week-chip-title">
-                              {appointmentItem.project || appointmentItem.title || "Sans titre"}
-                            </div>
-
-                            {appointmentItem.price !== "" && (
-                              <div className="week-chip-price">
-                                {formatCurrency(getDisplayedPrice(appointmentItem, appointments))}
-                              </div>
-                            )}
-                          </div>
-                        ) : (
-                          <div className="week-chip-topline">
-                            <span className="week-chip-title">
-                              {appointmentItem.project || appointmentItem.title || "Sans titre"}
-                            </span>
-                            {appointmentItem.price !== "" && (
-                              <span className="week-chip-price">
-                                {formatCurrency(getDisplayedPrice(appointmentItem, appointments))}
-                              </span>
-                            )}
-                          </div>
-                        )}
-                      </button>
-                    );
-                  })}
-            </div>
-          );
-        })}
-      </div>
-    </div>
-  </div>
-)}
-
-              {agendaView === "month" && (
-                <>
-                  <div className="month-view-title">{monthViewTitle}</div>
-
-                  <div className="month-weekdays">
-                    <div>Lun</div>
-                    <div>Mar</div>
-                    <div>Mer</div>
-                    <div>Jeu</div>
-                    <div>Ven</div>
-                    <div>Sam</div>
-                    <div>Dim</div>
-                  </div>
-
-                  <div className="month-grid">
-                    {monthCells.map((cell, index) => {
-                      if (!cell) {
-                        return <div key={`empty-${index}`} className="month-cell empty-cell"></div>;
-                      }
-
-                      const key = formatDateKey(cell);
-                      const items = appointmentsByDate[key] || [];
-                      const isSelected = key === selectedDate;
-                      const specialDayInfo = getSpecialDayInfo(key, schoolZone);
-
-                      return (
-                        <button
-                          key={key}
-                          className={`month-cell ${isSelected ? "selected-cell" : ""} ${
-                            specialDayInfo?.type === "publicHoliday"
-                              ? "public-holiday-cell"
-                              : specialDayInfo?.type === "schoolHoliday"
-                              ? "school-holiday-cell"
-                              : ""
-                          }`}
-                          onClick={() => {
-                            setSelectedDate(key);
-                            setAgendaView("day");
-                          }}
-                        >
-                          <div className="month-cell-top">
-                            <span>{cell.getDate()}</span>
-                            {items.length > 0 && (
-                              <span className="month-count">{items.length}</span>
-                            )}
-                          </div>
-
-                          {specialDayInfo && (
-                            <div className="month-special-label">{specialDayInfo.label}</div>
-                          )}
-
-                          <div className="month-cell-body">
-                            {items.slice(0, 3).map((appointmentItem) => (
-                              <div
-                                key={appointmentItem.id}
-                                className={`month-mini-item month-mini-item-colored ${appointmentItem.cancelled ? "cancelled-appointment" : ""}`}
-                                style={{
-                                  borderLeftColor: appointmentItem.artistColor,
-                                  backgroundColor: appointmentItem.cancelled ? "#d3d3d3" : "",
-                                }}
-                              >
-                                <div className="month-mini-project">
-                                  {formatTimeOnly(appointmentItem.appointment)} — {appointmentItem.project}
-                                </div>
-                              </div>
-                            ))}
-                          </div>
-                        </button>
-                      );
-                    })}
-                  </div>
-                </>
-              )}
-            </section>
-          </div>
-
-          <aside className="card home-side-card">
-            <h2 translate="no">INFOS</h2>
-            <p><strong>Clients :</strong> {clients.length}</p>
-            <p><strong>Tatoueurs :</strong> {artists.length}</p>
-            <p><strong>Rendez-vous :</strong> {agendaAppointments.length}</p>
-            <p><strong>Ce jour :</strong> {selectedDayAppointments.length}</p>
-
-            <div className="side-links">
-              <button onClick={() => setPage("clients")}>Voir les fiches clients</button>
-              <button onClick={() => setPage("appointments")}>Voir les rendez-vous</button>
-              <button onClick={() => setPage("artists")}>Voir les tatoueurs</button>
-            </div>
-          </aside>
-        </>
       )}
 
-      {page === "clients" && (
+{page === "home" && setupComplete && (
+  <section className="card">
+    <h2>Accueil</h2>
+    <p className="muted-text">
+      Choisissez une rubrique
+    </p>
+
+    <div className="home-menu-grid">
+      <button className="home-menu-button home-menu-primary" onClick={() => setPage("appointments")}>
+        <span className="home-menu-icon">＋</span>
+        <span className="home-menu-title">Ajouter un rendez-vous</span>
+        <span className="home-menu-subtitle">Créer rapidement un nouveau RDV</span>
+      </button>
+
+      <button className="home-menu-button" onClick={() => setPage("agenda")}>
+        <span className="home-menu-icon">🗓️</span>
+        <span className="home-menu-title">Agenda</span>
+        <span className="home-menu-subtitle">Vue jour, semaine et mois</span>
+      </button>
+
+      <button className="home-menu-button" onClick={() => setPage("revenue")}>
+        <span className="home-menu-icon">€</span>
+        <span className="home-menu-title">Chiffre d’affaires</span>
+        <span className="home-menu-subtitle">Consulter uniquement le CA</span>
+      </button>
+
+      <button className="home-menu-button" onClick={() => setPage("settings")}>
+        <span className="home-menu-icon">⚙️</span>
+        <span className="home-menu-title">Paramètres</span>
+        <span className="home-menu-subtitle">
+          Prestations, tatoueurs, fiches clients
+        </span>
+      </button>
+
+      <button className="home-menu-button" onClick={() => setPage("stats")}>
+        <span className="home-menu-icon">📊</span>
+        <span className="home-menu-title">Statistiques</span>
+        <span className="home-menu-subtitle">
+          Clients, prestations, tatoueurs, rendez-vous
+        </span>
+      </button>
+    </div>
+  </section>
+)}
+
+{page === "agenda" && setupComplete && (
+  <>
+    <div className="home-layout">
+      <section className="card agenda-main-card">
+        <div className="agenda-topbar">
+          <div>
+            <h2 translate="no">PLANNING</h2>
+            <p className="muted-text">{homeAgendaTitle}</p>
+          </div>
+
+          <div className="small-actions">
+            <button
+              className="secondary-button"
+              onClick={() => setPage("appointments")}
+            >
+              Créer rendez-vous
+            </button>
+          </div>
+        </div>
+
+        <div className="agenda-toolbar">
+          <div className="view-switch">
+            <button
+              type="button"
+              className={agendaView === "day" ? "active-view" : ""}
+              onClick={() => {
+                setAgendaView("day");
+                setShowMobileWeek(false);
+              }}
+            >
+              Vue jour
+            </button>
+
+            {!isMobile && (
+              <button
+                type="button"
+                className={agendaView === "week" ? "active-view" : ""}
+                onClick={() => setAgendaView("week")}
+              >
+                Vue semaine
+              </button>
+            )}
+
+            {isMobile && (
+              <button
+                type="button"
+                className={showMobileWeek ? "active-view" : ""}
+                onClick={() => {
+                  if (showMobileWeek) {
+                    setShowMobileWeek(false);
+                    setAgendaView("day");
+                  } else {
+                    setShowMobileWeek(true);
+                    setAgendaView("week");
+                  }
+                }}
+              >
+                {showMobileWeek ? "Masquer semaine" : "Voir semaine"}
+              </button>
+            )}
+
+            <button
+              type="button"
+              className={agendaView === "month" ? "active-view" : ""}
+              onClick={() => {
+                setAgendaView("month");
+                setShowMobileWeek(false);
+              }}
+            >
+              Vue mois
+            </button>
+          </div>
+
+          <div className="agenda-controls">
+            <div className="agenda-nav-buttons">
+              <button
+                type="button"
+                className="nav-arrow-button"
+                onClick={goPrevious}
+              >
+                ←
+              </button>
+              <button
+                type="button"
+                className="nav-arrow-button"
+                onClick={goNext}
+              >
+                →
+              </button>
+            </div>
+
+            <input
+              type="date"
+              value={selectedDate}
+              onChange={(e) => setSelectedDate(e.target.value)}
+            />
+          </div>
+        </div>
+
+        {agendaView === "day" && (
+          <div className="agenda-panel">
+            <h3>Planning du jour</h3>
+
+            {renderSpecialDayBadge(selectedDate)}
+
+            {selectedDayAppointments.length === 0 ? (
+              <p>Aucun rendez-vous pour cette date.</p>
+            ) : (
+              selectedDayAppointments.map((appointmentItem) => (
+                <div
+                  key={appointmentItem.id}
+                  className={`agenda-item artist-bordered ${appointmentItem.cancelled ? "cancelled-appointment" : ""}`}
+                  style={{
+                    borderLeftColor: appointmentItem.artistColor,
+                    backgroundColor: appointmentItem.cancelled ? "#d3d3d3" : "",
+                  }}
+                >
+                  <div className="agenda-item-time">
+                    {formatTimeOnly(appointmentItem.appointment)}
+                  </div>
+                  <div className="agenda-item-content">
+                    <h4 className="appointment-project-title">
+                      {appointmentItem.project}
+                    </h4>
+                    <p><strong>Tatoueur :</strong> {appointmentItem.artistName}</p>
+                    <p><strong>Titre :</strong> {appointmentItem.title || "Sans titre"}</p>
+                    <p>
+                      <strong>Tarif :</strong>{" "}
+                      {appointmentItem.price !== ""
+                        ? formatCurrency(getDisplayedPrice(appointmentItem, appointments))
+                        : "Non renseigné"}
+                    </p>
+                    <p>
+                      <strong>Durée estimée :</strong>{" "}
+                      {formatDuration(
+                        appointmentItem.durationHours,
+                        appointmentItem.durationMinutes
+                      )}
+                    </p>
+                    <p>
+                      <strong>Notes :</strong>{" "}
+                      {[appointmentItem.notes, buildSystemDepositNotes(appointments, appointmentItem)]
+                        .filter(Boolean)
+                        .join(" | ") || "Aucune note"}
+                    </p>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        )}
+
+        {agendaView === "week" && (!isMobile || showMobileWeek) && (
+          <div className={`week-planner ${isMobile ? "week-planner-mobile" : ""}`}>
+            <div className="week-planner-scroll">
+              <div className="week-planner-header">
+                <div className="week-time-header"></div>
+
+                {weekDays.map((day) => {
+                  const key = formatDateKey(day);
+                  const specialDayInfo = getSpecialDayInfo(key, schoolZone);
+
+                  return (
+                    <div
+                      key={key}
+                      className={`week-column-header ${
+                        specialDayInfo?.type === "publicHoliday"
+                          ? "public-holiday-cell"
+                          : specialDayInfo?.type === "schoolHoliday"
+                          ? "school-holiday-cell"
+                          : ""
+                      }`}
+                    >
+                      <strong>
+                        {isMobile
+                          ? (() => {
+                              const dayLabel = new Intl.DateTimeFormat("fr-FR", {
+                                weekday: "long",
+                              }).format(day);
+                              return dayLabel.charAt(0).toUpperCase() + dayLabel.slice(1);
+                            })()
+                          : new Intl.DateTimeFormat("fr-FR", {
+                              weekday: "short",
+                            }).format(day)}
+                      </strong>
+
+                      <span>
+                        {isMobile
+                          ? `${pad(day.getDate())}/${pad(day.getMonth() + 1)}`
+                          : formatDateOnly(day)}
+                      </span>
+
+                      {specialDayInfo && (
+                        <small className="special-day-text">{specialDayInfo.label}</small>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+
+              <div className="week-planner-body">
+                <div className="week-time-column" style={{ height: `${DAY_COLUMN_HEIGHT}px` }}>
+                  {timeSlots
+                    .filter((slot) => !(isMobile && slot.isHalfHour))
+                    .map((slot) => (
+                      <div
+                        key={slot.label}
+                        className={`week-time-slot ${slot.isHalfHour ? "half-hour-slot" : "full-hour-slot"}`}
+                        style={{ top: `${(slot.minutesFromStart / 60) * HOUR_HEIGHT}px` }}
+                      >
+                        {slot.label}
+                      </div>
+                    ))}
+                </div>
+
+                {weekDays.map((day) => {
+                  const key = formatDateKey(day);
+                  const items = appointmentsByDate[key] || [];
+                  const specialDayInfo = getSpecialDayInfo(key, schoolZone);
+
+                  return (
+                    <div
+                      key={key}
+                      className={`week-day-column ${
+                        specialDayInfo?.type === "publicHoliday"
+                          ? "public-holiday-cell"
+                          : specialDayInfo?.type === "schoolHoliday"
+                          ? "school-holiday-cell"
+                          : ""
+                      }`}
+                      style={{ height: `${DAY_COLUMN_HEIGHT}px` }}
+                    >
+                      {Array.from({ length: DAY_END_HOUR - DAY_START_HOUR + 1 }).map((_, index) => (
+                        <div
+                          key={index}
+                          className="week-hour-line"
+                          style={{ top: `${index * HOUR_HEIGHT}px` }}
+                        ></div>
+                      ))}
+
+                      {Array.from({ length: (DAY_END_HOUR - DAY_START_HOUR) * 2 }).map((_, index) => (
+                        <div
+                          key={`half-${index}`}
+                          className="week-half-line"
+                          style={{ top: `${index * (HOUR_HEIGHT / 2)}px` }}
+                        ></div>
+                      ))}
+
+                      {items.map((appointmentItem) => {
+                        const startMinutes = clamp(
+                          getMinutesSinceStartOfDay(appointmentItem.appointment, DAY_START_HOUR),
+                          0,
+                          TOTAL_DAY_MINUTES
+                        );
+
+                        const durationMinutes = getAppointmentDurationInMinutes(appointmentItem);
+
+                        const top = (startMinutes / 60) * HOUR_HEIGHT;
+                        const height = Math.max(
+                          (durationMinutes / 60) * HOUR_HEIGHT,
+                          isMobile ? 34 : 20
+                        );
+
+                        return (
+                          <button
+                            key={appointmentItem.id}
+                            className={`week-appointment-block ${appointmentItem.cancelled ? "cancelled-appointment" : ""}`}
+                            style={{
+                              top: `${top}px`,
+                              height: `${height}px`,
+                              backgroundColor: appointmentItem.cancelled
+                                ? "#d3d3d3"
+                                : appointmentItem.artistColor,
+                            }}
+                            onClick={() => editAppointment(appointmentItem)}
+                          >
+                            {isMobile ? (
+                              <div className="week-chip-mobile-content">
+                                <div className="week-chip-hour">
+                                  {appointmentItem.title || "Sans type"}
+                                </div>
+
+                                <div className="week-chip-title">
+                                  {appointmentItem.project || appointmentItem.title || "Sans titre"}
+                                </div>
+
+                                {appointmentItem.price !== "" && (
+                                  <div className="week-chip-price">
+                                    {formatCurrency(getDisplayedPrice(appointmentItem, appointments))}
+                                  </div>
+                                )}
+                              </div>
+                            ) : (
+                              <div className="week-chip-topline">
+                                <span className="week-chip-title">
+                                  {appointmentItem.project || appointmentItem.title || "Sans titre"}
+                                </span>
+                                {appointmentItem.price !== "" && (
+                                  <span className="week-chip-price">
+                                    {formatCurrency(getDisplayedPrice(appointmentItem, appointments))}
+                                  </span>
+                                )}
+                              </div>
+                            )}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {agendaView === "month" && (
+          <>
+            <div className="month-view-title">{monthViewTitle}</div>
+
+            <div className="month-weekdays">
+              <div>Lun</div>
+              <div>Mar</div>
+              <div>Mer</div>
+              <div>Jeu</div>
+              <div>Ven</div>
+              <div>Sam</div>
+              <div>Dim</div>
+            </div>
+
+            <div className="month-grid">
+              {monthCells.map((cell, index) => {
+                if (!cell) {
+                  return <div key={`empty-${index}`} className="month-cell empty-cell"></div>;
+                }
+
+                const key = formatDateKey(cell);
+                const items = appointmentsByDate[key] || [];
+                const isSelected = key === selectedDate;
+                const specialDayInfo = getSpecialDayInfo(key, schoolZone);
+
+                return (
+                  <button
+                    key={key}
+                    className={`month-cell ${isSelected ? "selected-cell" : ""} ${
+                      specialDayInfo?.type === "publicHoliday"
+                        ? "public-holiday-cell"
+                        : specialDayInfo?.type === "schoolHoliday"
+                        ? "school-holiday-cell"
+                        : ""
+                    }`}
+                    onClick={() => {
+                      setSelectedDate(key);
+                      setAgendaView("day");
+                    }}
+                  >
+                    <div className="month-cell-top">
+                      <span>{cell.getDate()}</span>
+                      {items.length > 0 && (
+                        <span className="month-count">{items.length}</span>
+                      )}
+                    </div>
+
+                    {specialDayInfo && (
+                      <div className="month-special-label">{specialDayInfo.label}</div>
+                    )}
+
+                    <div className="month-cell-body">
+                      {items.slice(0, 3).map((appointmentItem) => (
+                        <div
+                          key={appointmentItem.id}
+                          className={`month-mini-item month-mini-item-colored ${appointmentItem.cancelled ? "cancelled-appointment" : ""}`}
+                          style={{
+                            borderLeftColor: appointmentItem.artistColor,
+                            backgroundColor: appointmentItem.cancelled ? "#d3d3d3" : "",
+                          }}
+                        >
+                          <div className="month-mini-project">
+                            {formatTimeOnly(appointmentItem.appointment)} — {appointmentItem.project}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          </>
+        )}
+      </section>
+    </div>
+  </>
+)}
+
+{page === "revenue" && setupComplete && (
+  <section className="card">
+    <div className="revenue-header">
+      <div>
+        <h2>Chiffre d’affaires</h2>
+        <p className="muted-text">
+          Calculé selon la date affichée et le tatoueur sélectionné
+        </p>
+      </div>
+
+      <select
+        value={revenueArtistFilter}
+        onChange={(e) => setRevenueArtistFilter(e.target.value)}
+        className="compact-select"
+      >
+        <option value="all">Tous les tatoueurs</option>
+        {artists.map((artist) => (
+          <option key={artist.id} value={artist.id}>
+            {artist.name}
+          </option>
+        ))}
+      </select>
+    </div>
+
+    <div className="action-buttons" style={{ marginBottom: "16px" }}>
+      <input
+        type="date"
+        value={selectedDate}
+        onChange={(e) => setSelectedDate(e.target.value)}
+      />
+    </div>
+
+    <div className="revenue-stats">
+      <div className="revenue-box">
+        <span>Jour</span>
+        <strong>{formatCurrency(revenueStats.dayTotal)}</strong>
+      </div>
+      <div className="revenue-box">
+        <span>Semaine</span>
+        <strong>{formatCurrency(revenueStats.weekTotal)}</strong>
+      </div>
+      <div className="revenue-box">
+        <span>Mois</span>
+        <strong>{formatCurrency(revenueStats.monthTotal)}</strong>
+      </div>
+    </div>
+  </section>
+)}
+
+{page === "settings" && setupComplete && (
+  <section className="card">
+    <h2>Paramètres</h2>
+    <p className="muted-text">
+      Gérez les données principales de l’application
+    </p>
+
+    <div className="home-menu-grid">
+      <button className="home-menu-button" onClick={() => setPage("services")}>
+        <span className="home-menu-icon">🧾</span>
+        <span className="home-menu-title">Prestations</span>
+        <span className="home-menu-subtitle">Ajouter ou modifier les types de prestations</span>
+      </button>
+
+      <button className="home-menu-button" onClick={() => setPage("artists")}>
+        <span className="home-menu-icon">🎨</span>
+        <span className="home-menu-title">Tatoueurs</span>
+        <span className="home-menu-subtitle">Ajouter ou modifier les tatoueurs</span>
+      </button>
+
+      <button className="home-menu-button" onClick={() => setPage("clients")}>
+        <span className="home-menu-icon">👤</span>
+        <span className="home-menu-title">Fiches clients</span>
+        <span className="home-menu-subtitle">Créer une nouvelle fiche client</span>
+      </button>
+    </div>
+  </section>
+)}
+
+{page === "stats" && setupComplete && (
+  <section className="card">
+    <h2>Statistiques</h2>
+    <p className="muted-text">
+      Vue globale de l’activité
+    </p>
+
+    <div className="stats-grid">
+      <div className="stats-box">
+        <span>Clients</span>
+        <strong>{globalStats.clientsCount}</strong>
+      </div>
+
+      <div className="stats-box">
+        <span>Tatoueurs</span>
+        <strong>{globalStats.artistsCount}</strong>
+      </div>
+
+      <div className="stats-box">
+        <span>Prestations</span>
+        <strong>{globalStats.servicesCount}</strong>
+      </div>
+
+      <div className="stats-box">
+        <span>Rendez-vous</span>
+        <strong>{globalStats.appointmentsCount}</strong>
+      </div>
+
+      <div className="stats-box">
+        <span>Rendez-vous actifs</span>
+        <strong>{globalStats.activeAppointmentsCount}</strong>
+      </div>
+
+      <div className="stats-box">
+        <span>CA total enregistré</span>
+        <strong>{formatCurrency(globalStats.totalRevenue)}</strong>
+      </div>
+    </div>
+  </section>
+)}
+
+      {page === "clients" && setupComplete && (
         <div className="grid">
           <section className="card form-card">
             <h2>
@@ -2313,7 +2515,7 @@ const goNext = () => {
   </div>
 )}
 
-      {page === "appointments" && (
+      {page === "appointments" && setupComplete && (
         <div className="grid">
           <section className="card form-card">
             <h2>
@@ -2706,15 +2908,17 @@ const goNext = () => {
         </div>
       )}
 
-      <select
-        value={schoolZone}
-        onChange={(e) => setSchoolZone(e.target.value)}
-        className="zone-select"
-      >
-        <option value="A">Zone scolaire A</option>
-        <option value="B">Zone scolaire B</option>
-        <option value="C">Zone scolaire C</option>
-      </select>
+      {setupComplete && (
+        <select
+          value={schoolZone}
+          onChange={(e) => setSchoolZone(e.target.value)}
+          className="zone-select"
+        >
+          <option value="A">Zone scolaire A</option>
+          <option value="B">Zone scolaire B</option>
+          <option value="C">Zone scolaire C</option>
+        </select>
+      )}
     </div>
   );
 }
