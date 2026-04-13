@@ -2184,15 +2184,15 @@ const goNext = () => {
     </div>
 
     <div className="revenue-stats">
-      <div className="revenue-box">
+      <div className="revenue-box gold-line-glow">
         <span>Jour</span>
         <strong>{formatCurrency(revenueStats.dayTotal)}</strong>
       </div>
-      <div className="revenue-box">
+      <div className="revenue-box gold-line-glow">
         <span>Semaine</span>
         <strong>{formatCurrency(revenueStats.weekTotal)}</strong>
       </div>
-      <div className="revenue-box">
+      <div className="revenue-box gold-line-glow">
         <span>Mois</span>
         <strong>{formatCurrency(revenueStats.monthTotal)}</strong>
       </div>
