@@ -1646,7 +1646,6 @@ const goNext = () => {
 
 {page === "home" && setupComplete && (
   <section className="card home-card">
-    className="card home-screen-card"
     <h2>Accueil</h2>
     <p className="muted-text">
       Choisissez une rubrique
