@@ -1684,18 +1684,26 @@ const goNext = () => {
         />
       </button>
 
-      <button className="home-menu-button" onClick={() => setPage("revenue")}>
-        <span className="home-menu-icon">€</span>
-        <span className="home-menu-title">Chiffre d’affaires</span>
-        <span className="home-menu-subtitle">Consulter uniquement le CA</span>
+      <button
+        className="home-menu-button home-menu-primary home-menu-logo-button"
+        onClick={() => setPage("revenue")}
+      >
+        <img
+          src="/icons/ca.png"
+          alt="Chiffre d'affaires"
+          className="home-menu-full-logo"
+        />
       </button>
 
-      <button className="home-menu-button" onClick={() => setPage("stats")}>
-        <span className="home-menu-icon">📊</span>
-        <span className="home-menu-title">Statistiques</span>
-        <span className="home-menu-subtitle">
-          Clients, prestations, tatoueurs, rendez-vous
-        </span>
+      <button
+        className="home-menu-button home-menu-primary home-menu-logo-button"
+        onClick={() => setPage("stats")}
+      >
+        <img
+          src="/icons/statistiques.png"
+          alt="Statistiques"
+          className="home-menu-full-logo"
+        />
       </button>
 
       <button
