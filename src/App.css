@@ -55,15 +55,6 @@ h4 {
   margin-top: 0;
 }
 
-.subtitle {
-  margin: 0;
-  color: #666;
-}
-
-.muted-text {
-  margin: 6px 0 0 0;
-  color: #666;
-}
 
 .card {
   background:
@@ -1196,67 +1187,64 @@ button:hover {
 .home-menu-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 22px;
-  margin-top: 30px;
+  gap: 28px;
+  margin-top: 34px;
   align-items: stretch;
 }
 
 .home-menu-button {
-  min-height: 250px;
-  border-radius: 28px;
-  border: 2px solid rgba(212, 175, 55, 0.75);
+  min-height: 260px;
+  border-radius: 34px;
+  border: 2px solid rgba(240, 199, 102, 0.9);
   background:
-    linear-gradient(180deg, rgba(20, 20, 20, 0.98) 0%, rgba(8, 8, 8, 0.98) 100%);
-  padding: 26px;
+    radial-gradient(circle at center, rgba(255, 210, 90, 0.08), transparent 58%),
+    linear-gradient(180deg, #101010 0%, #050505 100%);
+  padding: 26px 22px;
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  justify-content: space-between;
-  text-align: left;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
   cursor: pointer;
-  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+  transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
+  color: #f1d288;
   box-shadow:
     inset 0 0 0 1px rgba(255, 224, 130, 0.08),
-    0 8px 24px rgba(0, 0, 0, 0.35);
-  color: #f1d288;
+    0 10px 26px rgba(0, 0, 0, 0.42),
+    0 0 12px rgba(212, 175, 55, 0.08);
 }
 
 .home-menu-button:hover {
-  transform: translateY(-4px);
-  border-color: #f0c766;
+  transform: translateY(-3px);
+  border-color: #ffd36a;
   box-shadow:
-    inset 0 0 0 1px rgba(255, 224, 130, 0.12),
-    0 12px 28px rgba(0, 0, 0, 0.45),
-    0 0 18px rgba(212, 175, 55, 0.12);
+    inset 0 0 0 1px rgba(255, 224, 130, 0.14),
+    0 14px 30px rgba(0, 0, 0, 0.48),
+    0 0 18px rgba(240, 199, 102, 0.16),
+    0 0 36px rgba(240, 199, 102, 0.10);
 }
 
 .home-menu-primary {
-  border: 3px solid #f0c766;
+  border: 2px solid #ffd36a;
   box-shadow:
-    inset 0 0 0 1px rgba(255, 224, 130, 0.16),
-    0 10px 30px rgba(0, 0, 0, 0.48),
-    0 0 22px rgba(212, 175, 55, 0.18);
-}
-
-.home-menu-icon {
-  font-size: 34px;
-  line-height: 1;
-  margin-bottom: 18px;
-  filter: drop-shadow(0 0 8px rgba(212, 175, 55, 0.22));
+    inset 0 0 0 1px rgba(255, 224, 130, 0.14),
+    0 14px 30px rgba(0, 0, 0, 0.50),
+    0 0 20px rgba(240, 199, 102, 0.18),
+    0 0 42px rgba(240, 199, 102, 0.10);
 }
 
 .home-menu-title {
-  font-size: 28px;
-  font-weight: 700;
-  margin-bottom: 10px;
+  font-size: 20px;
+  font-weight: 800;
+  margin: 16px 0 0 0;
   color: #f3c76b;
-  line-height: 1.15;
+  line-height: 1.2;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
 }
 
 .home-menu-subtitle {
-  font-size: 15px;
-  color: #d2ae63;
-  line-height: 1.45;
+  display: none;
 }
 
 .stats-grid {
@@ -1287,31 +1275,37 @@ button:hover {
 }
 
 @media (max-width: 768px) {
-.home-menu-grid {
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
-}
+  .home-menu-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
 
-.home-menu-button {
-  min-height: 180px;
-  padding: 16px;
-  border-radius: 20px;
-}
+  .home-menu-button {
+    min-height: 190px;
+    padding: 18px 12px;
+    border-radius: 24px;
+  }
 
-.home-menu-icon {
-  font-size: 26px;
-  margin-bottom: 10px;
-}
+  .home-menu-icon-image {
+    width: 92px;
+    height: 92px;
+    border-radius: 20px;
+  }
 
-.home-menu-title {
-  font-size: 18px;
-  margin-bottom: 6px;
-  line-height: 1.2;
-}
+  .home-menu-icon-image img,
+  .home-menu-full-logo {
+    width: 62px;
+    height: 62px;
+  }
 
-.home-menu-subtitle {
-  font-size: 12px;
-  line-height: 1.35;
+  .home-menu-title {
+    font-size: 16px;
+    margin-top: 12px;
+  }
+
+  .home-menu-subtitle {
+    display: none;
+  }
 }
 
 .btn-add-rdv {
@@ -1369,55 +1363,71 @@ button:hover {
 }
 
 .home-menu-icon-image {
+  width: 132px;
+  height: 132px;
   display: flex;
   align-items: center;
   justify-content: center;
+  margin: 0 auto;
+  border-radius: 28px;
+  background:
+    radial-gradient(circle at center, rgba(255, 214, 102, 0.14), transparent 62%),
+    linear-gradient(180deg, #0f0f0f 0%, #050505 100%);
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 224, 130, 0.05),
+    0 8px 18px rgba(0, 0, 0, 0.40);
 }
 
 .home-menu-icon-image img {
-  width: 54px;
-  height: 54px;
+  width: 88px;
+  height: 88px;
   object-fit: contain;
   display: block;
-  filter: drop-shadow(0 0 10px rgba(212, 175, 55, 0.20));
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+  filter:
+    drop-shadow(0 0 8px rgba(240, 199, 102, 0.25))
+    drop-shadow(0 0 18px rgba(240, 199, 102, 0.12));
 }
 
 .home-menu-logo-button {
-  padding: 22px;
+  padding: 26px 18px;
   overflow: hidden;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  background:
-    radial-gradient(circle at center, rgba(255, 214, 102, 0.10), transparent 60%),
-    linear-gradient(180deg, #121212 0%, #050505 100%);
-  border-radius: 26px;
 }
 
 .home-menu-full-logo {
-  width: 100%;
-  max-width: 230px;
-  height: auto;
-  display: block;
+  width: 88px;
+  height: 88px;
+  max-width: none;
   object-fit: contain;
-  border-radius: 22px;
-  box-shadow:
-    0 0 0 1px rgba(255, 224, 130, 0.08),
-    0 8px 18px rgba(0, 0, 0, 0.35);
+  display: block;
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+  filter:
+    drop-shadow(0 0 8px rgba(240, 199, 102, 0.25))
+    drop-shadow(0 0 18px rgba(240, 199, 102, 0.12));
 }
 
 
 .home-screen-card {
   background:
-    radial-gradient(circle at top center, rgba(255, 215, 120, 0.10), transparent 18%),
-    linear-gradient(180deg, #111111 0%, #070707 100%);
-  border: 2px solid #d4af37;
-  border-radius: 36px;
+    radial-gradient(circle at top center, rgba(255, 215, 120, 0.08), transparent 22%),
+    linear-gradient(180deg, #0d0d0d 0%, #040404 100%);
+  border: 2px solid rgba(240, 199, 102, 0.88);
+  border-radius: 42px;
   padding: 34px;
   box-shadow:
-    0 0 0 1px rgba(255, 224, 130, 0.10) inset,
-    0 12px 36px rgba(0, 0, 0, 0.50),
-    0 0 25px rgba(212, 175, 55, 0.08);
+    inset 0 0 0 1px rgba(255, 224, 130, 0.08),
+    0 14px 40px rgba(0, 0, 0, 0.52),
+    0 0 20px rgba(240, 199, 102, 0.10);
 }
 
 .home-page-intro {
