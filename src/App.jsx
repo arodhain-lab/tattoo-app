@@ -2894,19 +2894,21 @@ const goNext = () => {
               }
             />
 
-            <label className="cancel-checkbox">
-              <input
-                type="checkbox"
-                checked={appointmentForm.cancelled || false}
-                onChange={(e) =>
-                  setAppointmentForm({
-                    ...appointmentForm,
-                    cancelled: e.target.checked,
-                  })
-                }
-              />
-             Annulé
-            </label>
+            {editingAppointmentId !== null && (
+              <label className="cancel-checkbox">
+                <input
+                  type="checkbox"
+                  checked={appointmentForm.cancelled || false}
+                  onChange={(e) =>
+                    setAppointmentForm({
+                      ...appointmentForm,
+                      cancelled: e.target.checked,
+                    })
+                  }
+                />
+                Annulé
+              </label>
+            )}
 
             <button onClick={saveAppointment}>
               {editingAppointmentId !== null
