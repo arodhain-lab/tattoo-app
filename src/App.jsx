@@ -2046,10 +2046,6 @@ const goNext = () => {
                           >
                             {isMobile ? (
                               <div className="week-chip-mobile-content">
-                                <div className="week-chip-hour">
-                                  {appointmentItem.title || "Sans type"}
-                                </div>
-
                                 <div className="week-chip-title">
                                   {appointmentItem.project || appointmentItem.title || "Sans titre"}
                                 </div>

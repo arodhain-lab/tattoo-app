@@ -1268,6 +1268,7 @@ button:hover {
   align-items: flex-start;
   gap: 2px;
   width: 100%;
+  overflow: hidden;
 }
 
 .week-chip-hour,
