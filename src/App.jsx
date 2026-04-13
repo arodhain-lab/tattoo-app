@@ -1603,31 +1603,23 @@ const goNext = () => {
 
   return (
     <div className="container">
-      <header className="page-header">
-        <div>
-          <h1>Gestion tatouage</h1>
-          <p className="subtitle">
-            Vue d’ensemble du planning, fiches clients, tatoueurs et rendez-vous
-          </p>
-        </div>
-
-        <div className="small-actions">
-          {page !== "home" && setupComplete && (
+      {page === "home" && (
+        <header className="page-header">
+          <div>
+            <h1>Gestion tatouage</h1>
+            <p className="subtitle">
+              Vue d’ensemble du planning, fiches clients, tatoueurs et rendez-vous
+            </p>
+          </div>
+        </header>
+      )}
+      {page !== "home" && setupComplete && (
+          <div style={{ marginBottom: "16px" }}>
             <button className="back-button" onClick={() => setPage("home")}>
               ← Retour accueil
             </button>
-          )}
-
-          {page !== "home" && (
-            <button
-              className="secondary-button"
-              onClick={() => supabase.auth.signOut()}
-            >
-              Déconnexion
-            </button>
-          )}
-        </div>
-      </header>
+          </div>
+       )}
 
       {!setupComplete && (
         <div className="card" style={{ marginBottom: "16px" }}>
