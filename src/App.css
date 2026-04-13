@@ -1164,7 +1164,7 @@ button:hover {
 .field-header span {
   font-size: 14px;
   font-weight: 700;
-  color: #02404b;
+  color: #f3c76b;
 }
 
 .inline-link-button {
@@ -1173,7 +1173,7 @@ button:hover {
   padding: 0;
   border: none;
   background: transparent;
-  color: #02404b;
+  color: #f3c76b;
   cursor: pointer;
   font-weight: 700;
   white-space: nowrap;
@@ -1462,4 +1462,9 @@ button:hover {
   justify-content: center;
   flex: 1;
   overflow: hidden;
+}
+
+.inline-link-button:hover {
+  text-decoration: underline;
+  color: #ffd36a;
 }
