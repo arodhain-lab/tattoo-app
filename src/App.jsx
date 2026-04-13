@@ -435,6 +435,8 @@ const [quickClientForm, setQuickClientForm] = useState({
   const TOTAL_DAY_MINUTES = (DAY_END_HOUR - DAY_START_HOUR) * 60;
   const DAY_COLUMN_HEIGHT = (DAY_END_HOUR - DAY_START_HOUR) * HOUR_HEIGHT;
 
+  const [showSuccess, setShowSuccess] = useState(false);
+
 
 useEffect(() => {
   supabase.auth.getSession().then(({ data }) => {
@@ -1310,6 +1312,14 @@ if (
   }
 
   await loadSupabaseData();
+
+  setShowSuccess(true);
+
+  setTimeout(() => {
+    setShowSuccess(false);
+    setPage("home");
+  }, 1500);
+
   setSelectedDate(appointmentForm.appointment.slice(0, 10));
   resetAppointmentForm();
 };
@@ -1542,6 +1552,14 @@ const goNext = () => {
       </div>
     );
   }
+
+  {showSuccess && (
+        <div className="success-overlay">
+          <div className="success-box">
+            ✔ Rendez-vous enregistré
+          </div>
+        </div>
+      )}
 
   if (!session) {
     return <Auth />;
