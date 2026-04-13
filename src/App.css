@@ -992,19 +992,26 @@ button:hover {
   width: 100%;
 }
 
+.week-chip-hour {
+  font-size: 0.66rem;
+  line-height: 1.1;
+  opacity: 0.9;
+  display: block;
+  width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  margin-bottom: 2px;
+}
+
 .week-chip-title {
   font-size: 0.72rem;
   font-weight: 700;
-  line-height: 1.15;
+  line-height: 1.1;
+  width: 100%;
   overflow: hidden;
   text-overflow: ellipsis;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  line-clamp: 2;
-  -webkit-box-orient: vertical;
-  white-space: normal;
-  flex: 1;
-  min-width: 0;
+  white-space: nowrap;
 }
 
 .week-chip-price {
@@ -1012,12 +1019,9 @@ button:hover {
   flex-shrink: 0;
   font-size: 0.68rem;
   font-weight: 700;
-}
-
-.week-chip-hour {
-  font-size: 0.66rem;
-  line-height: 1.1;
-  opacity: 0.9;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: 100%;
 }
 
 .cancel-checkbox {
