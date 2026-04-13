@@ -1636,3 +1636,34 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   filter: brightness(0) saturate(100%) invert(78%) sepia(52%) saturate(580%) hue-rotate(356deg) brightness(102%) contrast(96%);
   cursor: pointer;
 }
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 10px;
+}
+
+.input-label {
+  font-size: 14px;
+  font-weight: 700;
+  color: #f3c76b;
+}
+
+.input-with-suffix {
+  position: relative;
+}
+
+.price-input {
+  padding-right: 40px;
+}
+
+.input-suffix {
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #f3c76b;
+  font-weight: 700;
+  pointer-events: none;
+}

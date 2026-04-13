@@ -2811,19 +2811,26 @@ const goNext = () => {
               }
             />
 
-            <input
-              type="number"
-              min="0"
-              step="0.01"
-              placeholder="Tarif en euros"
-              value={appointmentForm.price}
-              onChange={(e) =>
-                setAppointmentForm({
-                  ...appointmentForm,
-                  price: e.target.value,
-                })
-              }
-            />
+            <div className="form-field">
+              <label className="input-label">Montant</label>
+
+              <div className="input-with-suffix">
+                <input
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  value={appointmentForm.price}
+                  onChange={(e) =>
+                    setAppointmentForm({
+                      ...appointmentForm,
+                      price: e.target.value,
+                    })
+                  }
+                  className="price-input"
+                />
+                <span className="input-suffix">€</span>
+              </div>
+            </div>
 
             <div className="duration-row">
               <input
