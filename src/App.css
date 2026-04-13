@@ -1,8 +1,10 @@
 body {
   margin: 0;
   font-family: Arial, sans-serif;
-  background: #e2f4f8;
-  color: #01333a;
+  background:
+    radial-gradient(circle at top, rgba(212, 175, 55, 0.12), transparent 35%),
+    linear-gradient(180deg, #060606 0%, #0b0b0b 100%);
+  color: #f1d288;
 }
 
 * {
@@ -10,9 +12,9 @@ body {
 }
 
 .container {
-  max-width: 1380px;
+  max-width: 1200px;
   margin: 0 auto;
-  padding: 24px;
+  padding: 28px;
 }
 
 .page-header {
@@ -24,13 +26,28 @@ body {
 }
 
 h1 {
-  margin: 0 0 6px 0;
-  font-size: 50px;
+  margin: 0 0 10px 0;
+  font-size: 64px;
+  font-weight: 700;
+  color: #f3c76b;
+  letter-spacing: -1px;
 }
 
 h2 {
-  margin-top: 1px;
+  margin-top: 0;
   font-size: 50px;
+  color: #f3c76b;
+}
+
+.subtitle {
+  margin: 0;
+  color: #cfa85a;
+  font-size: 20px;
+}
+
+.muted-text {
+  margin: 6px 0 0 0;
+  color: #b9934a;
 }
 
 h3,
@@ -49,10 +66,15 @@ h4 {
 }
 
 .card {
-  background: #fff;
-  border-radius: 16px;
-  padding: 20px;
-  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.08);
+  background:
+    linear-gradient(180deg, rgba(20, 20, 20, 0.98) 0%, rgba(9, 9, 9, 0.98) 100%);
+  border-radius: 34px;
+  padding: 28px;
+  border: 2px solid rgba(212, 175, 55, 0.75);
+  box-shadow:
+    0 0 0 1px rgba(255, 217, 102, 0.12) inset,
+    0 8px 30px rgba(0, 0, 0, 0.45),
+    0 0 24px rgba(212, 175, 55, 0.08);
 }
 
 .inner-card {
@@ -924,14 +946,15 @@ button:hover {
   bottom: 20px;
   right: 20px;
   z-index: 9999;
-
-  background: #004a57;
-  color: white;
-  border: none;
+  background: #0a0a0a;
+  color: #f1d288;
+  border: 1px solid #d4af37;
   padding: 14px 28px;
-  border-radius: 12px;
+  border-radius: 14px;
   cursor: pointer;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+  box-shadow:
+    0 8px 20px rgba(0, 0, 0, 0.45),
+    0 0 14px rgba(212, 175, 55, 0.12);
 }
 
 @media (max-width: 768px) {
@@ -1172,51 +1195,68 @@ button:hover {
 
 .home-menu-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 16px;
-  margin-top: 20px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 22px;
+  margin-top: 30px;
   align-items: stretch;
 }
 
 .home-menu-button {
-  min-height: 150px;
-  border-radius: 18px;
-  border: 1px solid #d9d9d9;
-  background: #ffffff;
-  padding: 22px 18px;
+  min-height: 250px;
+  border-radius: 28px;
+  border: 2px solid rgba(212, 175, 55, 0.75);
+  background:
+    linear-gradient(180deg, rgba(20, 20, 20, 0.98) 0%, rgba(8, 8, 8, 0.98) 100%);
+  padding: 26px;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  justify-content: flex-start;
+  justify-content: space-between;
   text-align: left;
   cursor: pointer;
-  transition: 0.2s ease;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 224, 130, 0.08),
+    0 8px 24px rgba(0, 0, 0, 0.35);
+  color: #f1d288;
 }
 
 .home-menu-button:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+  transform: translateY(-4px);
+  border-color: #f0c766;
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 224, 130, 0.12),
+    0 12px 28px rgba(0, 0, 0, 0.45),
+    0 0 18px rgba(212, 175, 55, 0.12);
 }
 
 .home-menu-primary {
-  border: 2px solid #02404b;
+  border: 3px solid #f0c766;
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 224, 130, 0.16),
+    0 10px 30px rgba(0, 0, 0, 0.48),
+    0 0 22px rgba(212, 175, 55, 0.18);
 }
 
 .home-menu-icon {
-  font-size: 32px;
+  font-size: 34px;
   line-height: 1;
-  margin-bottom: 14px;
+  margin-bottom: 18px;
+  filter: drop-shadow(0 0 8px rgba(212, 175, 55, 0.22));
 }
 
 .home-menu-title {
-  font-size: 20px;
+  font-size: 28px;
   font-weight: 700;
-  margin-bottom: 6px;
+  margin-bottom: 10px;
+  color: #f3c76b;
+  line-height: 1.15;
 }
 
 .home-menu-subtitle {
-  font-size: 14px;
-  color: #666;
+  font-size: 15px;
+  color: #d2ae63;
+  line-height: 1.45;
 }
 
 .stats-grid {
@@ -1247,32 +1287,31 @@ button:hover {
 }
 
 @media (max-width: 768px) {
-  .home-menu-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 10px;
-  }
+.home-menu-grid {
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
 
-  .home-menu-button {
-    min-height: 118px;
-    padding: 12px;
-    border-radius: 14px;
-  }
+.home-menu-button {
+  min-height: 180px;
+  padding: 16px;
+  border-radius: 20px;
+}
 
-  .home-menu-icon {
-    font-size: 24px;
-    margin-bottom: 8px;
-  }
+.home-menu-icon {
+  font-size: 26px;
+  margin-bottom: 10px;
+}
 
-  .home-menu-title {
-    font-size: 15px;
-    margin-bottom: 4px;
-    line-height: 1.2;
-  }
+.home-menu-title {
+  font-size: 18px;
+  margin-bottom: 6px;
+  line-height: 1.2;
+}
 
-  .home-menu-subtitle {
-    font-size: 12px;
-    line-height: 1.25;
-  }
+.home-menu-subtitle {
+  font-size: 12px;
+  line-height: 1.35;
 }
 
 .btn-add-rdv {
@@ -1336,37 +1375,64 @@ button:hover {
 }
 
 .home-menu-icon-image img {
-  width: 34px;
-  height: 34px;
+  width: 54px;
+  height: 54px;
   object-fit: contain;
   display: block;
+  filter: drop-shadow(0 0 10px rgba(212, 175, 55, 0.20));
 }
 
 .home-menu-logo-button {
-  padding: 0;
+  padding: 22px;
   overflow: hidden;
   display: flex;
-  align-items: stretch;
-  justify-content: stretch;
-  background: #ffffff;
+  align-items: center;
+  justify-content: center;
+  background:
+    radial-gradient(circle at center, rgba(255, 214, 102, 0.10), transparent 60%),
+    linear-gradient(180deg, #121212 0%, #050505 100%);
+  border-radius: 26px;
 }
 
 .home-menu-full-logo {
   width: 100%;
-  height: 100%;
+  max-width: 230px;
+  height: auto;
   display: block;
-  object-fit: cover;
-  border-radius: 16px;
+  object-fit: contain;
+  border-radius: 22px;
+  box-shadow:
+    0 0 0 1px rgba(255, 224, 130, 0.08),
+    0 8px 18px rgba(0, 0, 0, 0.35);
 }
 
-.home-menu-logo-button {
-  padding: 0;
-  overflow: hidden;
+
+.home-screen-card {
+  background:
+    radial-gradient(circle at top center, rgba(255, 215, 120, 0.10), transparent 18%),
+    linear-gradient(180deg, #111111 0%, #070707 100%);
+  border: 2px solid #d4af37;
+  border-radius: 36px;
+  padding: 34px;
+  box-shadow:
+    0 0 0 1px rgba(255, 224, 130, 0.10) inset,
+    0 12px 36px rgba(0, 0, 0, 0.50),
+    0 0 25px rgba(212, 175, 55, 0.08);
 }
 
-.home-menu-full-logo {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
+.home-page-intro {
+  margin-bottom: 22px;
+}
+
+.home-page-intro p {
+  font-size: 16px;
+  color: #c7a45b;
+  margin: 0 0 24px 0;
+}
+
+.home-section-title {
+  color: #f3c76b;
+  font-size: 22px;
+  font-weight: 600;
+  margin-bottom: 10px;
 }
