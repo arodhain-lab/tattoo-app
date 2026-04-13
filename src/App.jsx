@@ -1666,57 +1666,67 @@ const goNext = () => {
         className="home-menu-button home-menu-primary home-menu-logo-button"
         onClick={() => setPage("appointments")}
       >
-        <img
-          src="/icons/add-rdv.png"
-          alt="Ajouter un rendez-vous"
-          className="home-menu-full-logo"
-        />
+        <div className="home-menu-logo-wrap">
+          <img
+            src="/icons/add-rdv.png"
+            alt="Ajouter un rendez-vous"
+            className="home-menu-full-logo"
+          />
+        </div>
       </button>
 
       <button
         className="home-menu-button home-menu-primary home-menu-logo-button"
         onClick={() => setPage("agenda")}
       >
-        <img
-          src="/icons/agenda.png"
-          alt="Agenda"
-          className="home-menu-full-logo"
-        />
+        <div className="home-menu-logo-wrap">
+          <img
+            src="/icons/agenda.png"
+            alt="Agenda"
+            className="home-menu-full-logo"
+          />
+        </div>
       </button>
 
       <button
         className="home-menu-button home-menu-primary home-menu-logo-button"
         onClick={() => setPage("revenue")}
       >
-        <img
-          src="/icons/ca.png"
-          alt="Chiffre d'affaires"
-          className="home-menu-full-logo"
-        />
+        <div className="home-menu-logo-wrap">
+          <img
+            src="/icons/ca.png"
+            alt="Chiffre d'affaires"
+            className="home-menu-full-logo"
+          />
+        </div>
       </button>
 
       <button
         className="home-menu-button home-menu-primary home-menu-logo-button"
         onClick={() => setPage("stats")}
       >
-        <img
-          src="/icons/statistiques.png"
-          alt="Statistiques"
-          className="home-menu-full-logo"
-        />
+        <div className="home-menu-logo-wrap">
+          <img
+            src="/icons/statistiques.png"
+            alt="Statistiques"
+            className="home-menu-full-logo"
+          />
+        </div>
       </button>
 
       <button
         className="home-menu-button home-menu-primary home-menu-logo-button"
         onClick={() => setPage("settings")}
       >
-        <img
-          src="/icons/settings.png"
-          alt="Paramètres"
-          className="home-menu-full-logo"
-        />
+        <div className="home-menu-logo-wrap">
+          <img
+            src="/icons/settings.png"
+            alt="Paramètres"
+            className="home-menu-full-logo"
+          />
+        </div>
       </button>
-    </div>
+          </div>
 
     <div
       style={{
