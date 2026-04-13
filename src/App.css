@@ -373,6 +373,16 @@ select {
     0 0 10px rgba(255, 180, 40, 0.05);
 }
 
+select {
+  background-color: #0a0a0a;
+  color: #fff1cc;
+}
+
+select option {
+  background-color: #0a0a0a;
+  color: #fff1cc;
+}
+
 input::placeholder,
 textarea::placeholder {
   color: #b9924b;
