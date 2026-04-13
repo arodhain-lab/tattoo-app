@@ -1159,15 +1159,8 @@ button:hover {
   gap: 10px;
   margin-top: 10px;
   margin-bottom: 6px;
-}
-
-.field-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 10px;
-  margin-top: 10px;
-  margin-bottom: 6px;
+  border: none;
+  padding: 6px;
 }
 
 .field-header,
@@ -1196,6 +1189,23 @@ button:hover {
 .field-header a:hover {
   color: #ffd36a !important;
   text-decoration: underline;
+}
+
+.inline-link-button {
+  width: auto;
+  margin-top: 0;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: #f3c76b;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.field-header-label {
+  font-size: 14px;
+  font-weight: 700;
+  color: #f3c76b;
 }
 
 .home-menu-grid {

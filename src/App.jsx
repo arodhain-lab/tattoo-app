@@ -2613,34 +2613,13 @@ const goNext = () => {
                 : "Créer un rendez-vous"}
             </h2>
 
-<div
-  style={{
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginTop: "10px",
-    marginBottom: "6px",
-    border: "none",
-    padding: "6px",
-  }}
->
-  <span style={{ fontSize: "14px", fontWeight: "700", color: "#02404b" }}>
-    Client
-  </span>
+<div className="field-header">
+  <span className="field-header-label">Client</span>
 
   <button
     type="button"
+    className="inline-link-button"
     onClick={() => setShowQuickClientForm((prev) => !prev)}
-    style={{
-      width: "auto",
-      marginTop: 0,
-      padding: 0,
-      border: "none",
-      background: "transparent",
-      color: "#02404b",
-      fontWeight: "700",
-      cursor: "pointer",
-    }}
   >
     {showQuickClientForm ? "Fermer" : "+ Nouveau client"}
   </button>
