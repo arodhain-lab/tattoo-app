@@ -2819,7 +2819,6 @@ const goNext = () => {
                   type="number"
                   min="0"
                   step="0.01"
-                  placeholder="Tarif en euros"
                   value={appointmentForm.price}
                   onChange={(e) =>
                     setAppointmentForm({
@@ -2834,32 +2833,38 @@ const goNext = () => {
             </div>
 
             <div className="duration-row">
-              <input
-                type="number"
-                min="0"
-                placeholder="Heures"
-                value={appointmentForm.durationHours}
-                onChange={(e) =>
-                  setAppointmentForm({
-                    ...appointmentForm,
-                    durationHours: e.target.value,
-                  })
-                }
-              />
+              <div className="input-with-suffix">
+                <input
+                  type="number"
+                  min="0"
+                  value={appointmentForm.durationHours}
+                  onChange={(e) =>
+                    setAppointmentForm({
+                      ...appointmentForm,
+                      durationHours: e.target.value,
+                    })
+                  }
+                  className="price-input"
+                />
+                <span className="input-suffix">H</span>
+              </div>
 
-              <input
-                type="number"
-                min="0"
-                max="59"
-                placeholder="Minutes"
-                value={appointmentForm.durationMinutes}
-                onChange={(e) =>
-                  setAppointmentForm({
-                    ...appointmentForm,
-                    durationMinutes: e.target.value,
-                  })
-                }
-              />
+              <div className="input-with-suffix">
+                <input
+                  type="number"
+                  min="0"
+                  max="59"
+                  value={appointmentForm.durationMinutes}
+                  onChange={(e) =>
+                    setAppointmentForm({
+                      ...appointmentForm,
+                      durationMinutes: e.target.value,
+                    })
+                  }
+                  className="price-input"
+                />
+                <span className="input-suffix">min</span>
+              </div>
             </div>
 
             <textarea
