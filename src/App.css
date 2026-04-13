@@ -1161,26 +1161,40 @@ button:hover {
   margin-bottom: 6px;
 }
 
-.field-header span {
-  font-size: 14px;
-  font-weight: 700;
-  color: #f3c76b;
+.field-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  margin-top: 10px;
+  margin-bottom: 6px;
 }
 
-.inline-link-button {
+.field-header,
+.field-header label,
+.field-header span,
+.field-header p,
+.field-header button,
+.field-header a {
+  color: #f3c76b !important;
+}
+
+.field-header button,
+.field-header a {
   width: auto;
   margin-top: 0;
   padding: 0;
   border: none;
   background: transparent;
-  color: #f3c76b;
   cursor: pointer;
   font-weight: 700;
   white-space: nowrap;
   flex-shrink: 0;
 }
 
-.inline-link-button:hover {
+.field-header button:hover,
+.field-header a:hover {
+  color: #ffd36a !important;
   text-decoration: underline;
 }
 
