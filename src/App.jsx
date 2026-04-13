@@ -2819,6 +2819,7 @@ const goNext = () => {
                   type="number"
                   min="0"
                   step="0.01"
+                  placeholder="Tarif en euros"
                   value={appointmentForm.price}
                   onChange={(e) =>
                     setAppointmentForm({
