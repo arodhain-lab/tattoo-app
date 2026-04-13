@@ -1553,14 +1553,6 @@ const goNext = () => {
     );
   }
 
-  {showSuccess && (
-        <div className="success-overlay">
-          <div className="success-box">
-            ✔ Rendez-vous enregistré
-          </div>
-        </div>
-      )}
-
   if (!session) {
     return <Auth />;
   }
@@ -1619,8 +1611,16 @@ const goNext = () => {
     );
   }
 
-  return (
+    return (
     <div className="container">
+      {showSuccess && (
+        <div className="success-overlay">
+          <div className="success-box">
+            ✔ RDV enregistré
+          </div>
+        </div>
+      )}
+
       {page === "home" && (
         <header className="page-header">
           <div>
