@@ -980,6 +980,8 @@ button:hover {
   justify-content: flex-start;
   align-items: flex-start;
   min-height: 20px;
+
+  background-image: none;
 }
 
 .week-chip-topline {
