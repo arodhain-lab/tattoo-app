@@ -2168,13 +2168,13 @@ const goNext = () => {
 
                     <div className="month-cell-body">
                       {items.slice(0, 3).map((appointmentItem) => (
-                        <button
+                        <div
                           key={appointmentItem.id}
-                          type="button"
                           className={`month-mini-item month-mini-item-colored ${appointmentItem.cancelled ? "cancelled-appointment" : ""}`}
                           style={{
-                           borderLeftColor: appointmentItem.artistColor,
+                            borderLeftColor: appointmentItem.artistColor,
                             backgroundColor: appointmentItem.cancelled ? "#d3d3d3" : "",
+                            cursor: "pointer",
                           }}
                           onClick={(e) => {
                             e.stopPropagation();
@@ -2184,7 +2184,7 @@ const goNext = () => {
                           <div className="month-mini-project">
                             {formatTimeOnly(appointmentItem.appointment)} — {appointmentItem.project}
                           </div>
-                        </button>
+                        </div>
                       ))}
                     </div>
                   </button>
