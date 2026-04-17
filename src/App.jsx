@@ -352,12 +352,23 @@ export default function App() {
   const [checkingSetup, setCheckingSetup] = useState(true);
   const [setupComplete, setSetupComplete] = useState(false);
   const [page, setPage] = useState("home");
+  const [selectedAppointmentId, setSelectedAppointmentId] = useState(null);
   const [data, setData] = useState({
     clients: [],
     appointments: [],
     artists: [],
     appointmentTypes: ["TATTOO", "PIERCING", "VENTE", "ACOMPTE"],
   });
+
+ const openAppointmentDetails = (appointmentItem) => {
+  setSelectedAppointmentId(appointmentItem.id);
+
+  if (appointmentItem.appointment) {
+    setSelectedDate(appointmentItem.appointment.slice(0, 10));
+  }
+
+  setPage("appointment-details");
+};
 
 const evaluateSetup = (artistsList, servicesList) => {
   const hasArtists = (artistsList || []).length > 0;
@@ -761,6 +772,14 @@ const revenueStats = useMemo(() => {
   let scopedAppointments = appointmentsWithClient.filter(
     (item) => item.appointment && !item.cancelled
   );
+
+const selectedAppointmentDetails = useMemo(() => {
+  if (selectedAppointmentId === null) return null;
+
+  return appointmentsWithClient.find(
+    (appointmentItem) => String(appointmentItem.id) === String(selectedAppointmentId)
+  ) || null;
+}, [selectedAppointmentId, appointmentsWithClient]);
 
   if (revenueArtistFilter !== "all") {
     scopedAppointments = scopedAppointments.filter(
@@ -1402,13 +1421,18 @@ const deleteAppointment = async (appointmentId) => {
         return;
       }
 
-      await loadSupabaseData();
+            await loadSupabaseData();
 
-      if (editingAppointmentId === appointmentId) {
-        resetAppointmentForm();
-      }
+                  if (editingAppointmentId === appointmentId) {
+                    resetAppointmentForm();
+                  }
 
-      return;
+                  if (String(selectedAppointmentId) === String(appointmentId)) {
+                    setSelectedAppointmentId(null);
+                    setPage("agenda");
+                  }
+
+                  return;
     }
 
     const confirmDeleteOnlyAppointment = window.confirm(
@@ -1428,13 +1452,18 @@ const deleteAppointment = async (appointmentId) => {
       return;
     }
 
-    await loadSupabaseData();
+        await loadSupabaseData();
 
-    if (editingAppointmentId === appointmentId) {
-      resetAppointmentForm();
-    }
+            if (editingAppointmentId === appointmentId) {
+              resetAppointmentForm();
+            }
 
-    return;
+            if (String(selectedAppointmentId) === String(appointmentId)) {
+              setSelectedAppointmentId(null);
+              setPage("agenda");
+            }
+
+            return;
   }
 
   const confirmDelete = window.confirm(
@@ -1454,10 +1483,15 @@ const deleteAppointment = async (appointmentId) => {
     return;
   }
 
-  await loadSupabaseData();
+    await loadSupabaseData();
 
   if (editingAppointmentId === appointmentId) {
     resetAppointmentForm();
+  }
+
+  if (String(selectedAppointmentId) === String(appointmentId)) {
+    setSelectedAppointmentId(null);
+    setPage("agenda");
   }
 };
 
@@ -1877,13 +1911,15 @@ const goNext = () => {
               <p>Aucun rendez-vous pour cette date.</p>
             ) : (
               selectedDayAppointments.map((appointmentItem) => (
-                <div
+                <button
                   key={appointmentItem.id}
+                type="button"
                   className={`agenda-item artist-bordered ${appointmentItem.cancelled ? "cancelled-appointment" : ""}`}
                   style={{
                     borderLeftColor: appointmentItem.artistColor,
                     backgroundColor: appointmentItem.cancelled ? "#d3d3d3" : "",
                   }}
+                  onClick={() => openAppointmentDetails(appointmentItem)}
                 >
                   <div className="agenda-item-time">
                     {formatTimeOnly(appointmentItem.appointment)}
@@ -1914,7 +1950,7 @@ const goNext = () => {
                         .join(" | ") || "Aucune note"}
                     </p>
                   </div>
-                </div>
+                </button>
               ))
             )}
           </div>
@@ -2042,7 +2078,7 @@ const goNext = () => {
                                 ? "#d3d3d3"
                                 : appointmentItem.artistColor,
                             }}
-                            onClick={() => editAppointment(appointmentItem)}
+                            onClick={() => openAppointmentDetails(appointmentItem)}
                           >
                             {isMobile ? (
                               <div className="week-chip-mobile-content">
@@ -2132,18 +2168,23 @@ const goNext = () => {
 
                     <div className="month-cell-body">
                       {items.slice(0, 3).map((appointmentItem) => (
-                        <div
+                        <button
                           key={appointmentItem.id}
+                          type="button"
                           className={`month-mini-item month-mini-item-colored ${appointmentItem.cancelled ? "cancelled-appointment" : ""}`}
                           style={{
-                            borderLeftColor: appointmentItem.artistColor,
+                           borderLeftColor: appointmentItem.artistColor,
                             backgroundColor: appointmentItem.cancelled ? "#d3d3d3" : "",
+                          }}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            openAppointmentDetails(appointmentItem);
                           }}
                         >
                           <div className="month-mini-project">
                             {formatTimeOnly(appointmentItem.appointment)} — {appointmentItem.project}
                           </div>
-                        </div>
+                        </button>
                       ))}
                     </div>
                   </button>
@@ -2608,6 +2649,93 @@ const goNext = () => {
       </div>
     </section>
   </div>
+)}
+
+{page === "appointment-details" && setupComplete && selectedAppointmentDetails && (
+  <section className="card">
+    <h2>Détail du rendez-vous</h2>
+
+    <div
+      className={`client-box artist-bordered ${
+        selectedAppointmentDetails.cancelled ? "cancelled-appointment" : ""
+      }`}
+      style={{
+        borderLeftColor: selectedAppointmentDetails.artistColor,
+        backgroundColor: selectedAppointmentDetails.cancelled ? "#d3d3d3" : "",
+      }}
+    >
+      <h3>{selectedAppointmentDetails.clientName}</h3>
+
+      <p><strong>Tatoueur :</strong> {selectedAppointmentDetails.artistName}</p>
+
+      <p><strong>Type de prestation :</strong> {selectedAppointmentDetails.title || "Sans titre"}</p>
+
+      <p><strong>Projet :</strong> {selectedAppointmentDetails.project || "Non renseigné"}</p>
+
+      <p><strong>Date :</strong> {formatDateTime(selectedAppointmentDetails.appointment)}</p>
+
+      <p>
+        <strong>Tarif :</strong>{" "}
+        {selectedAppointmentDetails.price !== ""
+          ? formatCurrency(getDisplayedPrice(selectedAppointmentDetails, appointments))
+          : "Non renseigné"}
+      </p>
+
+      <p>
+        <strong>Durée estimée :</strong>{" "}
+        {formatDuration(
+          selectedAppointmentDetails.durationHours,
+          selectedAppointmentDetails.durationMinutes
+        )}
+      </p>
+
+      <p>
+        <strong>Statut :</strong>{" "}
+        {selectedAppointmentDetails.cancelled ? "Annulé" : "Actif"}
+      </p>
+
+      {selectedAppointmentDetails.title === ACOMPTE_TYPE && (
+        <>
+          <p>
+            <strong>Mode de paiement :</strong>{" "}
+            {selectedAppointmentDetails.paymentMethod || "Non renseigné"}
+          </p>
+          <p>
+            <strong>Date de versement :</strong>{" "}
+            {selectedAppointmentDetails.paymentDate
+              ? formatDateOnly(selectedAppointmentDetails.paymentDate)
+              : "Non renseignée"}
+          </p>
+          <p>
+            <strong>Rendez-vous lié :</strong>{" "}
+            {appointmentsWithClient.find(
+              (item) =>
+                String(item.id) === String(selectedAppointmentDetails.linkedAppointmentId)
+            )?.project || "Non renseigné"}
+          </p>
+        </>
+      )}
+
+      <p>
+        <strong>Notes :</strong>{" "}
+        {[selectedAppointmentDetails.notes, buildSystemDepositNotes(appointments, selectedAppointmentDetails)]
+          .filter(Boolean)
+          .join(" | ") || "Aucune note"}
+      </p>
+    </div>
+
+    <div className="action-buttons" style={{ marginTop: "20px" }}>
+      <button onClick={() => editAppointment(selectedAppointmentDetails)}>
+        Modifier
+      </button>
+
+      <button
+        onClick={() => deleteAppointment(selectedAppointmentDetails.id)}
+      >
+        Supprimer
+      </button>
+    </div>
+  </section>
 )}
 
       {page === "appointments" && setupComplete && (

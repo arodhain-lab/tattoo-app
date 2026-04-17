@@ -1727,3 +1727,26 @@ input[type="date"]::-webkit-calendar-picker-indicator {
     opacity: 1;
   }
 }
+
+.agenda-item,
+.month-mini-item {
+  cursor: pointer;
+}
+
+.agenda-item {
+  width: 100%;
+  border: none;
+  text-align: left;
+}
+
+.month-mini-item {
+  width: 100%;
+  border: none;
+  text-align: left;
+}
+
+.agenda-item,
+.month-mini-item,
+.week-appointment-block {
+  font: inherit;
+}
