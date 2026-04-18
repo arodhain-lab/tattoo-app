@@ -1832,18 +1832,8 @@ const goNext = () => {
       }}
     >
       <button
+        className="logout-button"
         onClick={() => supabase.auth.signOut()}
-        style={{
-          width: "auto",
-          minWidth: "160px",
-          marginTop: 0,
-          padding: "12px 20px",
-          borderRadius: "10px",
-          border: "none",
-          background: "#02404b",
-          color: "#fff",
-          cursor: "pointer",
-        }}
       >
         Déconnexion
       </button>
