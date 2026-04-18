@@ -1750,6 +1750,19 @@ const goNext = () => {
 
       <button
         className="home-menu-button home-menu-primary home-menu-logo-button"
+        onClick={() => setPage("clients")}
+      >
+        <div className="home-menu-logo-wrap">
+          <img
+            src="/icons/fiches-clients.png"
+            alt="Fiches clients"
+            className="home-menu-full-logo"
+          />
+        </div>
+      </button>
+
+      <button
+        className="home-menu-button home-menu-primary home-menu-logo-button"
         onClick={() => setPage("stats")}
       >
         <div className="home-menu-logo-wrap">
