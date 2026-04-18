@@ -768,18 +768,21 @@ const [
     }).format(monthDate);
   }, [selectedDate]);
 
+const selectedAppointmentDetails = useMemo(() => {
+  if (selectedAppointmentId === null) return null;
+
+  return (
+    appointmentsWithClient.find(
+      (appointmentItem) =>
+        String(appointmentItem.id) === String(selectedAppointmentId)
+    ) || null
+  );
+}, [selectedAppointmentId, appointmentsWithClient]);
+
 const revenueStats = useMemo(() => {
   let scopedAppointments = appointmentsWithClient.filter(
     (item) => item.appointment && !item.cancelled
   );
-
-const selectedAppointmentDetails = useMemo(() => {
-  if (selectedAppointmentId === null) return null;
-
-  return appointmentsWithClient.find(
-    (appointmentItem) => String(appointmentItem.id) === String(selectedAppointmentId)
-  ) || null;
-}, [selectedAppointmentId, appointmentsWithClient]);
 
   if (revenueArtistFilter !== "all") {
     scopedAppointments = scopedAppointments.filter(
