@@ -121,6 +121,13 @@ function formatClientName(client) {
   return `${client.firstName || ""} ${client.lastName || ""}`.trim() || "Sans nom";
 }
 
+function normalizeString(str) {
+  return (str || "")
+    .normalize("NFD") // décompose les accents
+    .replace(/[\u0300-\u036f]/g, "") // supprime les accents
+    .toLowerCase();
+}
+
 function formatDuration(hours, minutes) {
   const h = Number(hours) || 0;
   const m = Number(minutes) || 0;
@@ -614,37 +621,35 @@ const [
   }, [appointments, clients, artists]);
 
   const filteredClients = useMemo(() => {
-    const q = clientSearch.toLowerCase().trim();
+    const q = normalizeString(clientSearch.trim());
     if (!q) return clients;
 
     return clients.filter((client) =>
-      [client.lastName, client.firstName, client.phone, client.notes]
-        .join(" ")
-        .toLowerCase()
-        .includes(q)
+      normalizeString(
+        [client.lastName, client.firstName, client.phone, client.notes].join(" ")
+      ).includes(q)
     );
   }, [clients, clientSearch]);
 
   const filteredAppointments = useMemo(() => {
-    const q = appointmentSearch.toLowerCase().trim();
+    const q = normalizeString(appointmentSearch.trim());
     if (!q) return appointmentsWithClient;
 
     return appointmentsWithClient.filter((appointmentItem) =>
-      [
-        appointmentItem.clientName,
-        appointmentItem.clientPhone,
-        appointmentItem.artistName,
-        appointmentItem.title,
-        appointmentItem.project,
-        appointmentItem.notes,
-        appointmentItem.appointment,
-        appointmentItem.price,
-        appointmentItem.durationHours,
-        appointmentItem.durationMinutes,
-      ]
-        .join(" ")
-        .toLowerCase()
-        .includes(q)
+      normalizeString(
+        [
+          appointmentItem.clientName,
+          appointmentItem.clientPhone,
+          appointmentItem.artistName,
+          appointmentItem.title,
+          appointmentItem.project,
+          appointmentItem.notes,
+          appointmentItem.appointment,
+          appointmentItem.price,
+          appointmentItem.durationHours,
+          appointmentItem.durationMinutes,
+        ].join(" ")
+      ).includes(q)
     );
   }, [appointmentsWithClient, appointmentSearch]);
 
