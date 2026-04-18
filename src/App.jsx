@@ -353,6 +353,7 @@ export default function App() {
   const [setupComplete, setSetupComplete] = useState(false);
   const [page, setPage] = useState("home");
   const [selectedAppointmentId, setSelectedAppointmentId] = useState(null);
+  const [selectedClientId, setSelectedClientId] = useState(null);
   const [data, setData] = useState({
     clients: [],
     appointments: [],
@@ -368,6 +369,11 @@ export default function App() {
   }
 
   setPage("appointment-details");
+};
+
+const openClientDetails = (client) => {
+  setSelectedClientId(client.id);
+  setPage("client-details");
 };
 
 const evaluateSetup = (artistsList, servicesList) => {
@@ -779,6 +785,14 @@ const selectedAppointmentDetails = useMemo(() => {
   );
 }, [selectedAppointmentId, appointmentsWithClient]);
 
+const selectedClientDetails = useMemo(() => {
+  if (selectedClientId === null) return null;
+
+  return (
+    clients.find((client) => String(client.id) === String(selectedClientId)) || null
+  );
+}, [selectedClientId, clients]);
+
 const revenueStats = useMemo(() => {
   let scopedAppointments = appointmentsWithClient.filter(
     (item) => item.appointment && !item.cancelled
@@ -921,8 +935,18 @@ const resetAppointmentForm = () => {
     }
   }
 
+    const wasEditing = editingClientId !== null;
+  const currentClientId = editingClientId;
+
   await loadSupabaseData();
   resetClientForm();
+
+  if (wasEditing) {
+    setSelectedClientId(currentClientId);
+    setPage("client-details");
+  } else {
+    setPage("clients");
+  }
 };
 
 const saveQuickClient = async () => {
@@ -1133,7 +1157,7 @@ const deleteService = async (serviceName) => {
       notes: client.notes || "",
     });
     setEditingClientId(client.id);
-    setPage("clients");
+    setPage("client-form");
   };
 
 const deleteClient = async (clientId) => {
@@ -1166,6 +1190,11 @@ const deleteClient = async (clientId) => {
   }
 
   await loadSupabaseData();
+    
+  if (String(selectedClientId) === String(clientId)) {
+    setSelectedClientId(null);
+    setPage("clients");
+  }
 
   if (editingClientId === clientId) {
     resetClientForm();
@@ -2351,164 +2380,150 @@ const goNext = () => {
 )}
 
       {page === "clients" && setupComplete && (
-        <div className="grid">
-          <section className="card form-card">
-            <h2>
-              {editingClientId !== null
-                ? "Modifier la fiche client"
-                : "Créer une fiche client"}
-            </h2>
+        <section className="card list-card">
+          <h2>Fiches clients</h2>
 
-            <input
-              type="text"
-              placeholder="Nom"
-              value={clientForm.lastName}
-              onChange={(e) =>
-                setClientForm({ ...clientForm, lastName: e.target.value })
-              }
-            />
-
-            <input
-              type="text"
-              placeholder="Prénom"
-              value={clientForm.firstName}
-              onChange={(e) =>
-                setClientForm({ ...clientForm, firstName: e.target.value })
-              }
-            />
-
-            <input
-              type="text"
-              placeholder="Téléphone"
-              value={clientForm.phone}
-              onChange={(e) =>
-                setClientForm({ ...clientForm, phone: e.target.value })
-              }
-            />
-
-            <textarea
-              placeholder="Notes client"
-              value={clientForm.notes}
-              onChange={(e) =>
-                setClientForm({ ...clientForm, notes: e.target.value })
-              }
-            />
-
-            <button onClick={saveClient}>
-              {editingClientId !== null
-                ? "Enregistrer les modifications"
-                : "Ajouter la fiche client"}
+          <div className="action-buttons" style={{ marginBottom: "16px" }}>
+            <button
+              onClick={() => {
+                resetClientForm();
+                setPage("client-form");
+              }}
+            >
+              + Nouvelle fiche client
             </button>
+          </div>
 
-            {editingClientId !== null && (
-              <button className="secondary-button full-width" onClick={resetClientForm}>
-                Annuler la modification
-              </button>
+          <input
+            type="text"
+            placeholder="Rechercher un client..."
+            value={clientSearch}
+            onChange={(e) => setClientSearch(e.target.value)}
+          />
+
+          <div className="clients-list">
+            {filteredClients.length === 0 ? (
+              <p>Aucun client trouvé.</p>
+            ) : (
+              filteredClients
+                .slice()
+                .sort((a, b) => formatClientName(a).localeCompare(formatClientName(b)))
+                .map((client) => (
+                  <button
+                    key={client.id}
+                    type="button"
+                    className="client-box"
+                    onClick={() => openClientDetails(client)}
+                    style={{
+                      width: "100%",
+                      textAlign: "left",
+                      cursor: "pointer",
+                    }}
+                  >
+                    <h3 style={{ margin: 0 }}>{formatClientName(client)}</h3>
+                  </button>
+                ))
             )}
-          </section>
-
-          <section className="card list-card">
-            <h2>Fiches clients</h2>
-
-            <input
-              type="text"
-              placeholder="Rechercher un client..."
-              value={clientSearch}
-              onChange={(e) => setClientSearch(e.target.value)}
-            />
-
-            <div className="clients-list">
-              {filteredClients.length === 0 ? (
-                <p>Aucun client trouvé.</p>
-              ) : (
-                filteredClients.map((client) => {
-                  const clientAppointments = getClientAppointments(client.id);
-
-                  return (
-                    <div key={client.id} className="client-box">
-                      <h3>{formatClientName(client)}</h3>
-                      <p><strong>Téléphone :</strong> {client.phone || "Non renseigné"}</p>
-                      <p><strong>Notes :</strong> {client.notes || "Aucune note"}</p>
-                      <p><strong>Nombre de projets :</strong> {clientAppointments.length}</p>
-
-                      <div className="action-buttons">
-                        <button onClick={() => editClient(client)}>Modifier</button>
-                        <button onClick={() => toggleClientProjects(client.id)}>
-                          {expandedClientId === client.id
-                            ? "Masquer projets du client"
-                            : "Projets du client"}
-                        </button>
-                        <button
-                          onClick={() => deleteClient(client.id)}
-                          disabled={clientHasAppointments(client.id)}
-                          title={
-                            clientHasAppointments(client.id)
-                              ? "Suppression impossible : ce client a des rendez-vous"
-                              : "Supprimer ce client"
-                          }
-                        >
-                          Supprimer
-                        </button>
-                      </div>
-
-                      {expandedClientId === client.id && (
-                        <div className="projects-history">
-                          <h4>Historique des projets</h4>
-
-                          {clientAppointments.length === 0 ? (
-                            <p>Aucun rendez-vous enregistré pour ce client.</p>
-                          ) : (
-                            clientAppointments.map((appointmentItem) => (
-                              <div
-                                key={appointmentItem.id}
-                                className="history-box artist-bordered"
-                                style={{ borderLeftColor: appointmentItem.artistColor }}
-                              >
-                                <p><strong>Titre :</strong> {appointmentItem.title || "Sans titre"}</p>
-                                <p><strong>Projet :</strong> {appointmentItem.project}</p>
-                                <p><strong>Tatoueur :</strong> {appointmentItem.artistName}</p>
-                                <p><strong>Date :</strong> {formatDateTime(appointmentItem.appointment)}</p>
-                                <p>
-                                  <strong>Tarif :</strong>{" "}
-                                  {appointmentItem.price !== ""
-                                    ? formatCurrency(getDisplayedPrice(appointmentItem, appointments))
-                                    : "Non renseigné"}
-                                </p>
-                                <p>
-                                  <strong>Durée estimée :</strong>{" "}
-                                  {formatDuration(
-                                    appointmentItem.durationHours,
-                                    appointmentItem.durationMinutes
-                                  )}
-                                </p>
-                                <p>
-                                  <strong>Notes :</strong>{" "}
-                                  {[appointmentItem.notes, buildSystemDepositNotes(appointments, appointmentItem)]
-                                    .filter(Boolean)
-                                    .join(" | ") || "Aucune note"}
-                                </p>
-
-                                <div className="action-buttons">
-                                  <button onClick={() => editAppointment(appointmentItem)}>
-                                    Modifier ce rendez-vous
-                                  </button>
-                                  <button onClick={() => deleteAppointment(appointmentItem.id)}>
-                                    Supprimer ce rendez-vous
-                                  </button>
-                                </div>
-                              </div>
-                            ))
-                          )}
-                        </div>
-                      )}
-                    </div>
-                  );
-                })
-              )}
-            </div>
-          </section>
-        </div>
+          </div>
+        </section>
       )}
+
+      {page === "client-details" && setupComplete && selectedClientDetails && (
+  <section className="card">
+    <h2>Détail de la fiche client</h2>
+
+    <div className="client-box">
+      <h3>{formatClientName(selectedClientDetails)}</h3>
+      <p><strong>Nom :</strong> {selectedClientDetails.lastName || "Non renseigné"}</p>
+      <p><strong>Prénom :</strong> {selectedClientDetails.firstName || "Non renseigné"}</p>
+      <p><strong>Téléphone :</strong> {selectedClientDetails.phone || "Non renseigné"}</p>
+      <p><strong>Notes :</strong> {selectedClientDetails.notes || "Aucune note"}</p>
+      <p>
+        <strong>Nombre de rendez-vous liés :</strong>{" "}
+        {getClientAppointments(selectedClientDetails.id).length}
+      </p>
+    </div>
+
+    <div className="action-buttons" style={{ marginTop: "20px" }}>
+      <button onClick={() => editClient(selectedClientDetails)}>
+        Modifier
+      </button>
+
+      <button
+        onClick={() => deleteClient(selectedClientDetails.id)}
+        disabled={clientHasAppointments(selectedClientDetails.id)}
+        title={
+          clientHasAppointments(selectedClientDetails.id)
+            ? "Suppression impossible : ce client a des rendez-vous"
+            : "Supprimer cette fiche client"
+        }
+      >
+        Supprimer
+      </button>
+    </div>
+  </section>
+)}
+
+{page === "client-form" && setupComplete && (
+  <section className="card form-card">
+    <h2>
+      {editingClientId !== null
+        ? "Modifier la fiche client"
+        : "Créer une fiche client"}
+    </h2>
+
+    <input
+      type="text"
+      placeholder="Nom"
+      value={clientForm.lastName}
+      onChange={(e) =>
+        setClientForm({ ...clientForm, lastName: e.target.value })
+      }
+    />
+
+    <input
+      type="text"
+      placeholder="Prénom"
+      value={clientForm.firstName}
+      onChange={(e) =>
+        setClientForm({ ...clientForm, firstName: e.target.value })
+      }
+    />
+
+    <input
+      type="text"
+      placeholder="Téléphone"
+      value={clientForm.phone}
+      onChange={(e) =>
+        setClientForm({ ...clientForm, phone: e.target.value })
+      }
+    />
+
+    <textarea
+      placeholder="Notes client"
+      value={clientForm.notes}
+      onChange={(e) =>
+        setClientForm({ ...clientForm, notes: e.target.value })
+      }
+    />
+
+    <button onClick={saveClient}>
+      {editingClientId !== null
+        ? "Enregistrer les modifications"
+        : "Ajouter la fiche client"}
+    </button>
+
+    <button
+      className="secondary-button full-width"
+      onClick={() => {
+        resetClientForm();
+        setPage(editingClientId !== null ? "client-details" : "clients");
+      }}
+    >
+      Annuler
+    </button>
+  </section>
+)}
 
       {page === "artists" && (
         <div className="grid">
