@@ -2232,11 +2232,6 @@ const goNext = () => {
                       )}
                     </div>
 
-                      {items.length > 0 && (
-                        <span className="month-count">{items.length}</span>
-                      )}
-                    </div>
-
                     {specialDayInfo && (
                       <div className="month-special-label">{specialDayInfo.label}</div>
                     )}
@@ -2245,7 +2240,9 @@ const goNext = () => {
                       {items.slice(0, 3).map((appointmentItem) => (
                         <div
                           key={appointmentItem.id}
-                          className={`month-mini-item month-mini-item-colored ${appointmentItem.cancelled ? "cancelled-appointment" : ""}`}
+                          className={`month-mini-item month-mini-item-colored ${
+                            appointmentItem.cancelled ? "cancelled-appointment" : ""
+                          }`}
                           style={{
                             borderLeftColor: appointmentItem.artistColor,
                             backgroundColor: appointmentItem.cancelled ? "#d3d3d3" : "",
