@@ -298,6 +298,8 @@ function clamp(value, min, max) {
 
 const ACOMPTE_TYPE = "ACOMPTE";
 
+const MONTH_DAY_LABELS = ["Dim", "Lun", "Mar", "Mer", "Jeu", "Ven", "Sam"];
+
 function isAcompteAppointment(appointmentItem) {
   return appointmentItem?.title === ACOMPTE_TYPE;
 }
@@ -2221,7 +2223,15 @@ const goNext = () => {
                     }}
                   >
                     <div className="month-cell-top">
-                      <span>{cell.getDate()}</span>
+                      <div className="month-day-header">
+                        <span className="month-day-name">
+                          {MONTH_DAY_LABELS[cell.getDay()]}
+                        </span>
+                        <span className="month-day-number">
+                          {cell.getDate()}
+                        </span>
+                      </div>
+
                       {items.length > 0 && (
                         <span className="month-count">{items.length}</span>
                       )}

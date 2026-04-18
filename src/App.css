@@ -702,6 +702,27 @@ button:hover {
   font-weight: bold;
 }
 
+.month-day-header {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+}
+
+.month-day-name {
+  font-size: 11px;
+  color: #caa85c;
+  line-height: 1;
+  font-weight: 700;
+}
+
+.month-day-number {
+  font-size: 16px;
+  font-weight: 800;
+  color: inherit;
+  line-height: 1.1;
+}
+
 .month-count {
   display: inline-flex;
   min-width: 24px;
