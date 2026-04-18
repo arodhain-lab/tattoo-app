@@ -1423,23 +1423,38 @@ button:hover {
 }
 
 .stats-box {
-  background: #fff;
-  border: 1px solid #e3e3e3;
+  background:
+    radial-gradient(circle at 50% 100%, rgba(255, 210, 90, 0.10), transparent 35%),
+    linear-gradient(180deg, #181818 0%, #0c0c0c 100%);
+  border: 2px solid rgba(240, 199, 102, 0.7);
   border-radius: 16px;
   padding: 18px;
   display: flex;
   flex-direction: column;
   gap: 8px;
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 224, 130, 0.06),
+    0 8px 18px rgba(0, 0, 0, 0.40),
+    0 0 10px rgba(240, 199, 102, 0.08);
 }
 
 .stats-box span {
   font-size: 14px;
-  color: #666;
+  color: #d4b06a;
 }
 
 .stats-box strong {
   font-size: 24px;
-  color: #02404b;
+  color: #fff0cc;
+}
+
+.stats-box:hover {
+  transform: translateY(-2px);
+  border-color: #ffd36a;
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 224, 130, 0.12),
+    0 12px 24px rgba(0, 0, 0, 0.48),
+    0 0 16px rgba(240, 199, 102, 0.14);
 }
 
 @media (max-width: 768px) {
