@@ -621,15 +621,40 @@ const [
   }, [appointments, clients, artists]);
 
   const filteredClients = useMemo(() => {
-    const q = normalizeString(clientSearch.trim());
-    if (!q) return clients;
+  const q = normalizeString(clientSearch.trim());
+  if (!q) return clients;
 
-    return clients.filter((client) =>
-      normalizeString(
-        [client.lastName, client.firstName, client.phone, client.notes].join(" ")
-      ).includes(q)
+  return clients.filter((client) => {
+    const clientAppointmentsText = appointmentsWithClient
+      .filter(
+        (appointmentItem) =>
+          String(appointmentItem.clientId) === String(client.id)
+      )
+      .map((appointmentItem) =>
+        [
+          appointmentItem.title,
+          appointmentItem.project,
+          appointmentItem.notes,
+          appointmentItem.artistName,
+          appointmentItem.appointment,
+          appointmentItem.price,
+        ].join(" ")
+      )
+      .join(" ");
+
+    const searchableText = normalizeString(
+      [
+        client.lastName,
+        client.firstName,
+        client.phone,
+        client.notes,
+        clientAppointmentsText,
+      ].join(" ")
     );
-  }, [clients, clientSearch]);
+
+    return searchableText.includes(q);
+  });
+}, [clients, clientSearch, appointmentsWithClient]);
 
   const filteredAppointments = useMemo(() => {
     const q = normalizeString(appointmentSearch.trim());
