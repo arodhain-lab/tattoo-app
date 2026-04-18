@@ -2223,14 +2223,14 @@ const goNext = () => {
                     }}
                   >
                     <div className="month-cell-top">
-                      <div className="month-day-header">
-                        <span className="month-day-name">
-                          {MONTH_DAY_LABELS[cell.getDay()]}
-                        </span>
-                        <span className="month-day-number">
-                          {cell.getDate()}
-                        </span>
-                      </div>
+                      <span>
+                        {MONTH_DAY_LABELS[cell.getDay()]} {cell.getDate()}
+                      </span>
+
+                      {items.length > 0 && (
+                        <span className="month-count">{items.length}</span>
+                      )}
+                    </div>
 
                       {items.length > 0 && (
                         <span className="month-count">{items.length}</span>
