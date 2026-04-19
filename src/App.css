@@ -1143,14 +1143,23 @@ button:hover {
     align-items: center;
   }
 
+  @media (max-width: 768px) {
   .btn-add-rdv-inline {
-    padding: 8px 10px;
+    min-width: 54px;
+    height: 42px;
+    padding: 8px 12px;
     font-size: 13px;
+  }
+
+  .btn-add-rdv-inline img {
+    width: 22px;
+    height: 22px;
   }
 
   .btn-add-rdv-inline span {
     display: none;
   }
+}
 }
 
 .week-chip-hour {
