@@ -1879,12 +1879,8 @@ const goNext = () => {
                   <p className="muted-text agenda-current-period">{homeAgendaTitle}</p>
                 </div>
 
-                <button
-                  className="btn-add-rdv btn-add-rdv-inline"
-                  onClick={() => setPage("appointments")}
-                >
-                  <img src="/icons/add-rdv.png" alt="Ajouter un RDV" />
-                  <span>Ajouter un RDV</span>
+                <button className="btn-add-rdv-inline">
+                  +
                 </button>
               </div>
             </div>
