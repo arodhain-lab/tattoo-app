@@ -2186,16 +2186,6 @@ const goNext = () => {
           <>
             <div className="month-view-title">{monthViewTitle}</div>
 
-            <div className="month-weekdays">
-              <div>Lun</div>
-              <div>Mar</div>
-              <div>Mer</div>
-              <div>Jeu</div>
-              <div>Ven</div>
-              <div>Sam</div>
-              <div>Dim</div>
-            </div>
-
             <div className="month-grid">
               {monthCells.map((cell, index) => {
                 if (!cell) {
