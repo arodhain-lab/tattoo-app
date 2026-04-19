@@ -2268,23 +2268,23 @@ const goNext = () => {
                               : "Non renseigné"}
                           </span>
                         </div>
-              
+
                         <div className="month-rdv-description">
                           {appointment.project || appointment.title || "Sans descriptif"}
                         </div>
-              
+
+                        <div className="month-rdv-client">
+                          <strong>Client :</strong> {appointment.clientName}
+                        </div>
+
                         <div className="month-rdv-bottomline">
                           <span>
                             <strong>Tatoueur :</strong> {appointment.artistName}
                           </span>
-              
+
                           <span>
                             <strong>Type :</strong> {appointment.title || "Sans type"}
                           </span>
-                        </div>
-              
-                        <div className="month-rdv-client">
-                          <strong>Client :</strong> {appointment.clientName}
                         </div>
                       </div>
                     </button>
