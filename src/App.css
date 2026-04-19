@@ -1879,6 +1879,29 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   gap: 6px;
 }
 
+.month-grid.month-grid-compact .month-cell {
+  width: 100%;
+  height: 54px;
+  min-height: 54px;
+  max-height: 54px;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.month-grid.month-grid-compact .month-cell.month-cell-compact {
+  border: 1px solid #e2e2e2;
+  border-radius: 12px;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.month-grid.month-grid-compact .month-cell.empty-cell {
+  visibility: hidden;
+  pointer-events: none;
+}
+
 .month-cell.month-cell-compact,
 .month-cell.empty-cell {
   width: 100%;
