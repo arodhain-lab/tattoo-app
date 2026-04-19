@@ -1872,15 +1872,15 @@ const goNext = () => {
       <>
         <div className="home-layout">
           <section className="card agenda-main-card">
-            <div className="agenda-topbar">
-              <div>
-                <h2 translate="no">PLANNING</h2>
-                <p className="muted-text">{homeAgendaTitle}</p>
-              </div>
+            <div className="agenda-topbar agenda-topbar-compact">
+              <div className="agenda-title-row">
+                <div className="agenda-title-block">
+                  <h2 className="planning-title" translate="no">PLANNING</h2>
+                  <p className="muted-text agenda-current-period">{homeAgendaTitle}</p>
+                </div>
 
-              <div className="small-actions">
                 <button
-                  className="btn-add-rdv"
+                  className="btn-add-rdv btn-add-rdv-inline"
                   onClick={() => setPage("appointments")}
                 >
                   <img src="/icons/add-rdv.png" alt="Ajouter un RDV" />
