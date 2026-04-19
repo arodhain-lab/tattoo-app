@@ -2189,7 +2189,9 @@ const goNext = () => {
             <div className="month-grid">
               {monthCells.map((cell, index) => {
                 if (!cell) {
-                  return <div key={`empty-${index}`} className="month-cell empty-cell"></div>;
+                  return isMobile ? null : (
+                    <div key={`empty-${index}`} className="month-cell empty-cell"></div>
+                  );
                 }
 
                 const key = formatDateKey(cell);
@@ -2214,7 +2216,7 @@ const goNext = () => {
                   >
                     <div className="month-cell-top">
                       <span>
-                        {MONTH_DAY_LABELS[cell.getDay()]} {cell.getDate()}
+                  {MONTH_DAY_LABELS[cell.getDay()]} {cell.getDate()}
                       </span>
 
                       {items.length > 0 && (
