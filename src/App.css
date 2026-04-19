@@ -1151,10 +1151,6 @@ button:hover {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-}
-  .btn-add-rdv-inline .plus {
-    font-size: 30px;
-    font-weight: 900;
   }
 
   .btn-add-rdv-inline img {
@@ -1992,11 +1988,6 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 .btn-add-rdv-inline img {
   width: 18px;
   height: 18px;
-}
-
-.btn-add-rdv-inline .plus {
-  font-size: 30px;
-  font-weight: 900;
 }
 
 .month-top-section {
