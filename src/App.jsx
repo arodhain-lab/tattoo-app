@@ -1944,27 +1944,21 @@ const goNext = () => {
 
           <div className="agenda-controls">
             <div className="agenda-nav-buttons">
-              <button
-                type="button"
-                className="nav-arrow-button"
-                onClick={goPrevious}
-              >
+              <button type="button" className="nav-arrow-button" onClick={goPrevious}>
                 ←
               </button>
-              <button
-                type="button"
-                className="nav-arrow-button"
-                onClick={goNext}
-              >
+              <button type="button" className="nav-arrow-button" onClick={goNext}>
                 →
               </button>
             </div>
 
-            <input
-              type="date"
-              value={selectedDate}
-              onChange={(e) => setSelectedDate(e.target.value)}
-            />
+            {agendaView !== "month" && (
+              <input
+                type="date"
+                value={selectedDate}
+                onChange={(e) => setSelectedDate(e.target.value)}
+              />
+            )}
           </div>
         </div>
 
