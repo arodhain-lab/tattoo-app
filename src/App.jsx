@@ -1952,7 +1952,7 @@ const goNext = () => {
               </button>
             </div>
 
-            {agendaView !== "month" && (
+            {agendaView === "day" && (
               <input
                 type="date"
                 value={selectedDate}
