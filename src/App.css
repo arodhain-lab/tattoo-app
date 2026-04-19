@@ -1879,14 +1879,20 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   gap: 6px;
 }
 
+.month-cell.month-cell-compact,
+.month-cell.empty-cell {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  box-sizing: border-box;
+}
+
 .month-cell.month-cell-compact {
-  min-height: 52px;
   border: 1px solid #e2e2e2;
   border-radius: 12px;
   background: #fff;
-  padding: 6px;
+  padding: 0;
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: center;
 }
 
@@ -1949,4 +1955,12 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 .month-day-appointment-card {
   width: 100%;
   text-align: left;
+}
+
+.month-day-marker {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #b5b5b5;
+  display: inline-block;
 }
