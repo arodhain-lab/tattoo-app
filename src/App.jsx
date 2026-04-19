@@ -2250,7 +2250,10 @@ const goNext = () => {
                     <div className="month-rdv-card-content">
                       <div className="month-rdv-topline">
                         <span className="month-rdv-time">
-                          {formatAppointmentTime(appointment.appointment)}
+                          {new Date(appointment.appointment).toLocaleTimeString("fr-FR", {
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          })}
                         </span>
                         <span className="month-rdv-price">
                           {formatPrice(getDisplayedPrice(appointment))} €
