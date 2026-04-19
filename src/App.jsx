@@ -2177,81 +2177,114 @@ const goNext = () => {
         )}
 
         {agendaView === "month" && (
-          <>
-            <div className="month-view-title">{monthViewTitle}</div>
+          <div className="month-split-layout">
+            <div className="month-top-section">
+              <div className="month-view-title">{monthViewTitle}</div>
 
-            <div className="month-grid">
-              {monthCells.map((cell, index) => {
-                if (!cell) {
-                  return isMobile ? null : (
-                    <div key={`empty-${index}`} className="month-cell empty-cell"></div>
+              <div className="month-weekdays-row">
+                {["L", "M", "M", "J", "V", "S", "D"].map((label, index) => (
+                  <div key={`${label}-${index}`} className="month-weekday-cell">
+                    {label}
+                  </div>
+                ))}
+              </div>
+
+              <div className="month-grid month-grid-compact">
+                {monthCells.map((cell, index) => {
+                  if (!cell) {
+                    return <div key={`empty-${index}`} className="month-cell empty-cell"></div>;
+                  }
+
+                  const key = formatDateKey(cell);
+                  const items = appointmentsByDate[key] || [];
+                  const isSelected = key === selectedDate;
+                  const specialDayInfo = getSpecialDayInfo(key, schoolZone);
+                  const isToday = key === getTodayDateOnly();
+
+                  return (
+                    <button
+                      key={key}
+                      type="button"
+                      className={`month-cell month-cell-compact ${isSelected ? "selected-cell" : ""} ${
+                        isToday ? "today-cell" : ""
+                      } ${
+                        specialDayInfo?.type === "publicHoliday"
+                          ? "public-holiday-cell"
+                          : specialDayInfo?.type === "schoolHoliday"
+                          ? "school-holiday-cell"
+                          : ""
+                      }`}
+                      onClick={() => setSelectedDate(key)}
+                    >
+                      <div className="month-day-number-wrap">
+                        <span className="month-day-number">{cell.getDate()}</span>
+                        {items.length > 0 && <span className="month-day-marker"></span>}
+                      </div>
+                    </button>
                   );
-                }
-
-                const key = formatDateKey(cell);
-                const items = appointmentsByDate[key] || [];
-                const isSelected = key === selectedDate;
-                const specialDayInfo = getSpecialDayInfo(key, schoolZone);
-
-                return (
-                  <button
-                    key={key}
-                    className={`month-cell ${isSelected ? "selected-cell" : ""} ${
-                      specialDayInfo?.type === "publicHoliday"
-                        ? "public-holiday-cell"
-                        : specialDayInfo?.type === "schoolHoliday"
-                        ? "school-holiday-cell"
-                        : ""
-                    }`}
-                    onClick={() => {
-                      setSelectedDate(key);
-                      setAgendaView("day");
-                    }}
-                  >
-                    <div className="month-cell-top">
-                      <span>
-                  {MONTH_DAY_LABELS[cell.getDay()]} {cell.getDate()}
-                      </span>
-
-                      {items.length > 0 && (
-                        <span className="month-count">{items.length}</span>
-                      )}
-                    </div>
-
-                    {specialDayInfo && (
-                      <div className="month-special-label">{specialDayInfo.label}</div>
-                    )}
-
-                    <div className="month-cell-body">
-                      {items.slice(0, 3).map((appointmentItem) => (
-                        <div
-                          key={appointmentItem.id}
-                          className={`month-mini-item month-mini-item-colored ${
-                            appointmentItem.cancelled ? "cancelled-appointment" : ""
-                          }`}
-                          style={{
-                            borderLeftColor: appointmentItem.artistColor,
-                            backgroundColor: appointmentItem.cancelled ? "#d3d3d3" : "",
-                            cursor: "pointer",
-                          }}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            openAppointmentDetails(appointmentItem);
-                          }}
-                        >
-                          <div className="month-mini-project">
-                            {formatTimeOnly(appointmentItem.appointment)} — {appointmentItem.project}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </button>
-                );
-              })}
+                })}
+              </div>
             </div>
-          </>
+
+            <div className="month-bottom-section">
+              <div className="month-selected-day-header">
+                <h3>Rendez-vous du {formatDateOnly(selectedDate)}</h3>
+                {renderSpecialDayBadge(selectedDate)}
+              </div>
+
+              <div className="month-day-appointments-list">
+                {selectedDayAppointments.length === 0 ? (
+                  <p className="muted-text">Aucun rendez-vous pour cette date.</p>
+                ) : (
+                  selectedDayAppointments.map((appointmentItem) => (
+                    <button
+                      key={appointmentItem.id}
+                      type="button"
+                      className={`agenda-item artist-bordered month-day-appointment-card ${
+                        appointmentItem.cancelled ? "cancelled-appointment" : ""
+                      }`}
+                      style={{
+                        borderLeftColor: appointmentItem.artistColor,
+                        backgroundColor: appointmentItem.cancelled ? "#d3d3d3" : "",
+                      }}
+                      onClick={() => openAppointmentDetails(appointmentItem)}
+                    >
+                      <div className="agenda-item-time">
+                        {formatTimeOnly(appointmentItem.appointment)}
+                      </div>
+
+                      <div className="agenda-item-content">
+                        <h4 className="appointment-project-title">
+                          {appointmentItem.project || "Sans projet"}
+                        </h4>
+
+                        <p>
+                          <strong>Client :</strong> {appointmentItem.clientName}
+                        </p>
+
+                        <p>
+                          <strong>Tatoueur :</strong> {appointmentItem.artistName}
+                        </p>
+
+                        <p>
+                          <strong>Type :</strong> {appointmentItem.title || "Sans titre"}
+                        </p>
+
+                        <p>
+                          <strong>Tarif :</strong>{" "}
+                          {appointmentItem.price !== ""
+                            ? formatCurrency(getDisplayedPrice(appointmentItem, appointments))
+                            : "Non renseigné"}
+                        </p>
+                      </div>
+                    </button>
+                  ))
+                )}
+              </div>
+            </div>
+          </div>
         )}
-      </section>
+       </section>
     </div>
   </>
 )}

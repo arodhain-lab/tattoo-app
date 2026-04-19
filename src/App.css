@@ -1831,3 +1831,122 @@ input[type="date"]::-webkit-calendar-picker-indicator {
     0 14px 30px rgba(0, 0, 0, 0.48),
     0 0 18px rgba(240, 199, 102, 0.16);
 }
+
+.month-split-layout {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  height: 100%;
+}
+
+.month-top-section {
+  flex: 0 0 auto;
+}
+
+.month-bottom-section {
+  flex: 1;
+  min-height: 260px;
+  border-top: 1px solid #e5e5e5;
+  padding-top: 16px;
+}
+
+.month-view-title {
+  text-align: center;
+  font-size: 1.4rem;
+  font-weight: 700;
+  margin-bottom: 14px;
+  text-transform: capitalize;
+}
+
+.month-weekdays-row {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.month-weekday-cell {
+  text-align: center;
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: #444;
+  padding: 6px 0;
+}
+
+.month-grid.month-grid-compact {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 6px;
+}
+
+.month-cell.month-cell-compact {
+  min-height: 52px;
+  border: 1px solid #e2e2e2;
+  border-radius: 12px;
+  background: #fff;
+  padding: 6px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+}
+
+.month-cell.empty-cell {
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.month-day-number-wrap {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+}
+
+.month-day-number {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #222;
+}
+
+.month-day-dot-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  background: #d9d9d9;
+  color: #333;
+  padding: 0 4px;
+}
+
+.selected-cell {
+  border: 2px solid #8f8f8f;
+  background: #f3f3f3;
+}
+
+.today-cell .month-day-number {
+  font-weight: 800;
+}
+
+.month-selected-day-header {
+  margin-bottom: 14px;
+}
+
+.month-selected-day-header h3 {
+  margin: 0 0 8px 0;
+  font-size: 1.05rem;
+}
+
+.month-day-appointments-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.month-day-appointment-card {
+  width: 100%;
+  text-align: left;
+}
