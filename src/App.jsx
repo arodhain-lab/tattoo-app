@@ -415,6 +415,7 @@ const evaluateSetup = (artistsList, servicesList) => {
   const [showMobileWeek, setShowMobileWeek] = useState(false);
   const [schoolZone, setSchoolZone] = useState("B");
   const [revenueArtistFilter, setRevenueArtistFilter] = useState("all");
+  const [agendaArtistFilter, setAgendaArtistFilter] = useState("all");
 
   const [clientSearch, setClientSearch] = useState("");
   const [appointmentSearch, setAppointmentSearch] = useState("");
@@ -725,12 +726,12 @@ const [
   ]);
 
   const agendaAppointments = useMemo(() => {
-    if (revenueArtistFilter === "all") return appointmentsWithClient;
+    if (agendaArtistFilter === "all") return appointmentsWithClient;
 
     return appointmentsWithClient.filter(
-      (appointmentItem) => String(appointmentItem.artistId) === revenueArtistFilter
+      (appointmentItem) => String(appointmentItem.artistId) === String(agendaArtistFilter)
     );
-  }, [appointmentsWithClient, revenueArtistFilter]);
+  }, [appointmentsWithClient, agendaArtistFilter]);
 
   const selectedDayAppointments = useMemo(() => {
     return agendaAppointments.filter(
@@ -1954,6 +1955,23 @@ const goNext = () => {
               <button type="button" className="nav-arrow-button" onClick={goPrevious}>
                 ←
               </button>
+
+              <select
+                className="agenda-artist-filter"
+                value={agendaArtistFilter}
+                onChange={(e) => setAgendaArtistFilter(e.target.value)}
+              >
+                <option value="all">Tous les tatoueurs</option>
+                {artists
+                  .slice()
+                  .sort((a, b) => a.name.localeCompare(b.name))
+                  .map((artist) => (
+                    <option key={artist.id} value={artist.id}>
+                      {artist.name}
+                    </option>
+                  ))}
+              </select>
+
               <button type="button" className="nav-arrow-button" onClick={goNext}>
                 →
               </button>
