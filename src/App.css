@@ -2030,3 +2030,41 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   color: #666;
   padding: 2px 0;
 }
+
+.month-rdv-card-content {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+}
+
+.month-rdv-topline,
+.month-rdv-bottomline {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.month-rdv-time {
+  font-size: 28px;
+  font-weight: 800;
+}
+
+.month-rdv-price {
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.month-rdv-description {
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1.3;
+  text-align: left;
+}
+
+.month-rdv-client {
+  font-size: 14px;
+  line-height: 1.3;
+}

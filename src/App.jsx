@@ -2229,53 +2229,42 @@ const goNext = () => {
               </div>
 
               <div className="month-day-appointments-list">
-                {selectedDayAppointments.length === 0 ? (
-                  <p className="muted-text">Aucun rendez-vous pour cette date.</p>
-                ) : (
-                  selectedDayAppointments.map((appointmentItem) => (
-                    <button
-                      key={appointmentItem.id}
-                      type="button"
-                      className={`agenda-item artist-bordered month-day-appointment-card ${
-                        appointmentItem.cancelled ? "cancelled-appointment" : ""
-                      }`}
-                      style={{
-                        borderLeftColor: appointmentItem.artistColor,
-                        backgroundColor: appointmentItem.cancelled ? "#d3d3d3" : "",
-                      }}
-                      onClick={() => openAppointmentDetails(appointmentItem)}
-                    >
-                      <div className="agenda-item-time">
-                        {formatTimeOnly(appointmentItem.appointment)}
+                {selectedDayAppointments.map((appointment) => (
+                  <button
+                    key={appointment.id}
+                    className="agenda-item month-day-appointment-card"
+                    onClick={() => openAppointmentDetails(appointment)}
+                    type="button"
+                  >
+                    <div className="month-rdv-card-content">
+                      <div className="month-rdv-topline">
+                        <span className="month-rdv-time">
+                          {formatAppointmentTime(appointment.appointment)}
+                        </span>
+                        <span className="month-rdv-price">
+                          {formatPrice(getDisplayedPrice(appointment))} €
+                        </span>
                       </div>
 
-                      <div className="agenda-item-content">
-                        <h4 className="appointment-project-title">
-                          {appointmentItem.project || "Sans projet"}
-                        </h4>
-
-                        <p>
-                          <strong>Client :</strong> {appointmentItem.clientName}
-                        </p>
-
-                        <p>
-                          <strong>Tatoueur :</strong> {appointmentItem.artistName}
-                        </p>
-
-                        <p>
-                          <strong>Type :</strong> {appointmentItem.title || "Sans titre"}
-                        </p>
-
-                        <p>
-                          <strong>Tarif :</strong>{" "}
-                          {appointmentItem.price !== ""
-                            ? formatCurrency(getDisplayedPrice(appointmentItem, appointments))
-                            : "Non renseigné"}
-                        </p>
+                      <div className="month-rdv-description">
+                        {appointment.project || appointment.title}
                       </div>
-                    </button>
-                  ))
-                )}
+
+                      <div className="month-rdv-bottomline">
+                        <span>
+                          <strong>Tatoueur :</strong> {getArtistName(appointment.artistId)}
+                        </span>
+                        <span>
+                          <strong>Type :</strong> {appointment.title}
+                        </span>
+                      </div>
+
+                      <div className="month-rdv-client">
+                        <strong>Client :</strong> {getClientFullName(appointment.clientId)}
+                      </div>
+                    </div>
+                  </button>
+                ))}
               </div>
             </div>
           </div>
