@@ -2240,45 +2240,56 @@ const goNext = () => {
               </div>
 
               <div className="month-day-appointments-list">
-                {selectedDayAppointments.map((appointment) => (
-                  <button
-                    key={appointment.id}
-                    className="agenda-item month-day-appointment-card"
-                    onClick={() => openAppointmentDetails(appointment)}
-                    type="button"
-                  >
-                    <div className="month-rdv-card-content">
-                      <div className="month-rdv-topline">
-                        <span className="month-rdv-time">
-                          {new Date(appointment.appointment).toLocaleTimeString("fr-FR", {
-                            hour: "2-digit",
-                            minute: "2-digit",
-                          })}
-                        </span>
-                        <span className="month-rdv-price">
-                          {formatPrice(getDisplayedPrice(appointment))} €
-                        </span>
-                      </div>
+                {selectedDayAppointments.length === 0 ? (
+                  <p>Aucun rendez-vous pour cette date.</p>
+                ) : (
+                  selectedDayAppointments.map((appointment) => (
+                    <button
+                      key={appointment.id}
+                      className={`agenda-item month-day-appointment-card ${
+                        appointment.cancelled ? "cancelled-appointment" : ""
+                      }`}
+                      onClick={() => openAppointmentDetails(appointment)}
+                      type="button"
+                      style={{
+                        borderLeftColor: appointment.artistColor,
+                        backgroundColor: appointment.cancelled ? "#d3d3d3" : "",
+                      }}
+                    >
+                      <div className="month-rdv-card-content">
+                        <div className="month-rdv-topline">
+                          <span className="month-rdv-time">
+                            {formatTimeOnly(appointment.appointment)}
+                          </span>
 
-                      <div className="month-rdv-description">
-                        {appointment.project || appointment.title}
+                          <span className="month-rdv-price">
+                            {appointment.price !== ""
+                              ? formatCurrency(getDisplayedPrice(appointment, appointments))
+                              : "Non renseigné"}
+                          </span>
+                        </div>
+              
+                        <div className="month-rdv-description">
+                          {appointment.project || appointment.title || "Sans descriptif"}
+                        </div>
+              
+                        <div className="month-rdv-bottomline">
+                          <span>
+                            <strong>Tatoueur :</strong> {appointment.artistName}
+                          </span>
+              
+                          <span>
+                            <strong>Type :</strong> {appointment.title || "Sans type"}
+                          </span>
+                        </div>
+              
+                        <div className="month-rdv-client">
+                          <strong>Client :</strong> {appointment.clientName}
+                        </div>
                       </div>
-
-                      <div className="month-rdv-bottomline">
-                        <span>
-                          <strong>Tatoueur :</strong> {getArtistName(appointment.artistId)}
-                        </span>
-                        <span>
-                          <strong>Type :</strong> {appointment.title}
-                        </span>
-                      </div>
-
-                      <div className="month-rdv-client">
-                        <strong>Client :</strong> {getClientFullName(appointment.clientId)}
-                      </div>
-                    </div>
-                  </button>
-                ))}
+                    </button>
+                  ))
+                )}
               </div>
             </div>
           </div>
