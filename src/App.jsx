@@ -359,7 +359,7 @@ function buildSystemDepositNotes(appointments, appointmentItem) {
 
       return `ACOMPTE ENREGISTRÉ (non supprimable) : ${formatCurrency(
         depositAmount
-      )} versés le ${formatDateOnly(deposit.paymentDate || deposit.appointment)} par ${
+      )} versés le ${formatDateTime(deposit.paymentDate || deposit.appointment)} par ${
         deposit.paymentMethod || "mode non renseigné"
       } - montant total avant acompte : ${formatCurrency(originalTotal)}`;
     })
@@ -1299,8 +1299,8 @@ if (
       return;
     }
 
-    if (!appointmentForm.paymentDate) {
-      alert("Vous devez renseigner la date de versement de l'acompte.");
+    if (!appointmentForm.appointment) {
+      alert("Vous devez renseigner la date et l'heure de versement de l'acompte.");
       return;
     }
 
@@ -1378,7 +1378,7 @@ if (
         : null,
     payment_date:
       appointmentForm.title === ACOMPTE_TYPE
-        ? appointmentForm.paymentDate
+        ? appointmentForm.appointment
         : null,
     original_total_before_deposit:
       appointmentForm.title === ACOMPTE_TYPE
@@ -2808,7 +2808,7 @@ const goNext = () => {
           <p>
             <strong>Date de versement :</strong>{" "}
             {selectedAppointmentDetails.paymentDate
-              ? formatDateOnly(selectedAppointmentDetails.paymentDate)
+              ? formatDateTime(selectedAppointmentDetails.paymentDate)
               : "Non renseignée"}
           </p>
           <p>
@@ -3018,17 +3018,6 @@ const goNext = () => {
         setAppointmentForm({
           ...appointmentForm,
           paymentMethod: e.target.value,
-        })
-      }
-    />
-
-    <input
-      type="date"
-      value={appointmentForm.paymentDate}
-      onChange={(e) =>
-        setAppointmentForm({
-          ...appointmentForm,
-          paymentDate: e.target.value,
         })
       }
     />
