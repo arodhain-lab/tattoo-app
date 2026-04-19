@@ -1880,7 +1880,7 @@ const goNext = () => {
                 </div>
 
                 <button className="btn-add-rdv-inline">
-                  +
+                  <span className="plus">+</span>
                 </button>
               </div>
             </div>
