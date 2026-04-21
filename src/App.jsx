@@ -2189,7 +2189,7 @@ const goNext = () => {
                     </>
                   )}
 
-                    selectedDayAppointments.map((appointmentItem) => (
+                    {selectedDayAppointments.map((appointmentItem) => (
                       <button
                         key={appointmentItem.id}
                         type="button"
@@ -2235,8 +2235,8 @@ const goNext = () => {
                           </p>
                         </div>
                       </button>
-                    ))
-                  )}
+                    ))}
+                
                 </div>
               )}
 
