@@ -2061,7 +2061,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 }
 
 .agenda-artist-filter {
-  width: auto;
+  width: 220px;
   min-width: 170px;
   max-width: 220px;
   margin-top: 0;
@@ -2069,6 +2069,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   font-size: 14px;
   border-radius: 14px;
   flex-shrink: 1;
+  text-align: center;
 }
 
 .month-weekdays-row {
@@ -2154,17 +2155,18 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 10px;
+  gap: 12px;
   width: 100%;
 }
 
 .agenda-date-input {
-  flex: 1;
-  min-width: 0;
+  width: 180px; /* taille fixe pour vrai centrage */
+  text-align: center;
 }
 
 .agenda-artist-row {
   display: flex;
+  justify-content: center;
   width: 100%;
 }
 
