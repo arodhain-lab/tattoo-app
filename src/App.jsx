@@ -1815,17 +1815,6 @@ const goNext = () => {
         </div>
       )}
 
-      {page === "home" && (
-        <header className="page-header">
-          <div>
-            <h1>Gestion tatouage</h1>
-            <p className="subtitle">
-              Vue d’ensemble du planning, fiches clients, tatoueurs et rendez-vous
-            </p>
-          </div>
-        </header>
-      )}
-
       {page !== "home" && setupComplete && (
         <div style={{ marginBottom: "16px" }}>
           <button className="back-button" onClick={() => setPage("home")}>
@@ -1851,9 +1840,6 @@ const goNext = () => {
 
       {page === "home" && setupComplete && (
         <section className="card home-card">
-          <h2>Accueil</h2>
-          <p className="muted-text">Choisissez une rubrique</p>
-
           <div
             className="home-menu-grid"
             style={
