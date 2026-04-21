@@ -799,6 +799,15 @@ const [
     );
   }, [agendaAppointments, selectedDate]);
 
+  const selectedDayRevenue = useMemo(() => {
+    return selectedDayAppointments
+      .filter((appointmentItem) => !appointmentItem.cancelled)
+      .reduce(
+        (sum, appointmentItem) => sum + getDisplayedPrice(appointmentItem, appointments),
+        0
+      );
+  }, [selectedDayAppointments, appointments]);
+
   const weekDays = useMemo(() => getWeekDays(selectedDate), [selectedDate]);
   const monthCells = useMemo(() => getMonthMatrix(selectedDate), [selectedDate]);
 
@@ -1729,6 +1738,13 @@ const goNext = () => {
     const info = getSpecialDayInfo(dateKey, schoolZone);
     if (!info) return null;
 
+  const selectedDayRevenueBox = (
+    <div className="agenda-day-revenue-box gold-line-glow">
+      <span>Jour</span>
+      <strong>{formatCurrency(selectedDayRevenue)}</strong>
+    </div>
+  );
+
 
     return (
       <div
@@ -2115,8 +2131,64 @@ const goNext = () => {
                   {renderSpecialDayBadge(selectedDate)}
 
                   {selectedDayAppointments.length === 0 ? (
-                    <p>Aucun rendez-vous pour cette date.</p>
+  <>
+    <p>Aucun rendez-vous pour cette date.</p>
+    {selectedDayRevenueBox}
+  </>
                   ) : (
+                    <>
+                      {selectedDayAppointments.map((appointmentItem) => (
+                        <button
+                          key={appointmentItem.id}
+                          type="button"
+                          className={`agenda-item artist-bordered ${
+                            appointmentItem.cancelled ? "cancelled-appointment" : ""
+                          }`}
+                          style={{
+                            borderLeftColor: appointmentItem.artistColor,
+                          }}
+                          onClick={() => openAppointmentDetails(appointmentItem)}
+                        >
+                          <div className="agenda-item-time">
+                            {formatTimeOnly(appointmentItem.appointment)}
+                          </div>
+                  
+                          <div className="agenda-item-content">
+                            <h4 className="appointment-project-title">
+                              {appointmentItem.project}
+                            </h4>
+                  
+                            <p>
+                              <strong>Tarif :</strong>{" "}
+                              {appointmentItem.price !== ""
+                                ? formatCurrency(
+                                    getDisplayedPrice(appointmentItem, appointments)
+                                  )
+                                : "Non renseigné"}
+                            </p>
+                  
+                            <p>
+                              <strong>Durée estimée :</strong>{" "}
+                              {formatDuration(
+                                appointmentItem.durationHours,
+                                appointmentItem.durationMinutes
+                              )}
+                            </p>
+                  
+                            <p>
+                              <strong>Notes :</strong>{" "}
+                              {[appointmentItem.notes, buildSystemDepositNotes(appointments, appointmentItem)]
+                                .filter(Boolean)
+                                .join(" | ") || "Aucune note"}
+                            </p>
+                          </div>
+                        </button>
+                      ))}
+                  
+                      {selectedDayRevenueBox}
+                    </>
+                  )}
+
                     selectedDayAppointments.map((appointmentItem) => (
                       <button
                         key={appointmentItem.id}
@@ -2224,48 +2296,55 @@ const goNext = () => {
 
                     <div className="month-day-appointments-list">
                       {selectedDayAppointments.length === 0 ? (
-                        <p>Aucun rendez-vous pour cette date.</p>
+                        <>
+                          <p>Aucun rendez-vous pour cette date.</p>
+                          {selectedDayRevenueBox}
+                        </>
                       ) : (
-                        selectedDayAppointments.map((appointment) => (
-                          <button
-                            key={appointment.id}
-                            className={`agenda-item month-day-appointment-card ${
-                              appointment.cancelled ? "cancelled-appointment" : ""
-                            }`}
-                            onClick={() => openAppointmentDetails(appointment)}
-                            type="button"
-                            style={{
-                              borderLeft: `6px solid ${appointment.artistColor || "#111111"}`,
-                              backgroundColor: appointment.cancelled ? "#d3d3d3" : "",
-                            }}
-                          >
-                            <div className="month-rdv-card-content">
-                              <div className="month-rdv-topline">
-                                <span className="month-rdv-time">
-                                  {formatTimeOnly(appointment.appointment)}
-                                </span>
+                        <>
+                          {selectedDayAppointments.map((appointment) => (
+                            <button
+                              key={appointment.id}
+                              className={`agenda-item month-day-appointment-card ${
+                                appointment.cancelled ? "cancelled-appointment" : ""
+                              }`}
+                              onClick={() => openAppointmentDetails(appointment)}
+                              type="button"
+                              style={{
+                                borderLeft: `6px solid ${appointment.artistColor || "#111111"}`,
+                                backgroundColor: appointment.cancelled ? "#d3d3d3" : "",
+                              }}
+                            >
+                              <div className="month-rdv-card-content">
+                                <div className="month-rdv-topline">
+                                  <span className="month-rdv-time">
+                                    {formatTimeOnly(appointment.appointment)}
+                                  </span>
 
-                                <span className="month-rdv-price">
-                                  {appointment.price !== ""
-                                    ? formatCurrency(
-                                        getDisplayedPrice(appointment, appointments)
-                                      )
-                                    : "Non renseigné"}
-                                </span>
-                              </div>
+                                  <span className="month-rdv-price">
+                                    {appointment.price !== ""
+                                      ? formatCurrency(
+                                          getDisplayedPrice(appointment, appointments)
+                                        )
+                                      : "Non renseigné"}
+                                  </span>
+                                </div>
 
-                              <div className="month-rdv-description">
-                                {appointment.project ||
-                                  appointment.title ||
-                                  "Sans descriptif"}
-                              </div>
+                                <div className="month-rdv-description">
+                                  {appointment.project ||
+                                    appointment.title ||
+                                    "Sans descriptif"}
+                                </div>
 
-                              <div className="month-rdv-client">
-                                <strong>Client :</strong> {appointment.clientName}
+                                <div className="month-rdv-client">
+                                  <strong>Client :</strong> {appointment.clientName}
+                                </div>
                               </div>
-                            </div>
-                          </button>
-                        ))
+                            </button>
+                          ))}
+
+                          {selectedDayRevenueBox}
+                        </>
                       )}
                     </div>
                   </div>
@@ -2369,48 +2448,55 @@ const goNext = () => {
 
                     <div className="month-day-appointments-list">
                       {selectedDayAppointments.length === 0 ? (
-                        <p>Aucun rendez-vous pour cette date.</p>
+                        <>
+                          <p>Aucun rendez-vous pour cette date.</p>
+                          {selectedDayRevenueBox}
+                        </>
                       ) : (
-                        selectedDayAppointments.map((appointment) => (
-                          <button
-                            key={appointment.id}
-                            className={`agenda-item month-day-appointment-card ${
-                              appointment.cancelled ? "cancelled-appointment" : ""
-                            }`}
-                            onClick={() => openAppointmentDetails(appointment)}
-                            type="button"
-                            style={{
-                              borderLeft: `6px solid ${appointment.artistColor || "#111111"}`,
-                              backgroundColor: appointment.cancelled ? "#d3d3d3" : "",
-                            }}
-                          >
-                            <div className="month-rdv-card-content">
-                              <div className="month-rdv-topline">
-                                <span className="month-rdv-time">
-                                  {formatTimeOnly(appointment.appointment)}
-                                </span>
-
-                                <span className="month-rdv-price">
-                                  {appointment.price !== ""
-                                    ? formatCurrency(
-                                        getDisplayedPrice(appointment, appointments)
-                                      )
-                                    : "Non renseigné"}
-                                </span>
+                        <>
+                          {selectedDayAppointments.map((appointment) => (
+                            <button
+                              key={appointment.id}
+                              className={`agenda-item month-day-appointment-card ${
+                                appointment.cancelled ? "cancelled-appointment" : ""
+                              }`}
+                              onClick={() => openAppointmentDetails(appointment)}
+                              type="button"
+                              style={{
+                                borderLeft: `6px solid ${appointment.artistColor || "#111111"}`,
+                                backgroundColor: appointment.cancelled ? "#d3d3d3" : "",
+                              }}
+                            >
+                              <div className="month-rdv-card-content">
+                                <div className="month-rdv-topline">
+                                  <span className="month-rdv-time">
+                                    {formatTimeOnly(appointment.appointment)}
+                                  </span>
+                    
+                                  <span className="month-rdv-price">
+                                    {appointment.price !== ""
+                                      ? formatCurrency(
+                                          getDisplayedPrice(appointment, appointments)
+                                        )
+                                      : "Non renseigné"}
+                                  </span>
+                                </div>
+                    
+                                <div className="month-rdv-description">
+                                  {appointment.project ||
+                                    appointment.title ||
+                                    "Sans descriptif"}
+                                </div>
+                    
+                                <div className="month-rdv-client">
+                                  <strong>Client :</strong> {appointment.clientName}
+                                </div>
                               </div>
+                            </button>
+                          ))}
 
-                              <div className="month-rdv-description">
-                                {appointment.project ||
-                                  appointment.title ||
-                                  "Sans descriptif"}
-                              </div>
-
-                              <div className="month-rdv-client">
-                                <strong>Client :</strong> {appointment.clientName}
-                              </div>
-                            </div>
-                          </button>
-                        ))
+                          {selectedDayRevenueBox}
+                        </>
                       )}
                     </div>
                   </div>

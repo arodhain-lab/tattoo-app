@@ -2347,3 +2347,57 @@ body,
     grid-template-columns: 1fr;
   }
 }
+
+.agenda-day-revenue-box {
+  width: 100%;
+  max-width: 340px;
+  margin: 10px auto 0 auto;
+  padding: 14px 18px;
+  min-height: 92px;
+  border-radius: 24px;
+  border: 2px solid rgba(240, 180, 55, 0.88);
+  background:
+    radial-gradient(circle at 50% 100%, rgba(255, 185, 60, 0.12), transparent 22%),
+    linear-gradient(180deg, #121212 0%, #070707 100%);
+  color: #fff2cf;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 227, 160, 0.08),
+    0 10px 26px rgba(0, 0, 0, 0.45),
+    0 0 12px rgba(255, 180, 40, 0.07);
+  overflow: hidden;
+}
+
+.agenda-day-revenue-box span {
+  display: block;
+  font-size: 15px;
+  font-weight: 700;
+  color: #e4b65d;
+  line-height: 1.2;
+}
+
+.agenda-day-revenue-box strong {
+  display: block;
+  font-size: 24px;
+  font-weight: 800;
+  line-height: 1.1;
+  color: #fff0cc;
+  letter-spacing: 0.3px;
+}
+
+@media (max-width: 768px) {
+  .agenda-day-revenue-box {
+    max-width: 100%;
+    min-height: 84px;
+    padding: 12px 16px;
+    border-radius: 20px;
+  }
+
+  .agenda-day-revenue-box strong {
+    font-size: 20px;
+  }
+}
