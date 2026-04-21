@@ -1984,7 +1984,7 @@ const goNext = () => {
                   <button type="button" className="nav-arrow-button" onClick={goPrevious}>
                     ←
                   </button>
-
+          
                   <input
                     type="date"
                     className="agenda-date-input"
@@ -2008,15 +2008,15 @@ const goNext = () => {
                       .slice()
                       .sort((a, b) => a.name.localeCompare(b.name))
                       .map((artist) => (
-                        <option key={artist.id} value={artist.id}>
+                       <option key={artist.id} value={artist.id}>
                           {artist.name}
                         </option>
                       ))}
                   </select>
-                </div>
+               </div>
               </>
-            ) : (
-              <div className="agenda-nav-buttons">
+            ) : agendaView === "week" ? (
+             <div className="agenda-nav-buttons">
                 <button type="button" className="nav-arrow-button" onClick={goPrevious}>
                   ←
                 </button>
@@ -2041,63 +2041,8 @@ const goNext = () => {
                   →
                 </button>
               </div>
-            )}
+            ) : null}
           </div>
-        </div>
-
-        {agendaView === "day" && (
-          <div className="agenda-panel">
-            <h3>Planning du jour</h3>
-
-            {renderSpecialDayBadge(selectedDate)}
-
-            {selectedDayAppointments.length === 0 ? (
-              <p>Aucun rendez-vous pour cette date.</p>
-            ) : (
-              selectedDayAppointments.map((appointmentItem) => (
-                <button
-                  key={appointmentItem.id}
-                type="button"
-                  className={`agenda-item artist-bordered ${appointmentItem.cancelled ? "cancelled-appointment" : ""}`}
-                  style={{
-                    borderLeftColor: appointmentItem.artistColor,
-                  }}
-                  onClick={() => openAppointmentDetails(appointmentItem)}
-                >
-                  <div className="agenda-item-time">
-                    {formatTimeOnly(appointmentItem.appointment)}
-                  </div>
-                  <div className="agenda-item-content">
-                    <h4 className="appointment-project-title">
-                      {appointmentItem.project}
-                    </h4>
-                    <p><strong>Tatoueur :</strong> {appointmentItem.artistName}</p>
-                    <p><strong>Titre :</strong> {appointmentItem.title || "Sans titre"}</p>
-                    <p>
-                      <strong>Tarif :</strong>{" "}
-                      {appointmentItem.price !== ""
-                        ? formatCurrency(getDisplayedPrice(appointmentItem, appointments))
-                        : "Non renseigné"}
-                    </p>
-                    <p>
-                      <strong>Durée estimée :</strong>{" "}
-                      {formatDuration(
-                        appointmentItem.durationHours,
-                        appointmentItem.durationMinutes
-                      )}
-                    </p>
-                    <p>
-                      <strong>Notes :</strong>{" "}
-                      {[appointmentItem.notes, buildSystemDepositNotes(appointments, appointmentItem)]
-                        .filter(Boolean)
-                        .join(" | ") || "Aucune note"}
-                    </p>
-                  </div>
-                </button>
-              ))
-            )}
-          </div>
-        )}
 
         {agendaView === "week" && (!isMobile || showMobileWeek) && (
           <div className="month-split-layout">
@@ -2211,7 +2156,39 @@ const goNext = () => {
         {agendaView === "month" && (
           <div className="month-split-layout">
             <div className="month-top-section">
-              <div className="month-view-title">{monthViewTitle}</div>
+              <div className="month-controls">
+                <div className="month-navigation">
+                  <button type="button" className="nav-arrow-button" onClick={goPrevious}>
+                    ←
+                  </button>
+              
+                  <div className="month-title-centered">
+                    {monthViewTitle}
+                  </div>
+              
+                  <button type="button" className="nav-arrow-button" onClick={goNext}>
+                    →
+                  </button>
+                </div>
+              
+                <div className="month-artist-row">
+                  <select
+                    className="agenda-artist-filter"
+                    value={agendaArtistFilter}
+                    onChange={(e) => setAgendaArtistFilter(e.target.value)}
+                  >
+                    <option value="all">Tous les tatoueurs</option>
+                    {artists
+                      .slice()
+                      .sort((a, b) => a.name.localeCompare(b.name))
+                      .map((artist) => (
+                        <option key={artist.id} value={artist.id}>
+                          {artist.name}
+                        </option>
+                      ))}
+                  </select>
+                </div>
+              </div>
 
               <div className="month-weekdays-row">
                 {["L", "M", "M", "J", "V", "S", "D"].map((label, index) => (

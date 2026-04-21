@@ -2173,3 +2173,40 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 .agenda-artist-row .agenda-artist-filter {
   width: 100%;
 }
+
+.month-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.month-navigation {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  width: 100%;
+}
+
+.month-title-centered {
+  width: 200px;
+  text-align: center;
+  font-weight: 700;
+  font-size: 1.1rem;
+}
+
+.month-artist-row {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
+.month-artist-row .agenda-artist-filter {
+  width: 220px;
+  text-align: center;
+}
+
+.nav-arrow-button {
+  flex-shrink: 0;
+}
