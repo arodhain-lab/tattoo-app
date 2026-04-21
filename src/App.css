@@ -13,9 +13,10 @@ body {
 }
 
 .container {
+  width: 100%;
   max-width: 1100px;
   margin: 0 auto;
-  padding: 32px 24px 120px;
+  padding: 16px;
 }
 
 .page-header {
@@ -1108,6 +1109,12 @@ button:hover {
 }
 
 @media (max-width: 768px) {
+  .container {
+    width: 100%;
+    max-width: 100%;
+    padding: 12px;
+  }
+
   .view-switch {
     display: flex;
     flex-direction: row;
@@ -1349,12 +1356,15 @@ button:hover {
   color: #f3c76b;
 }
 
+.home-card {
+  width: 100%;
+}
+
 .home-menu-grid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 28px;
-  margin-top: 34px;
-  align-items: stretch;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  width: 100%;
 }
 
 .home-menu-button {
@@ -1456,17 +1466,16 @@ button:hover {
 }
 
 @media (max-width: 768px) {
-  .home-menu-grid {
-    grid-template-columns: 1fr 1fr;
-    gap: 16px;
+    .home-menu-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    width: 100%;
   }
 
-.home-menu-button {
-  min-height: 190px;
-  padding: 2px;
-  border-radius: 24px;
-  overflow: hidden;
-}
+    .home-menu-button {
+    width: 100%;
+    min-width: 0;
+  }
 
 .agenda-artist-filter {
   min-width: 130px;
