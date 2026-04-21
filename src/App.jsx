@@ -2003,8 +2003,10 @@ const goNext = () => {
                   className={`agenda-item artist-bordered ${appointmentItem.cancelled ? "cancelled-appointment" : ""}`}
                   style={{
                     borderLeftColor: appointmentItem.artistColor,
-                    boxShadow: `-6px 0 12px ${appointmentItem.artistColor}55`,
-                    backgroundColor: appointmentItem.cancelled ? "#d3d3d3" : "",
+                    boxShadow: `
+                      -2px 0 6px ${appointmentItem.artistColor}AA,
+                      -6px 0 12px ${appointmentItem.artistColor}55
+                    `,
                   }}
                   onClick={() => openAppointmentDetails(appointmentItem)}
                 >
