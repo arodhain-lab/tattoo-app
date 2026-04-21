@@ -1335,6 +1335,11 @@ if (
       return;
     }
 
+    if (!appointmentForm.appointment) {
+      alert("Vous devez renseigner la date et l'heure de versement de l'acompte.");
+      return;
+    }
+
     const linkedAppointment = appointments.find(
       (appointmentItem) =>
         String(appointmentItem.id) === String(appointmentForm.linkedAppointmentId)
@@ -2778,17 +2783,6 @@ const goNext = () => {
               setAppointmentForm({
                 ...appointmentForm,
                 paymentMethod: e.target.value,
-              })
-            }
-          />
-
-          <input
-            type="date"
-            value={appointmentForm.paymentDate}
-            onChange={(e) =>
-              setAppointmentForm({
-                ...appointmentForm,
-                paymentDate: e.target.value,
               })
             }
           />
