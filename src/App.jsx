@@ -1978,38 +1978,69 @@ const goNext = () => {
           </div>
 
           <div className="agenda-controls">
-            <div className="agenda-nav-buttons">
-              <button type="button" className="nav-arrow-button" onClick={goPrevious}>
-                ←
-              </button>
+            {agendaView === "day" ? (
+              <>
+                <div className="agenda-date-navigation">
+                  <button type="button" className="nav-arrow-button" onClick={goPrevious}>
+                    ←
+                  </button>
 
-              <select
-                className="agenda-artist-filter"
-                value={agendaArtistFilter}
-                onChange={(e) => setAgendaArtistFilter(e.target.value)}
-              >
-                <option value="all">Tous les tatoueurs</option>
-                {artists
-                  .slice()
-                  .sort((a, b) => a.name.localeCompare(b.name))
-                  .map((artist) => (
-                    <option key={artist.id} value={artist.id}>
-                      {artist.name}
-                    </option>
-                  ))}
-              </select>
-
-              <button type="button" className="nav-arrow-button" onClick={goNext}>
-                →
-              </button>
-            </div>
-
-            {agendaView === "day" && (
-              <input
-                type="date"
-                value={selectedDate}
-                onChange={(e) => setSelectedDate(e.target.value)}
-              />
+                  <input
+                    type="date"
+                    className="agenda-date-input"
+                    value={selectedDate}
+                    onChange={(e) => setSelectedDate(e.target.value)}
+                  />
+          
+                  <button type="button" className="nav-arrow-button" onClick={goNext}>
+                    →
+                  </button>
+                </div>
+          
+                <div className="agenda-artist-row">
+                  <select
+                    className="agenda-artist-filter"
+                    value={agendaArtistFilter}
+                    onChange={(e) => setAgendaArtistFilter(e.target.value)}
+                  >
+                    <option value="all">Tous les tatoueurs</option>
+                    {artists
+                      .slice()
+                      .sort((a, b) => a.name.localeCompare(b.name))
+                      .map((artist) => (
+                        <option key={artist.id} value={artist.id}>
+                          {artist.name}
+                        </option>
+                      ))}
+                  </select>
+                </div>
+              </>
+            ) : (
+              <div className="agenda-nav-buttons">
+                <button type="button" className="nav-arrow-button" onClick={goPrevious}>
+                  ←
+                </button>
+          
+                <select
+                  className="agenda-artist-filter"
+                  value={agendaArtistFilter}
+                  onChange={(e) => setAgendaArtistFilter(e.target.value)}
+                >
+                  <option value="all">Tous les tatoueurs</option>
+                  {artists
+                    .slice()
+                    .sort((a, b) => a.name.localeCompare(b.name))
+                    .map((artist) => (
+                      <option key={artist.id} value={artist.id}>
+                        {artist.name}
+                      </option>
+                    ))}
+                </select>
+          
+                <button type="button" className="nav-arrow-button" onClick={goNext}>
+                  →
+                </button>
+              </div>
             )}
           </div>
         </div>
