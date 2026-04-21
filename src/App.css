@@ -2128,7 +2128,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 
 .month-day-marker {
   position: absolute;
-  top: 60%;
+  top: 80%;
   left: 50%;
   transform: translate(-50%, -50%);
   width: 8px;
