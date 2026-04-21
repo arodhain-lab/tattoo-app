@@ -2141,3 +2141,9 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   aspect-ratio: auto;          /* on casse le carré parfait */
   height: 70px;                /* ajuste ici (65 à 80 selon rendu) */
 }
+
+.artist-bordered {
+  border-left: 5px solid transparent;
+  padding-left: 10px;
+  border-radius: 8px;
+}
