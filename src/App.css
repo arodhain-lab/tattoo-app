@@ -2295,3 +2295,28 @@ body,
     max-width: 100%;
   }
 }
+
+.card {
+  overflow: visible;
+}
+
+.form-card {
+  position: static;
+  top: auto;
+}
+
+.grid {
+  width: 100%;
+  max-width: 100%;
+}
+
+.grid > * {
+  min-width: 0;
+  max-width: 100%;
+}
+
+@media (max-width: 980px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}
