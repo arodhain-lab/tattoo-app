@@ -2072,17 +2072,17 @@ const goNext = () => {
                       }`}
                       onClick={() => setSelectedDate(key)}
                     >
-                      <div className="month-day-number-wrap">
-                        <div style={{ fontSize: "0.85rem", marginBottom: "4px" }}>
-                          {new Intl.DateTimeFormat("fr-FR", {
-                            weekday: "short",
-                          }).format(day)}
-                        </div>
+                     <div className="week-day-square-content">
+                       <span className="week-day-number">{day.getDate()}</span>
 
-                        <span className="month-day-number">{day.getDate()}</span>
+                       <span className="week-day-label">
+                         {new Intl.DateTimeFormat("fr-FR", {
+                           weekday: "short",
+                         }).format(day)}
+                       </span>
 
-                        {items.length > 0 && <span className="month-day-marker"></span>}
-                      </div>
+                       {items.length > 0 && <span className="month-day-marker"></span>}
+                     </div>
                     </button>
                   );
                 })}

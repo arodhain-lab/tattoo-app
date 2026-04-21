@@ -1846,13 +1846,6 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   text-transform: capitalize;
 }
 
-.month-weekdays-row {
-  display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  gap: 6px;
-  margin-bottom: 8px;
-}
-
 .month-weekday-cell {
   text-align: center;
   font-weight: 700;
@@ -2087,4 +2080,49 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   font-size: 14px;
   border-radius: 14px;
   flex-shrink: 1;
+}
+
+.month-weekdays-row {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 8px;
+}
+
+.month-weekdays-row .month-cell {
+  aspect-ratio: 1 / 1;
+  width: 100%;
+  min-height: 0;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.week-day-square-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
+
+.week-day-number {
+  font-size: 1.1rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.week-day-label {
+  font-size: 0.82rem;
+  line-height: 1;
+  text-transform: lowercase;
+}
+
+.week-day-square-content .month-day-marker {
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
 }
