@@ -2270,7 +2270,7 @@ const goNext = () => {
                       onClick={() => openAppointmentDetails(appointment)}
                       type="button"
                       style={{
-                        borderLeftColor: appointment.artistColor,
+                        borderLeft: `6px solid ${appointment.artistColor || "#111111"}`,
                         backgroundColor: appointment.cancelled ? "#d3d3d3" : "",
                       }}
                     >
