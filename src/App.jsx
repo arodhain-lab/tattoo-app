@@ -2043,159 +2043,109 @@ const goNext = () => {
         )}
 
         {agendaView === "week" && (!isMobile || showMobileWeek) && (
-          <div className={`week-planner ${isMobile ? "week-planner-mobile" : ""}`}>
-            <div className="week-planner-scroll">
-              <div className="week-planner-header">
-                <div className="week-time-header"></div>
+          <div className="month-split-layout">
+            <div className="month-top-section">
+              <div className="month-view-title">
+                Semaine du {formatDateOnly(weekDays[0])} au {formatDateOnly(weekDays[6])}
+              </div>
 
+              <div className="month-weekdays-row">
                 {weekDays.map((day) => {
                   const key = formatDateKey(day);
+                  const isSelected = key === selectedDate;
                   const specialDayInfo = getSpecialDayInfo(key, schoolZone);
+                  const isToday = key === getTodayDateOnly();
+                  const items = appointmentsByDate[key] || [];
 
                   return (
-                    <div
+                    <button
                       key={key}
-                      className={`week-column-header ${
+                      type="button"
+                      className={`month-cell month-cell-compact ${isSelected ? "selected-cell" : ""} ${
+                        isToday ? "today-cell" : ""
+                      } ${
                         specialDayInfo?.type === "publicHoliday"
                           ? "public-holiday-cell"
                           : specialDayInfo?.type === "schoolHoliday"
                           ? "school-holiday-cell"
                           : ""
                       }`}
+                      onClick={() => setSelectedDate(key)}
                     >
-                      <strong>
-                        {isMobile
-                          ? (() => {
-                              const dayLabel = new Intl.DateTimeFormat("fr-FR", {
-                                weekday: "long",
-                              }).format(day);
-                              return dayLabel.charAt(0).toUpperCase() + dayLabel.slice(1);
-                            })()
-                          : new Intl.DateTimeFormat("fr-FR", {
-                              weekday: "short",
-                            }).format(day)}
-                      </strong>
+                      <div className="month-day-number-wrap">
+                        <div style={{ fontSize: "0.85rem", marginBottom: "4px" }}>
+                          {new Intl.DateTimeFormat("fr-FR", {
+                            weekday: "short",
+                          }).format(day)}
+                        </div>
 
-                      <span>
-                        {isMobile
-                          ? `${pad(day.getDate())}/${pad(day.getMonth() + 1)}`
-                          : formatDateOnly(day)}
-                      </span>
+                        <span className="month-day-number">{day.getDate()}</span>
 
-                      {specialDayInfo && (
-                        <small className="special-day-text">{specialDayInfo.label}</small>
-                      )}
-                    </div>
+                        {items.length > 0 && <span className="month-day-marker"></span>}
+                      </div>
+                    </button>
                   );
                 })}
               </div>
+            </div>
 
-              <div className="week-planner-body">
-                <div className="week-time-column" style={{ height: `${DAY_COLUMN_HEIGHT}px` }}>
-                  {timeSlots
-                    .filter((slot) => !(isMobile && slot.isHalfHour))
-                    .map((slot) => (
-                      <div
-                        key={slot.label}
-                        className={`week-time-slot ${slot.isHalfHour ? "half-hour-slot" : "full-hour-slot"}`}
-                        style={{ top: `${(slot.minutesFromStart / 60) * HOUR_HEIGHT}px` }}
-                      >
-                        {slot.label}
-                      </div>
-                    ))}
-                </div>
+            <div className="month-bottom-section">
+              <div className="month-selected-day-header">
+                <h3>Rendez-vous du {formatDateOnly(selectedDate)}</h3>
+                {renderSpecialDayBadge(selectedDate)}
+              </div>
 
-                {weekDays.map((day) => {
-                  const key = formatDateKey(day);
-                  const items = appointmentsByDate[key] || [];
-                  const specialDayInfo = getSpecialDayInfo(key, schoolZone);
-
-                  return (
-                    <div
-                      key={key}
-                      className={`week-day-column ${
-                        specialDayInfo?.type === "publicHoliday"
-                          ? "public-holiday-cell"
-                          : specialDayInfo?.type === "schoolHoliday"
-                          ? "school-holiday-cell"
-                          : ""
+              <div className="month-day-appointments-list">
+                {selectedDayAppointments.length === 0 ? (
+                  <p>Aucun rendez-vous pour cette date.</p>
+                ) : (
+                  selectedDayAppointments.map((appointment) => (
+                    <button
+                      key={appointment.id}
+                      className={`agenda-item month-day-appointment-card ${
+                        appointment.cancelled ? "cancelled-appointment" : ""
                       }`}
-                      style={{ height: `${DAY_COLUMN_HEIGHT}px` }}
+                      onClick={() => openAppointmentDetails(appointment)}
+                      type="button"
+                      style={{
+                        borderLeft: `6px solid ${appointment.artistColor || "#111111"}`,
+                        backgroundColor: appointment.cancelled ? "#d3d3d3" : "",
+                      }}
                     >
-                      {Array.from({ length: DAY_END_HOUR - DAY_START_HOUR + 1 }).map((_, index) => (
-                        <div
-                          key={index}
-                          className="week-hour-line"
-                          style={{ top: `${index * HOUR_HEIGHT}px` }}
-                        ></div>
-                      ))}
+                      <div className="month-rdv-card-content">
+                        <div className="month-rdv-topline">
+                          <span className="month-rdv-time">
+                            {formatTimeOnly(appointment.appointment)}
+                          </span>
 
-                      {Array.from({ length: (DAY_END_HOUR - DAY_START_HOUR) * 2 }).map((_, index) => (
-                        <div
-                          key={`half-${index}`}
-                          className="week-half-line"
-                          style={{ top: `${index * (HOUR_HEIGHT / 2)}px` }}
-                        ></div>
-                      ))}
+                          <span className="month-rdv-price">
+                            {appointment.price !== ""
+                              ? formatCurrency(getDisplayedPrice(appointment, appointments))
+                              : "Non renseigné"}
+                         </span>
+                        </div>
 
-                      {items.map((appointmentItem) => {
-                        const startMinutes = clamp(
-                          getMinutesSinceStartOfDay(appointmentItem.appointment, DAY_START_HOUR),
-                          0,
-                          TOTAL_DAY_MINUTES
-                        );
+                        <div className="month-rdv-description">
+                          {appointment.project || appointment.title || "Sans descriptif"}
+                        </div>
 
-                        const durationMinutes = getAppointmentDurationInMinutes(appointmentItem);
+                        <div className="month-rdv-client">
+                          <strong>Client :</strong> {appointment.clientName}
+                        </div>
 
-                        const top = (startMinutes / 60) * HOUR_HEIGHT;
-                        const height = Math.max(
-                          (durationMinutes / 60) * HOUR_HEIGHT,
-                          isMobile ? 34 : 20
-                        );
+                        <div className="month-rdv-bottomline">
+                          <span>
+                            <strong>Tatoueur :</strong> {appointment.artistName}
+                          </span>
 
-                        return (
-                          <button
-                            key={appointmentItem.id}
-                            className={`week-appointment-block ${appointmentItem.cancelled ? "cancelled-appointment" : ""}`}
-                            style={{
-                              top: `${top}px`,
-                              height: `${height}px`,
-                              backgroundColor: appointmentItem.cancelled
-                                ? "#d3d3d3"
-                                : appointmentItem.artistColor,
-                            }}
-                            onClick={() => openAppointmentDetails(appointmentItem)}
-                          >
-                            {isMobile ? (
-                              <div className="week-chip-mobile-content">
-                                <div className="week-chip-title">
-                                  {appointmentItem.project || appointmentItem.title || "Sans titre"}
-                                </div>
-
-                                {appointmentItem.price !== "" && (
-                                  <div className="week-chip-price">
-                                    {formatCurrency(getDisplayedPrice(appointmentItem, appointments))}
-                                  </div>
-                                )}
-                              </div>
-                            ) : (
-                              <div className="week-chip-topline">
-                                <span className="week-chip-title">
-                                  {appointmentItem.project || appointmentItem.title || "Sans titre"}
-                                </span>
-                                {appointmentItem.price !== "" && (
-                                  <span className="week-chip-price">
-                                    {formatCurrency(getDisplayedPrice(appointmentItem, appointments))}
-                                  </span>
-                                )}
-                              </div>
-                            )}
-                          </button>
-                        );
-                      })}
-                    </div>
-                  );
-                })}
+                          <span>
+                            <strong>Type :</strong> {appointment.title || "Sans type"}
+                          </span>
+                        </div>
+                      </div>
+                    </button>
+                  ))
+                )}
               </div>
             </div>
           </div>
