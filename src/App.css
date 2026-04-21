@@ -513,10 +513,6 @@ button:hover {
     0 0 18px rgba(240, 199, 102, 0.18);
 }
 
-.artist-bordered {
-  border-left-width: 8px;
-}
-
 .action-buttons {
   display: flex;
   flex-wrap: wrap;
