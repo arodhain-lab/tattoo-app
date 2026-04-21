@@ -1889,20 +1889,6 @@ const goNext = () => {
               </div>
             </button>
           </div>
-
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "flex-end",
-              width: "100%",
-              marginTop: "24px",
-              padding: "10px",
-            }}
-          >
-            <button className="logout-button" onClick={() => supabase.auth.signOut()}>
-              Déconnexion
-            </button>
-          </div>
         </section>
       )}
 
@@ -2496,6 +2482,21 @@ const goNext = () => {
               <span className="home-menu-subtitle">
                 Créer une nouvelle fiche client
               </span>
+            </button>
+          </div>
+
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "flex-end",
+              marginTop: "24px",
+            }}
+          >
+            <button
+              className="logout-button"
+              onClick={() => supabase.auth.signOut()}
+            >
+              Déconnexion
             </button>
           </div>
         </section>
