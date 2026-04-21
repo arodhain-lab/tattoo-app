@@ -1963,9 +1963,6 @@ const goNext = () => {
                     <h2 className="planning-title" translate="no">
                       PLANNING
                     </h2>
-                    {agendaView !== "week" && (
-                      <p className="muted-text agenda-current-period">{homeAgendaTitle}</p>
-                    )}
                   </div>
 
                   <button
@@ -2142,13 +2139,6 @@ const goNext = () => {
                           </h4>
 
                           <p>
-                            <strong>Tatoueur :</strong> {appointmentItem.artistName}
-                          </p>
-                          <p>
-                            <strong>Titre :</strong> {appointmentItem.title || "Sans titre"}
-                          </p>
-
-                          <p>
                             <strong>Tarif :</strong>{" "}
                             {appointmentItem.price !== ""
                               ? formatCurrency(
@@ -2272,16 +2262,6 @@ const goNext = () => {
 
                               <div className="month-rdv-client">
                                 <strong>Client :</strong> {appointment.clientName}
-                              </div>
-
-                              <div className="month-rdv-bottomline">
-                                <span>
-                                  <strong>Tatoueur :</strong> {appointment.artistName}
-                                </span>
-
-                                <span>
-                                  <strong>Type :</strong> {appointment.title || "Sans type"}
-                                </span>
                               </div>
                             </div>
                           </button>
@@ -2427,16 +2407,6 @@ const goNext = () => {
 
                               <div className="month-rdv-client">
                                 <strong>Client :</strong> {appointment.clientName}
-                              </div>
-
-                              <div className="month-rdv-bottomline">
-                                <span>
-                                  <strong>Tatoueur :</strong> {appointment.artistName}
-                                </span>
-
-                                <span>
-                                  <strong>Type :</strong> {appointment.title || "Sans type"}
-                                </span>
                               </div>
                             </div>
                           </button>
