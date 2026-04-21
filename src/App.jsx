@@ -366,6 +366,14 @@ function buildSystemDepositNotes(appointments, appointmentItem) {
     .join(" | ");
 }
 
+function sanitizePhoneNumber(phone) {
+  return (phone || "").replace(/[^\d+]/g, "");
+}
+
+function getClientPhone(client) {
+  return sanitizePhoneNumber(client?.phone || "");
+}
+
 export default function App() {
   const [session, setSession] = useState(null);
   const [loadingSession, setLoadingSession] = useState(true);
@@ -2549,101 +2557,99 @@ const goNext = () => {
       )}
 
       {page === "client-details" && setupComplete && selectedClientDetails && (
-  <section className="card">
-    <h2>Détail de la fiche client</h2>
+        <section className="card">
+          <h2>Détail de la fiche client</h2>
 
-    <div className="client-box">
-      <h3>{formatClientName(selectedClientDetails)}</h3>
-      <p><strong>Nom :</strong> {selectedClientDetails.lastName || "Non renseigné"}</p>
-      <p><strong>Prénom :</strong> {selectedClientDetails.firstName || "Non renseigné"}</p>
-      <p><strong>Téléphone :</strong> {selectedClientDetails.phone || "Non renseigné"}</p>
-      <p><strong>Notes :</strong> {selectedClientDetails.notes || "Aucune note"}</p>
-      <p>
-        <strong>Nombre de rendez-vous liés :</strong>{" "}
-        {getClientAppointments(selectedClientDetails.id).length}
-      </p>
-    </div>
-
-    <div className="action-buttons" style={{ marginTop: "20px" }}>
-      <button onClick={() => editClient(selectedClientDetails)}>
-        Modifier
-      </button>
-
-      <button
-        onClick={() => deleteClient(selectedClientDetails.id)}
-        disabled={clientHasAppointments(selectedClientDetails.id)}
-        title={
-          clientHasAppointments(selectedClientDetails.id)
-            ? "Suppression impossible : ce client a des rendez-vous"
-            : "Supprimer cette fiche client"
-        }
-      >
-        Supprimer
-      </button>
-    </div>
-  </section>
-)}
-
-{page === "client-form" && setupComplete && (
-  <section className="card form-card">
-    <h2>
-      {editingClientId !== null
-        ? "Modifier la fiche client"
-        : "Créer une fiche client"}
-    </h2>
-
-    <input
-      type="text"
-      placeholder="Nom"
-      value={clientForm.lastName}
-      onChange={(e) =>
-        setClientForm({ ...clientForm, lastName: e.target.value })
-      }
-    />
-
-    <input
-      type="text"
-      placeholder="Prénom"
-      value={clientForm.firstName}
-      onChange={(e) =>
-        setClientForm({ ...clientForm, firstName: e.target.value })
-      }
-    />
-
-    <input
-      type="text"
-      placeholder="Téléphone"
-      value={clientForm.phone}
-      onChange={(e) =>
-        setClientForm({ ...clientForm, phone: e.target.value })
-      }
-    />
-
-    <textarea
-      placeholder="Notes client"
-      value={clientForm.notes}
-      onChange={(e) =>
-        setClientForm({ ...clientForm, notes: e.target.value })
-      }
-    />
-
-    <button onClick={saveClient}>
-      {editingClientId !== null
-        ? "Enregistrer les modifications"
-        : "Ajouter la fiche client"}
-    </button>
-
-    <button
-      className="secondary-button full-width"
-      onClick={() => {
-        resetClientForm();
-        setPage(editingClientId !== null ? "client-details" : "clients");
-      }}
-    >
-      Annuler
-    </button>
-  </section>
-)}
+          <div className="client-box">
+            <h3>{formatClientName(selectedClientDetails)}</h3>
+            <p><strong>Nom :</strong> {selectedClientDetails.lastName || "Non renseigné"}</p>
+            <p><strong>Prénom :</strong> {selectedClientDetails.firstName || "Non renseigné"}</p>
+            <p><strong>Téléphone :</strong> {selectedClientDetails.phone || "Non renseigné"}</p>
+            <p><strong>Notes :</strong> {selectedClientDetails.notes || "Aucune note"}</p>
+            <p>
+              <strong>Nombre de rendez-vous liés :</strong>{" "}
+              {getClientAppointments(selectedClientDetails.id).length}
+            </p>
+      
+            {getClientPhone(selectedClientDetails) && (
+              <div className="action-buttons" style={{ marginTop: "16px" }}>
+                <a
+                  href={`tel:${getClientPhone(selectedClientDetails)}`}
+                  className="button-link"
+                >
+                  Appeler
+                </a>
+      
+                <a
+                  href={`sms:${getClientPhone(selectedClientDetails)}`}
+                  className="button-link"
+                >
+                  SMS
+                </a>
+              </div>
+            )}
+          </div>
+      
+      {page === "client-form" && setupComplete && (
+        <section className="card form-card">
+          <h2>
+            {editingClientId !== null
+              ? "Modifier la fiche client"
+              : "Créer une fiche client"}
+          </h2>
+      
+          <input
+            type="text"
+            placeholder="Nom"
+            value={clientForm.lastName}
+            onChange={(e) =>
+              setClientForm({ ...clientForm, lastName: e.target.value })
+            }
+          />
+      
+          <input
+            type="text"
+            placeholder="Prénom"
+            value={clientForm.firstName}
+            onChange={(e) =>
+              setClientForm({ ...clientForm, firstName: e.target.value })
+            }
+          />
+      
+          <input
+            type="text"
+            placeholder="Téléphone"
+            value={clientForm.phone}
+            onChange={(e) =>
+              setClientForm({ ...clientForm, phone: e.target.value })
+            }
+          />
+      
+          <textarea
+            placeholder="Notes client"
+            value={clientForm.notes}
+            onChange={(e) =>
+              setClientForm({ ...clientForm, notes: e.target.value })
+            }
+          />
+      
+          <button onClick={saveClient}>
+            {editingClientId !== null
+              ? "Enregistrer les modifications"
+              : "Ajouter la fiche client"}
+          </button>
+      
+          <button
+            className="secondary-button full-width"
+            onClick={() => {
+              resetClientForm();
+              setPage(editingClientId !== null ? "client-details" : "clients");
+            }}
+          >
+            Annuler
+          </button>
+        </section>
+      )}
 
       {page === "artists" && (
         <div className="grid">

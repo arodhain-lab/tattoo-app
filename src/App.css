@@ -2210,3 +2210,24 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 .nav-arrow-button {
   flex-shrink: 0;
 }
+
+.button-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 140px;
+  padding: 12px 16px;
+  border: none;
+  border-radius: 10px;
+  background: #f3d486;
+  color: #111;
+  text-decoration: none;
+  font-weight: 700;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.button-link:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
