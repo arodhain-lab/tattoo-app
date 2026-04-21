@@ -1840,6 +1840,7 @@ const goNext = () => {
 
       {page === "home" && setupComplete && (
         <section className="card home-card">
+          <h2>Accueil</h2>
           <div
             className="home-menu-grid"
             style={
