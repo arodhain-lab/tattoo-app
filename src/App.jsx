@@ -944,6 +944,29 @@ const resetAppointmentForm = () => {
   setEditingAppointmentId(null);
 };
 
+const openNewAppointmentForm = () => {
+  resetAppointmentForm();
+
+  setAppointmentForm({
+    clientId: "",
+    artistId: "",
+    title: "",
+    project: "",
+    notes: "",
+    appointment: `${selectedDate}T10:00`,
+    price: "",
+    durationHours: "",
+    durationMinutes: "",
+    cancelled: false,
+    linkedAppointmentId: "",
+    paymentMethod: "",
+    paymentDate: "",
+    originalTotalBeforeDeposit: "",
+  });
+
+  setPage("appointments");
+};
+
  const saveClient = async () => {
   if (!clientForm.lastName.trim() || !clientForm.firstName.trim()) return;
   if (!session?.user) return;
@@ -1891,7 +1914,11 @@ const goNext = () => {
                   <p className="muted-text agenda-current-period">{homeAgendaTitle}</p>
                 </div>
 
-                <button className="btn-add-rdv-inline">
+                <button
+                  type="button"
+                  className="btn-add-rdv-inline"
+                  onClick={openNewAppointmentForm}
+                >
                   <span className="plus">+</span>
                 </button>
               </div>
