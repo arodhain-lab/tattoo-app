@@ -2143,3 +2143,31 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   padding-left: 10px;
   border-radius: 8px;
 }
+
+.agenda-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.agenda-date-navigation {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+}
+
+.agenda-date-input {
+  flex: 1;
+  min-width: 0;
+}
+
+.agenda-artist-row {
+  display: flex;
+  width: 100%;
+}
+
+.agenda-artist-row .agenda-artist-filter {
+  width: 100%;
+}
