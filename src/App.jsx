@@ -1963,7 +1963,9 @@ const goNext = () => {
                     <h2 className="planning-title" translate="no">
                       PLANNING
                     </h2>
-                    <p className="muted-text agenda-current-period">{homeAgendaTitle}</p>
+                    {agendaView !== "week" && (
+                      <p className="muted-text agenda-current-period">{homeAgendaTitle}</p>
+                    )}
                   </div>
 
                   <button
