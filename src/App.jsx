@@ -1816,7 +1816,13 @@ const goNext = () => {
       )}
 
       {page !== "home" && setupComplete && (
-        <div style={{ marginBottom: "16px" }}>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "flex-end",
+            marginBottom: "16px",
+          }}
+        >
           <button className="back-button" onClick={() => setPage("home")}>
             ← Retour accueil
           </button>
