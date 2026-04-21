@@ -2146,3 +2146,8 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   /* Glow basé sur la couleur du tatoueur */
   box-shadow: -4px 0 10px rgba(0, 0, 0, 0.6);
 }
+
+.artist-bordered:hover {
+  transform: translateX(2px);
+  transition: all 0.2s ease;
+}

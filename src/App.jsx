@@ -2005,7 +2005,7 @@ const goNext = () => {
                     borderLeftColor: appointmentItem.artistColor,
                     boxShadow: `
                       -2px 0 6px ${appointmentItem.artistColor}AA,
-                      -6px 0 12px ${appointmentItem.artistColor}55
+                      -6px 0 14px ${appointmentItem.artistColor}77
                     `,
                   }}
                   onClick={() => openAppointmentDetails(appointmentItem)}
