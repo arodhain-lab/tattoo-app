@@ -2045,6 +2045,67 @@ const goNext = () => {
             </div>
             </div>
 
+          {agendaView === "day" && (
+            <div className="agenda-panel">
+              <h3>Planning du jour</h3>
+
+              {renderSpecialDayBadge(selectedDate)}
+
+              {selectedDayAppointments.length === 0 ? (
+                <p>Aucun rendez-vous pour cette date.</p>
+              ) : (
+                selectedDayAppointments.map((appointmentItem) => (
+                  <button
+                    key={appointmentItem.id}
+                    type="button"
+                    className={`agenda-item artist-bordered ${
+                      appointmentItem.cancelled ? "cancelled-appointment" : ""
+                    }`}
+                    style={{
+                      borderLeftColor: appointmentItem.artistColor,
+                    }}
+                    onClick={() => openAppointmentDetails(appointmentItem)}
+                  >
+                    <div className="agenda-item-time">
+                      {formatTimeOnly(appointmentItem.appointment)}
+                    </div>
+          
+                    <div className="agenda-item-content">
+                      <h4 className="appointment-project-title">
+                        {appointmentItem.project}
+                      </h4>
+          
+                      <p><strong>Tatoueur :</strong> {appointmentItem.artistName}</p>
+                      <p><strong>Titre :</strong> {appointmentItem.title || "Sans titre"}</p>
+                              
+                      <p>
+                        <strong>Tarif :</strong>{" "}
+                        {appointmentItem.price !== ""
+                          ? formatCurrency(getDisplayedPrice(appointmentItem, appointments))
+                          : "Non renseigné"}
+                      </p>
+          
+                      <p>
+                        <strong>Durée estimée :</strong>{" "}
+                        {formatDuration(
+                          appointmentItem.durationHours,
+                          appointmentItem.durationMinutes
+                        )}
+                      </p>
+          
+                      <p>
+                        <strong>Notes :</strong>{" "}
+                        {[appointmentItem.notes, buildSystemDepositNotes(appointments, appointmentItem)]
+                          .filter(Boolean)
+                          .join(" | ") || "Aucune note"}
+                      </p>
+                    </div>
+                  </button>
+                ))
+              )}
+            </div>
+          )}  
+
           {agendaView === "week" && (!isMobile || showMobileWeek) && (
             <div className="month-split-layout">
               <div className="month-top-section">
