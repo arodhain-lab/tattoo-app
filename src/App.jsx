@@ -1924,80 +1924,103 @@ const goNext = () => {
               </div>
             </div>
 
-        <div className="agenda-toolbar">
-          <div className="view-switch">
-            <button
-              type="button"
-              className={agendaView === "day" ? "active-view" : ""}
-              onClick={() => {
-                setAgendaView("day");
-                setShowMobileWeek(false);
-              }}
-            >
-              Vue jour
-            </button>
-
-            {!isMobile && (
+            <div className="agenda-toolbar">
+             <div className="view-switch">
               <button
                 type="button"
-                className={agendaView === "week" ? "active-view" : ""}
-                onClick={() => setAgendaView("week")}
-              >
-                Vue semaine
-              </button>
-            )}
-
-            {isMobile && (
-              <button
-                type="button"
-                className={showMobileWeek ? "active-view" : ""}
+                className={agendaView === "day" ? "active-view" : ""}
                 onClick={() => {
-                  if (showMobileWeek) {
-                    setShowMobileWeek(false);
-                    setAgendaView("day");
-                  } else {
-                    setShowMobileWeek(true);
-                    setAgendaView("week");
-                  }
+                  setAgendaView("day");
+                  setShowMobileWeek(false);
                 }}
               >
-                {showMobileWeek ? "Masquer semaine" : "Voir semaine"}
+                Vue jour
               </button>
-            )}
 
-            <button
-              type="button"
-              className={agendaView === "month" ? "active-view" : ""}
-              onClick={() => {
-                setAgendaView("month");
-                setShowMobileWeek(false);
-              }}
-            >
-              Vue mois
-            </button>
-          </div>
+              {!isMobile && (
+                <button
+                  type="button"
+                  className={agendaView === "week" ? "active-view" : ""}
+                  onClick={() => setAgendaView("week")}
+                >
+                  Vue semaine
+                </button>
+              )}
 
-          <div className="agenda-controls">
-            {agendaView === "day" ? (
-              <>
-                <div className="agenda-date-navigation">
+              {isMobile && (
+                <button
+                  type="button"
+                  className={showMobileWeek ? "active-view" : ""}
+                  onClick={() => {
+                    if (showMobileWeek) {
+                      setShowMobileWeek(false);
+                      setAgendaView("day");
+                    } else {
+                      setShowMobileWeek(true);
+                      setAgendaView("week");
+                    }
+                  }}
+                >
+                  {showMobileWeek ? "Masquer semaine" : "Voir semaine"}
+                </button>
+              )}
+ 
+              <button
+                type="button"
+                className={agendaView === "month" ? "active-view" : ""}
+                onClick={() => {
+                  setAgendaView("month");
+                  setShowMobileWeek(false);
+                }}
+              >
+                Vue mois
+              </button>
+            </div>
+
+            <div className="agenda-controls">
+              {agendaView === "day" ? (
+                <>
+                  <div className="agenda-date-navigation">
+                    <button type="button" className="nav-arrow-button" onClick={goPrevious}>
+                      ←
+                    </button>
+          
+                    <input
+                    type="date"
+                      className="agenda-date-input"
+                      value={selectedDate}
+                      onChange={(e) => setSelectedDate(e.target.value)}
+                    />
+          
+                    <button type="button" className="nav-arrow-button" onClick={goNext}>
+                      →
+                    </button>
+                  </div>
+          
+                  <div className="agenda-artist-row">
+                    <select
+                      className="agenda-artist-filter"
+                      value={agendaArtistFilter}
+                      onChange={(e) => setAgendaArtistFilter(e.target.value)}
+                    >
+                      <option value="all">Tous les tatoueurs</option>
+                      {artists
+                        .slice()
+                        .sort((a, b) => a.name.localeCompare(b.name))
+                        .map((artist) => (
+                         <option key={artist.id} value={artist.id}>
+                            {artist.name}
+                          </option>
+                        ))}
+                    </select>
+                 </div>
+                </>
+              ) : agendaView === "week" ? (
+               <div className="agenda-nav-buttons">
                   <button type="button" className="nav-arrow-button" onClick={goPrevious}>
                     ←
                   </button>
-          
-                  <input
-                    type="date"
-                    className="agenda-date-input"
-                    value={selectedDate}
-                    onChange={(e) => setSelectedDate(e.target.value)}
-                  />
-          
-                  <button type="button" className="nav-arrow-button" onClick={goNext}>
-                    →
-                  </button>
-                </div>
-          
-                <div className="agenda-artist-row">
+           
                   <select
                     className="agenda-artist-filter"
                     value={agendaArtistFilter}
@@ -2008,88 +2031,66 @@ const goNext = () => {
                       .slice()
                       .sort((a, b) => a.name.localeCompare(b.name))
                       .map((artist) => (
-                       <option key={artist.id} value={artist.id}>
+                        <option key={artist.id} value={artist.id}>
                           {artist.name}
                         </option>
                       ))}
                   </select>
-               </div>
-              </>
-            ) : agendaView === "week" ? (
-             <div className="agenda-nav-buttons">
-                <button type="button" className="nav-arrow-button" onClick={goPrevious}>
-                  ←
-                </button>
           
-                <select
-                  className="agenda-artist-filter"
-                  value={agendaArtistFilter}
-                  onChange={(e) => setAgendaArtistFilter(e.target.value)}
-                >
-                  <option value="all">Tous les tatoueurs</option>
-                  {artists
-                    .slice()
-                    .sort((a, b) => a.name.localeCompare(b.name))
-                    .map((artist) => (
-                      <option key={artist.id} value={artist.id}>
-                        {artist.name}
-                      </option>
-                    ))}
-                </select>
-          
-                <button type="button" className="nav-arrow-button" onClick={goNext}>
-                  →
-                </button>
-              </div>
-            ) : null}
-          </div>
-
-        {agendaView === "week" && (!isMobile || showMobileWeek) && (
-          <div className="month-split-layout">
-            <div className="month-top-section">
-              <div className="month-view-title">
-                Semaine du {formatDateOnly(weekDays[0])} au {formatDateOnly(weekDays[6])}
-              </div>
-
-              <div className="month-weekdays-row">
-                {weekDays.map((day) => {
-                  const key = formatDateKey(day);
-                  const isSelected = key === selectedDate;
-                  const specialDayInfo = getSpecialDayInfo(key, schoolZone);
-                  const isToday = key === getTodayDateOnly();
-                  const items = appointmentsByDate[key] || [];
-
-                  return (
-                    <button
-                      key={key}
-                      type="button"
-                      className={`month-cell month-cell-compact week-day-cell ${isSelected ? "selected-cell" : ""} ${
-                        isToday ? "today-cell" : ""
-                      } ${
-                        specialDayInfo?.type === "publicHoliday"
-                          ? "public-holiday-cell"
-                          : specialDayInfo?.type === "schoolHoliday"
-                          ? "school-holiday-cell"
-                          : ""
-                      }`}
-                      onClick={() => setSelectedDate(key)}
-                    >
-                     <div className="week-day-square-content">
-                       <span className="week-day-number">{day.getDate()}</span>
-
-                       <span className="week-day-label">
-                         {new Intl.DateTimeFormat("fr-FR", {
-                           weekday: "short",
-                         }).format(day)}
-                       </span>
-
-                       {items.length > 0 && <span className="month-day-marker"></span>}
-                     </div>
-                    </button>
-                  );
-                })}
-              </div>
+                  <button type="button" className="nav-arrow-button" onClick={goNext}>
+                    →
+                  </button>
+                </div>
+              ) : null}
             </div>
+            </div>
+
+          {agendaView === "week" && (!isMobile || showMobileWeek) && (
+            <div className="month-split-layout">
+              <div className="month-top-section">
+                <div className="month-view-title">
+                  Semaine du {formatDateOnly(weekDays[0])} au {formatDateOnly(weekDays[6])}
+                </div>
+
+                <div className="month-weekdays-row">
+                  {weekDays.map((day) => {
+                    const key = formatDateKey(day);
+                    const isSelected = key === selectedDate;
+                    const specialDayInfo = getSpecialDayInfo(key, schoolZone);
+                    const isToday = key === getTodayDateOnly();
+                    const items = appointmentsByDate[key] || [];
+
+                    return (
+                      <button
+                        key={key}
+                        type="button"
+                        className={`month-cell month-cell-compact week-day-cell ${isSelected ? "selected-cell" : ""} ${
+                          isToday ? "today-cell" : ""
+                        } ${
+                          specialDayInfo?.type === "publicHoliday"
+                            ? "public-holiday-cell"
+                            : specialDayInfo?.type === "schoolHoliday"
+                            ? "school-holiday-cell"
+                            : ""
+                        }`}
+                        onClick={() => setSelectedDate(key)}
+                      >
+                       <div className="week-day-square-content">
+                         <span className="week-day-number">{day.getDate()}</span>
+
+                         <span className="week-day-label">
+                           {new Intl.DateTimeFormat("fr-FR", {
+                             weekday: "short",
+                           }).format(day)}
+                         </span>
+
+                         {items.length > 0 && <span className="month-day-marker"></span>}
+                       </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
 
             <div className="month-bottom-section">
               <div className="month-selected-day-header">
