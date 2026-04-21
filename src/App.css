@@ -18,7 +18,7 @@ body {
   width: 100%;
   max-width: 1100px;
   margin: 0 auto;
-  padding: 16px;
+  padding: 16px 16px 110px 16px;
   box-sizing: border-box;
 }
 
@@ -1117,7 +1117,7 @@ button:hover {
   .container {
     width: 100%;
     max-width: 100%;
-    padding: 12px;
+    padding: 12px 12px 120px 12px;
   }
 
   .view-switch {
@@ -2231,8 +2231,7 @@ html {
 
 @media (max-width: 768px) {
   .container {
-    max-width: 100%;
-    padding: 12px;
+    padding: 12px 12px 120px 12px;
   }
 
   .home-menu-grid {
@@ -2259,7 +2258,7 @@ body,
   width: 100%;
   max-width: 1100px;
   margin: 0 auto;
-  padding: 16px;
+  padding: 16px 16px 110px 16px;
   box-sizing: border-box;
   overflow-x: hidden;
 }
