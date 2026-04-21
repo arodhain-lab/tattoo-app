@@ -376,12 +376,20 @@ function getClientPhone(client) {
 
 export default function App() {
   const [session, setSession] = useState(null);
+  const [searchAppointmentQuery, setSearchAppointmentQuery] = useState("");
   const [loadingSession, setLoadingSession] = useState(true);
   const [checkingSetup, setCheckingSetup] = useState(true);
   const [setupComplete, setSetupComplete] = useState(false);
   const [page, setPage] = useState("home");
   const [selectedAppointmentId, setSelectedAppointmentId] = useState(null);
   const [selectedClientId, setSelectedClientId] = useState(null);
+  function normalizeSearchText(value) {
+    return String(value || "")
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .toLowerCase()
+      .trim();
+  }
   const [data, setData] = useState({
     clients: [],
     appointments: [],
@@ -740,6 +748,48 @@ const [
       (appointmentItem) => String(appointmentItem.artistId) === String(agendaArtistFilter)
     );
   }, [appointmentsWithClient, agendaArtistFilter]);
+
+  const searchedAppointments = useMemo(() => {
+  const q = normalizeSearchText(searchAppointmentQuery);
+
+  if (!q) return appointments;
+
+  return appointments.filter((appointment) => {
+    const client = clients.find((c) => c.id === appointment.clientId);
+    const artist = artists.find((a) => a.id === appointment.artistId);
+
+    const appointmentDate = appointment.appointment
+      ? new Date(appointment.appointment)
+      : null;
+
+    const dateText = appointmentDate
+      ? appointmentDate.toLocaleDateString("fr-FR")
+      : "";
+
+    const timeText = appointmentDate
+      ? appointmentDate.toLocaleTimeString("fr-FR", {
+          hour: "2-digit",
+          minute: "2-digit",
+        })
+      : "";
+
+    const searchableText = normalizeSearchText(`
+      ${appointment.title}
+      ${appointment.project}
+      ${appointment.notes}
+      ${appointment.price}
+      ${appointment.paymentMethod}
+      ${appointment.originalTotalBeforeDeposit}
+      ${dateText}
+      ${timeText}
+      ${client?.firstName}
+      ${client?.lastName}
+      ${artist?.name}
+    `);
+
+    return searchableText.includes(q);
+  });
+}, [searchAppointmentQuery, appointments, clients, artists]);
 
   const selectedDayAppointments = useMemo(() => {
     return agendaAppointments.filter(
@@ -1870,6 +1920,19 @@ const goNext = () => {
 
             <button
               className="home-menu-button home-menu-primary home-menu-logo-button"
+              onClick={() => setPage("searchAppointments")}
+            >
+              <div className="home-menu-logo-wrap">
+                <img
+                  src="/icons/search-rdv.png"
+                  alt="Rechercher un rendez-vous"
+                  className="home-menu-full-logo"
+                />
+              </div>
+            </button>
+
+            <button
+              className="home-menu-button home-menu-primary home-menu-logo-button"
               onClick={() => setPage("stats")}
             >
               <div className="home-menu-logo-wrap">
@@ -2504,6 +2567,92 @@ const goNext = () => {
               Déconnexion
             </button>
           </div>
+        </section>
+      )}
+
+      {page === "searchAppointments" && setupComplete && (
+        <section className="card">
+          <h2>Rechercher un rendez-vous</h2>
+          <p className="muted-text">
+            Recherchez par nom, prénom, descriptif, date, heure, tatoueur, notes, etc.
+          </p>
+
+          <input
+            type="text"
+            placeholder="Ex : Léa, rose, Angel, 12/05/2026, 14:30..."
+            value={searchAppointmentQuery}
+            onChange={(e) => setSearchAppointmentQuery(e.target.value)}
+            className="search-input"
+            style={{ marginBottom: "16px" }}
+          />
+
+          {searchedAppointments.length === 0 ? (
+            <p>Aucun rendez-vous trouvé.</p>
+          ) : (
+            <div className="appointments-list">
+              {searchedAppointments.map((appointment) => {
+                const client = clients.find((c) => c.id === appointment.clientId);
+                const artist = artists.find((a) => a.id === appointment.artistId);
+      
+                const appointmentDate = appointment.appointment
+                  ? new Date(appointment.appointment)
+                  : null;
+      
+                return (
+                  <div
+                    key={appointment.id}
+                    className="card"
+                    style={{ marginBottom: "12px", cursor: "pointer" }}
+                    onClick={() => {
+                      setSelectedAppointment(appointment);
+                      setPage("appointmentDetail");
+                    }}
+                  >
+                    <h3 style={{ marginBottom: "8px" }}>
+                      {appointment.title || "Rendez-vous"}
+                    </h3>
+      
+                    <p style={{ margin: "4px 0" }}>
+                      <strong>Client :</strong>{" "}
+                      {client
+                        ? `${client.firstName || ""} ${client.lastName || ""}`.trim()
+                        : "Non renseigné"}
+                    </p>
+      
+                    <p style={{ margin: "4px 0" }}>
+                      <strong>Date :</strong>{" "}
+                      {appointmentDate
+                        ? appointmentDate.toLocaleDateString("fr-FR")
+                        : "Non renseignée"}
+                      {" - "}
+                      {appointmentDate
+                        ? appointmentDate.toLocaleTimeString("fr-FR", {
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          })
+                        : ""}
+                    </p>
+      
+                    <p style={{ margin: "4px 0" }}>
+                      <strong>Tatoueur :</strong> {artist?.name || "Non renseigné"}
+                    </p>
+      
+                    {appointment.project && (
+                      <p style={{ margin: "4px 0" }}>
+                        <strong>Descriptif :</strong> {appointment.project}
+                      </p>
+                    )}
+
+                    {appointment.notes && (
+                      <p style={{ margin: "4px 0" }}>
+                        <strong>Notes :</strong> {appointment.notes}
+                      </p>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          )}
         </section>
       )}
 
