@@ -2061,7 +2061,7 @@ const goNext = () => {
                     <button
                       key={key}
                       type="button"
-                      className={`month-cell month-cell-compact ${isSelected ? "selected-cell" : ""} ${
+                      className={`month-cell month-cell-compact week-day-cell ${isSelected ? "selected-cell" : ""} ${
                         isToday ? "today-cell" : ""
                       } ${
                         specialDayInfo?.type === "publicHoliday"
@@ -2180,7 +2180,7 @@ const goNext = () => {
                     <button
                       key={key}
                       type="button"
-                      className={`month-cell month-cell-compact ${isSelected ? "selected-cell" : ""} ${
+                      className={`month-cell month-cell-compact week-day-cell ${isSelected ? "selected-cell" : ""} ${
                         isToday ? "today-cell" : ""
                       } ${
                         specialDayInfo?.type === "publicHoliday"
