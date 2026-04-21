@@ -2603,6 +2603,322 @@ const goNext = () => {
         </section>
       )}
 
+      {page === "appointments" && setupComplete && (
+  <div className="grid">
+    <section className="card form-card">
+      <h2>
+        {editingAppointmentId !== null
+          ? "Modifier un rendez-vous"
+          : "Créer un rendez-vous"}
+      </h2>
+
+      <div className="field-header">
+        <span className="field-header-label">Client</span>
+
+        <button
+          type="button"
+          className="inline-link-button"
+          onClick={() => setShowQuickClientForm((prev) => !prev)}
+        >
+          {showQuickClientForm ? "Fermer" : "+ Nouveau client"}
+        </button>
+      </div>
+
+      <select
+        value={appointmentForm.clientId}
+        onChange={(e) =>
+          setAppointmentForm({
+            ...appointmentForm,
+            clientId: e.target.value,
+          })
+        }
+      >
+        <option value="">Sélectionner un client</option>
+        {clients
+          .slice()
+          .sort((a, b) => formatClientName(a).localeCompare(formatClientName(b)))
+          .map((client) => (
+            <option key={client.id} value={client.id}>
+              {formatClientName(client)}
+            </option>
+          ))}
+      </select>
+
+      {showQuickClientForm && (
+        <div className="card inner-card">
+          <h3>Créer une fiche client sans quitter le rendez-vous</h3>
+
+          <input
+            type="text"
+            placeholder="Nom"
+            value={quickClientForm.lastName}
+            onChange={(e) =>
+              setQuickClientForm({
+                ...quickClientForm,
+                lastName: e.target.value,
+              })
+            }
+          />
+
+          <input
+            type="text"
+            placeholder="Prénom"
+            value={quickClientForm.firstName}
+            onChange={(e) =>
+              setQuickClientForm({
+                ...quickClientForm,
+                firstName: e.target.value,
+              })
+            }
+          />
+
+          <input
+            type="text"
+            placeholder="Téléphone"
+            value={quickClientForm.phone}
+            onChange={(e) =>
+              setQuickClientForm({
+                ...quickClientForm,
+                phone: e.target.value,
+              })
+            }
+          />
+
+          <textarea
+            placeholder="Notes client"
+            value={quickClientForm.notes}
+            onChange={(e) =>
+              setQuickClientForm({
+                ...quickClientForm,
+                notes: e.target.value,
+              })
+            }
+          />
+
+          <div className="action-buttons">
+            <button type="button" onClick={saveQuickClient}>
+              Ajouter ce client
+            </button>
+
+            <button
+              type="button"
+              className="secondary-button"
+              onClick={resetQuickClientForm}
+            >
+              Annuler
+            </button>
+          </div>
+        </div>
+      )}
+
+      <select
+        value={appointmentForm.artistId}
+        onChange={(e) =>
+          setAppointmentForm({
+            ...appointmentForm,
+            artistId: e.target.value,
+          })
+        }
+      >
+        <option value="">Sélectionner un tatoueur</option>
+        {artists
+          .slice()
+          .sort((a, b) => a.name.localeCompare(b.name))
+          .map((artist) => (
+            <option key={artist.id} value={artist.id}>
+              {artist.name}
+            </option>
+          ))}
+      </select>
+
+      <select
+        value={appointmentForm.title}
+        onChange={(e) =>
+          setAppointmentForm({
+            ...appointmentForm,
+            title: e.target.value,
+          })
+        }
+      >
+        <option value="">Sélectionner un type de prestation</option>
+        {appointmentTypes.map((type) => (
+          <option key={type} value={type}>
+            {type}
+          </option>
+        ))}
+      </select>
+
+      {appointmentForm.title === ACOMPTE_TYPE && (
+        <>
+          <select
+            value={appointmentForm.linkedAppointmentId}
+            onChange={(e) =>
+              setAppointmentForm({
+                ...appointmentForm,
+                linkedAppointmentId: e.target.value,
+              })
+            }
+          >
+            <option value="">Sélectionner le rendez-vous futur à lier</option>
+            {eligibleLinkedAppointments.map((appointmentItem) => (
+              <option key={appointmentItem.id} value={appointmentItem.id}>
+                {formatDateTime(appointmentItem.appointment)} — {appointmentItem.project} —{" "}
+                {appointmentItem.price !== ""
+                  ? formatCurrency(appointmentItem.price)
+                  : "Sans tarif"}
+              </option>
+            ))}
+          </select>
+
+          <input
+            type="text"
+            placeholder="Mode de paiement de l'acompte"
+            value={appointmentForm.paymentMethod}
+            onChange={(e) =>
+              setAppointmentForm({
+                ...appointmentForm,
+                paymentMethod: e.target.value,
+              })
+            }
+          />
+
+          <input
+            type="date"
+            value={appointmentForm.paymentDate}
+            onChange={(e) =>
+              setAppointmentForm({
+                ...appointmentForm,
+                paymentDate: e.target.value,
+              })
+            }
+          />
+        </>
+      )}
+
+      <input
+        type="text"
+        placeholder="Nom du projet"
+        value={appointmentForm.project}
+        onChange={(e) =>
+          setAppointmentForm({
+            ...appointmentForm,
+            project: e.target.value,
+          })
+        }
+      />
+
+      <input
+        type="datetime-local"
+        value={appointmentForm.appointment}
+        onChange={(e) =>
+          setAppointmentForm({
+            ...appointmentForm,
+            appointment: e.target.value,
+          })
+        }
+      />
+
+      <div className="form-field">
+        <label className="input-label">Montant</label>
+
+        <div className="input-with-suffix">
+          <input
+            type="number"
+            min="0"
+            step="0.01"
+            value={appointmentForm.price}
+            onChange={(e) =>
+              setAppointmentForm({
+                ...appointmentForm,
+                price: e.target.value,
+              })
+            }
+            className="price-input"
+          />
+          <span className="input-suffix">€</span>
+        </div>
+      </div>
+
+      <div className="duration-row">
+        <div className="input-with-suffix">
+          <input
+            type="number"
+            min="0"
+            value={appointmentForm.durationHours}
+            onChange={(e) =>
+              setAppointmentForm({
+                ...appointmentForm,
+                durationHours: e.target.value,
+              })
+            }
+            className="price-input"
+          />
+          <span className="input-suffix">H</span>
+        </div>
+
+        <div className="input-with-suffix">
+          <input
+            type="number"
+            min="0"
+            max="59"
+            value={appointmentForm.durationMinutes}
+            onChange={(e) =>
+              setAppointmentForm({
+                ...appointmentForm,
+                durationMinutes: e.target.value,
+              })
+            }
+            className="price-input"
+          />
+          <span className="input-suffix">min</span>
+        </div>
+      </div>
+
+      <textarea
+        placeholder="Notes du rendez-vous"
+        value={appointmentForm.notes}
+        onChange={(e) =>
+          setAppointmentForm({
+            ...appointmentForm,
+            notes: e.target.value,
+          })
+        }
+      />
+
+      {editingAppointmentId !== null && (
+        <label className="cancel-checkbox">
+          <input
+            type="checkbox"
+            checked={appointmentForm.cancelled || false}
+            onChange={(e) =>
+              setAppointmentForm({
+                ...appointmentForm,
+                cancelled: e.target.checked,
+              })
+            }
+          />
+          Annulé
+        </label>
+      )}
+
+      <button onClick={saveAppointment}>
+        {editingAppointmentId !== null
+          ? "Enregistrer les modifications"
+          : "Ajouter le rendez-vous"}
+      </button>
+
+      {editingAppointmentId !== null && (
+        <button
+          className="secondary-button full-width"
+          onClick={resetAppointmentForm}
+        >
+          Annuler la modification
+        </button>
+      )}
+    </section>
+  </div>
+)}
+
       {page === "clients" && setupComplete && (
         <section className="card list-card">
           <h2>Fiches clients</h2>
