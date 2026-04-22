@@ -808,6 +808,13 @@ const [
       );
   }, [selectedDayAppointments, appointments]);
 
+  const selectedDayRevenueBox = (
+    <div className="agenda-day-revenue-box gold-line-glow">
+      <span>Jour</span>
+      <strong>{formatCurrency(selectedDayRevenue)}</strong>
+    </div>
+  );
+
   const weekDays = useMemo(() => getWeekDays(selectedDate), [selectedDate]);
   const monthCells = useMemo(() => getMonthMatrix(selectedDate), [selectedDate]);
 
@@ -1738,14 +1745,6 @@ const goNext = () => {
     const info = getSpecialDayInfo(dateKey, schoolZone);
     if (!info) return null;
 
-  const selectedDayRevenueBox = (
-    <div className="agenda-day-revenue-box gold-line-glow">
-      <span>Jour</span>
-      <strong>{formatCurrency(selectedDayRevenue)}</strong>
-    </div>
-  );
-
-
     return (
       <div
         className={`special-day-badge ${
@@ -2131,10 +2130,10 @@ const goNext = () => {
                   {renderSpecialDayBadge(selectedDate)}
 
                   {selectedDayAppointments.length === 0 ? (
-  <>
-    <p>Aucun rendez-vous pour cette date.</p>
-    {selectedDayRevenueBox}
-  </>
+                    <>
+                      <p>Aucun rendez-vous pour cette date.</p>
+                      {selectedDayRevenueBox}
+                    </>
                   ) : (
                     <>
                       {selectedDayAppointments.map((appointmentItem) => (
@@ -2152,12 +2151,12 @@ const goNext = () => {
                           <div className="agenda-item-time">
                             {formatTimeOnly(appointmentItem.appointment)}
                           </div>
-                  
+              
                           <div className="agenda-item-content">
                             <h4 className="appointment-project-title">
                               {appointmentItem.project}
                             </h4>
-                  
+              
                             <p>
                               <strong>Tarif :</strong>{" "}
                               {appointmentItem.price !== ""
@@ -2166,7 +2165,7 @@ const goNext = () => {
                                   )
                                 : "Non renseigné"}
                             </p>
-                  
+              
                             <p>
                               <strong>Durée estimée :</strong>{" "}
                               {formatDuration(
@@ -2174,7 +2173,7 @@ const goNext = () => {
                                 appointmentItem.durationMinutes
                               )}
                             </p>
-                  
+              
                             <p>
                               <strong>Notes :</strong>{" "}
                               {[appointmentItem.notes, buildSystemDepositNotes(appointments, appointmentItem)]
@@ -2184,59 +2183,10 @@ const goNext = () => {
                           </div>
                         </button>
                       ))}
-                  
+
                       {selectedDayRevenueBox}
                     </>
                   )}
-
-                    {selectedDayAppointments.map((appointmentItem) => (
-                      <button
-                        key={appointmentItem.id}
-                        type="button"
-                        className={`agenda-item artist-bordered ${
-                          appointmentItem.cancelled ? "cancelled-appointment" : ""
-                        }`}
-                        style={{
-                          borderLeftColor: appointmentItem.artistColor,
-                        }}
-                        onClick={() => openAppointmentDetails(appointmentItem)}
-                      >
-                        <div className="agenda-item-time">
-                          {formatTimeOnly(appointmentItem.appointment)}
-                        </div>
-
-                        <div className="agenda-item-content">
-                          <h4 className="appointment-project-title">
-                            {appointmentItem.project}
-                          </h4>
-
-                          <p>
-                            <strong>Tarif :</strong>{" "}
-                            {appointmentItem.price !== ""
-                              ? formatCurrency(
-                                  getDisplayedPrice(appointmentItem, appointments)
-                                )
-                              : "Non renseigné"}
-                          </p>
-
-                          <p>
-                            <strong>Durée estimée :</strong>{" "}
-                            {formatDuration(
-                              appointmentItem.durationHours,
-                              appointmentItem.durationMinutes
-                            )}
-                          </p>
-
-                          <p>
-                            <strong>Notes :</strong>{" "}
-                            {[appointmentItem.notes, buildSystemDepositNotes(appointments, appointmentItem)]
-                              .filter(Boolean)
-                              .join(" | ") || "Aucune note"}
-                          </p>
-                        </div>
-                      </button>
-                    ))}
-                
                 </div>
               )}
 
