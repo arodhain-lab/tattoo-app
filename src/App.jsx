@@ -2604,10 +2604,7 @@ const goNext = () => {
                     key={appointment.id}
                     className="card"
                     style={{ marginBottom: "12px", cursor: "pointer" }}
-                    onClick={() => {
-                      setSelectedAppointment(appointment);
-                      setPage("appointmentDetail");
-                    }}
+                    onClick={() => openAppointmentDetails(appointment)}
                   >
                     <h3 style={{ marginBottom: "8px" }}>
                       {appointment.title || "Rendez-vous"}
@@ -2752,6 +2749,70 @@ const goNext = () => {
                   : "Supprimer cette fiche client"
               }
             >
+              Supprimer
+            </button>
+          </div>
+        </section>
+      )}
+
+      {page === "appointment-details" && setupComplete && selectedAppointmentDetails && (
+        <section className="card">
+          <h2>Détail du rendez-vous</h2>
+
+          <div className="client-box">
+            <h3>{selectedAppointmentDetails.project || selectedAppointmentDetails.title || "Rendez-vous"}</h3>
+
+            <p>
+              <strong>Client :</strong> {selectedAppointmentDetails.clientName || "Non renseigné"}
+            </p>
+
+            <p>
+              <strong>Tatoueur :</strong> {selectedAppointmentDetails.artistName || "Non renseigné"}
+            </p>
+      
+            <p>
+              <strong>Type :</strong> {selectedAppointmentDetails.title || "Non renseigné"}
+            </p>
+      
+            <p>
+              <strong>Date :</strong> {formatDateTime(selectedAppointmentDetails.appointment)}
+            </p>
+      
+            <p>
+              <strong>Durée :</strong>{" "}
+              {formatDuration(
+                selectedAppointmentDetails.durationHours,
+                selectedAppointmentDetails.durationMinutes
+              )}
+            </p>
+
+            <p>
+              <strong>Tarif :</strong>{" "}
+              {selectedAppointmentDetails.price !== ""
+                ? formatCurrency(getDisplayedPrice(selectedAppointmentDetails, appointments))
+                : "Non renseigné"}
+            </p>
+      
+            <p>
+              <strong>Notes :</strong>{" "}
+              {[selectedAppointmentDetails.notes, buildSystemDepositNotes(appointments, selectedAppointmentDetails)]
+                .filter(Boolean)
+                .join(" | ") || "Aucune note"}
+            </p>
+      
+            {selectedAppointmentDetails.cancelled && (
+              <p>
+                <strong>Statut :</strong> Rendez-vous annulé
+              </p>
+            )}
+          </div>
+      
+          <div className="action-buttons" style={{ marginTop: "20px" }}>
+            <button onClick={() => editAppointment(selectedAppointmentDetails)}>
+              Modifier
+            </button>
+      
+            <button onClick={() => deleteAppointment(selectedAppointmentDetails.id)}>
               Supprimer
             </button>
           </div>
