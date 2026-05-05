@@ -435,6 +435,7 @@ const evaluateSetup = (artistsList, servicesList) => {
 
   const [clientSearch, setClientSearch] = useState("");
   const [appointmentSearch, setAppointmentSearch] = useState("");
+  const [appointmentClientSearch, setAppointmentClientSearch] = useState("");
   const [expandedClientId, setExpandedClientId] = useState(null);
 
   const [clientForm, setClientForm] = useState({
@@ -538,6 +539,22 @@ useEffect(() => {
   const clients = data.clients || [];
   const appointments = data.appointments || [];
   const artists = data.artists || [];
+  const filteredAppointmentClients = useMemo(() => {
+    const q = normalizeString(appointmentClientSearch);
+
+    return clients
+      .filter((client) => {
+        if (!q) return true;
+
+        const searchableText = normalizeString(
+          `${client.firstName || ""} ${client.lastName || ""} ${client.phone || ""}`
+        );
+
+        return searchableText.includes(q);
+      })
+      .slice()
+      .sort((a, b) => formatClientName(a).localeCompare(formatClientName(b)));
+  }, [clients, appointmentClientSearch]);
   const appointmentTypes = data.appointmentTypes || [];
   const canFinishSetup =
   artists.length > 0 &&
@@ -1020,6 +1037,7 @@ const resetAppointmentForm = () => {
 
 const openNewAppointmentForm = () => {
   resetAppointmentForm();
+  setAppointmentClientSearch("");
 
   setAppointmentForm({
     clientId: "",
@@ -2840,6 +2858,13 @@ const goNext = () => {
         </button>
       </div>
 
+      <input
+        type="text"
+        placeholder="Rechercher un client par nom ou prénom..."
+        value={appointmentClientSearch}
+        onChange={(e) => setAppointmentClientSearch(e.target.value)}
+      />
+
       <select
         value={appointmentForm.clientId}
         onChange={(e) =>
@@ -2850,14 +2875,12 @@ const goNext = () => {
         }
       >
         <option value="">Sélectionner un client</option>
-        {clients
-          .slice()
-          .sort((a, b) => formatClientName(a).localeCompare(formatClientName(b)))
-          .map((client) => (
-            <option key={client.id} value={client.id}>
-              {formatClientName(client)}
-            </option>
-          ))}
+
+        {filteredAppointmentClients.map((client) => (
+          <option key={client.id} value={client.id}>
+            {formatClientName(client)}
+          </option>
+        ))}
       </select>
 
       {showQuickClientForm && (
