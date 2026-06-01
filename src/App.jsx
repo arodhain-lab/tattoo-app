@@ -2903,6 +2903,30 @@ const goNext = () => {
             </select>
           </div>
 
+                    <div className="card inner-card" style={{ marginBottom: "16px" }}>
+            <h3>Import des rendez-vous</h3>
+            <p className="muted-text">
+              Téléchargez le modèle CSV puis importez vos rendez-vous.
+              Les clients doivent déjà exister dans les fiches clients.
+            </p>
+
+            <div className="action-buttons">
+              <button type="button" onClick={downloadAppointmentsCsvTemplate}>
+                Télécharger modèle CSV RDV
+              </button>
+
+              <label className="button-link" style={{ cursor: "pointer" }}>
+                Importer RDV CSV
+                <input
+                  type="file"
+                  accept=".csv"
+                  onChange={importAppointmentsFromCsv}
+                  style={{ display: "none" }}
+                />
+              </label>
+            </div>
+          </div>
+
           <div className="home-menu-grid">
             <button className="home-menu-button" onClick={() => setPage("services")}>
               <span className="home-menu-icon">🧾</span>
@@ -3521,20 +3545,6 @@ const goNext = () => {
             <button type="button" onClick={downloadClientsCsvTemplate}>
               Télécharger modèle CSV
             </button>
-
-            <button type="button" onClick={downloadAppointmentsCsvTemplate}>
-              Télécharger modèle CSV RDV
-            </button>
-
-            <label className="button-link" style={{ cursor: "pointer" }}>
-              Importer RDV CSV
-              <input
-                type="file"
-                accept=".csv"
-                onChange={importAppointmentsFromCsv}
-                style={{ display: "none" }}
-              />
-            </label>
 
             <label className="button-link" style={{ cursor: "pointer" }}>
               Importer CSV
