@@ -1109,6 +1109,8 @@ const openNewAppointmentForm = () => {
   }
 };
 
+
+
 const importClientsFromCsv = async (event) => {
   const file = event.target.files?.[0];
   if (!file || !session?.user) return;
@@ -1152,6 +1154,25 @@ const importClientsFromCsv = async (event) => {
       alert(`Erreur CSV : ${error.message}`);
     },
   });
+};
+
+const downloadClientsCsvTemplate = () => {
+  const csvContent =
+    "nom,prenom,telephone,notes\n" +
+    "Dupont,Marie,0612345678,Projet tatouage floral\n";
+
+  const blob = new Blob([csvContent], {
+    type: "text/csv;charset=utf-8;",
+  });
+
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+
+  link.href = url;
+  link.download = "modele-import-clients.csv";
+  link.click();
+
+  URL.revokeObjectURL(url);
 };
 
 const saveQuickClient = async () => {
@@ -1819,6 +1840,8 @@ const goNext = () => {
       </div>
     );
   };
+
+
 
   if (loadingSession) {
     return (
@@ -3201,10 +3224,14 @@ const goNext = () => {
             <button
               onClick={() => {
                 resetClientForm();
-                setPage("client-form");
+               setPage("client-form");
               }}
             >
               + Nouvelle fiche client
+            </button>
+
+            <button type="button" onClick={downloadClientsCsvTemplate}>
+              Télécharger modèle CSV
             </button>
 
             <label className="button-link" style={{ cursor: "pointer" }}>
