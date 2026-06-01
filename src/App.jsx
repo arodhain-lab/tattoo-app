@@ -1176,6 +1176,293 @@ const downloadClientsCsvTemplate = () => {
   URL.revokeObjectURL(url);
 };
 
+const normalizeImportText = (value) =>
+  String(value || "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .trim();
+
+const getCsvValue = (row, possibleNames) => {
+  const foundKey = Object.keys(row).find((key) =>
+    possibleNames.includes(normalizeImportText(key))
+  );
+
+  return foundKey ? String(row[foundKey] || "").trim() : "";
+};
+
+const parseCsvDate = (value) => {
+  const cleaned = String(value || "").trim();
+
+  if (/^\d{4}-\d{2}-\d{2}$/.test(cleaned)) return cleaned;
+
+  const match = cleaned.match(/^(\d{1,2})[\/.-](\d{1,2})[\/.-](\d{4})$/);
+  if (!match) return "";
+
+  const [, day, month, year] = match;
+  return `${year}-${pad(month)}-${pad(day)}`;
+};
+
+const parseCsvTime = (value) => {
+  const cleaned = String(value || "").trim().replace("h", ":");
+
+  const match = cleaned.match(/^(\d{1,2})(?::(\d{1,2}))?$/);
+  if (!match) return "";
+
+  const hours = Number(match[1]);
+  const minutes = Number(match[2] || 0);
+
+  if (hours < 0 || hours > 23 || minutes < 0 || minutes > 59) return "";
+
+  return `${pad(hours)}:${pad(minutes)}`;
+};
+
+const parseCsvDuration = (value) => {
+  const cleaned = String(value || "").toLowerCase().trim();
+
+  if (!cleaned) {
+    return { durationHours: null, durationMinutes: null };
+  }
+
+  const hourMatch = cleaned.match(/(\d+)\s*h/);
+  const minuteMatch = cleaned.match(/(\d+)\s*(min|mn)/);
+
+  if (hourMatch || minuteMatch) {
+    return {
+      durationHours: hourMatch ? Number(hourMatch[1]) : 0,
+      durationMinutes: minuteMatch ? Number(minuteMatch[1]) : 0,
+    };
+  }
+
+  const numeric = Number(cleaned.replace(",", "."));
+  if (!Number.isFinite(numeric)) {
+    return { durationHours: null, durationMinutes: null };
+  }
+
+  if (numeric > 10) {
+    return {
+      durationHours: Math.floor(numeric / 60),
+      durationMinutes: numeric % 60,
+    };
+  }
+
+  return {
+    durationHours: Math.floor(numeric),
+    durationMinutes: Math.round((numeric % 1) * 60),
+  };
+};
+
+const parseCsvPrice = (value) => {
+  const cleaned = String(value || "")
+    .replace("€", "")
+    .replace(",", ".")
+    .trim();
+
+  if (!cleaned) return null;
+
+  const price = Number(cleaned);
+  return Number.isFinite(price) ? price : null;
+};
+
+const findClientFromCsvName = (clientName) => {
+  const searched = normalizeImportText(clientName);
+
+  return clients.find((client) => {
+    const fullName1 = normalizeImportText(`${client.firstName} ${client.lastName}`);
+    const fullName2 = normalizeImportText(`${client.lastName} ${client.firstName}`);
+
+    return searched === fullName1 || searched === fullName2;
+  });
+};
+
+const findArtistFromCsvName = (artistName) => {
+  const searched = normalizeImportText(artistName);
+  if (!searched) return artists[0] || null;
+
+  return (
+    artists.find((artist) => normalizeImportText(artist.name) === searched) ||
+    null
+  );
+};
+
+const findAppointmentTypeFromCsv = (typeName) => {
+  const searched = normalizeImportText(typeName);
+
+  if (!searched) {
+    return appointmentTypes.find((type) => type !== ACOMPTE_TYPE) || "";
+  }
+
+  return (
+    appointmentTypes.find((type) => normalizeImportText(type) === searched) ||
+    typeName.trim().toUpperCase()
+  );
+};
+
+const downloadAppointmentsCsvTemplate = () => {
+  const csvContent =
+    "DATE;HEURE;NOM DU PROJET;CLIENT;DUREE;PRIX;NOTES DU RENDEZ VOUS;TATOUEUR;TYPE DE PRESTATION\r\n" +
+    "25/06/2026;14:30;Tatouage floral;Marie Dupont;2h30;180;Avant-bras intérieur;Angel;TATTOO\r\n";
+
+  const blob = new Blob(["\uFEFF" + csvContent], {
+    type: "text/csv;charset=utf-8;",
+  });
+
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+
+  link.href = url;
+  link.download = "modele-import-rendez-vous.csv";
+  link.click();
+
+  URL.revokeObjectURL(url);
+};
+
+const importAppointmentsFromCsv = async (event) => {
+  const file = event.target.files?.[0];
+  if (!file || !session?.user) return;
+
+  Papa.parse(file, {
+    header: true,
+    delimiter: ";",
+    skipEmptyLines: true,
+    complete: async (results) => {
+      const rows = results.data;
+
+      const validAppointments = [];
+      const rejectedRows = [];
+
+      rows.forEach((row, index) => {
+        const lineNumber = index + 2;
+
+        const date = parseCsvDate(
+          getCsvValue(row, ["date"])
+        );
+
+        const time = parseCsvTime(
+          getCsvValue(row, ["heure"])
+        );
+
+        const project = getCsvValue(row, [
+          "nom du projet",
+          "projet",
+          "project",
+        ]);
+
+        const clientName = getCsvValue(row, [
+          "client",
+          "nom client",
+          "nom et prenom",
+          "nom prenom",
+        ]);
+
+        const durationText = getCsvValue(row, [
+          "duree",
+          "durée",
+          "duration",
+        ]);
+
+        const priceText = getCsvValue(row, [
+          "prix",
+          "tarif",
+          "price",
+        ]);
+
+        const notes = getCsvValue(row, [
+          "notes du rendez vous",
+          "notes du rendez-vous",
+          "notes",
+        ]);
+
+        const artistName = getCsvValue(row, [
+          "tatoueur",
+          "artiste",
+          "artist",
+        ]);
+
+        const typeName = getCsvValue(row, [
+          "type de prestation",
+          "prestation",
+          "type",
+        ]);
+
+        if (!date || !time) {
+          rejectedRows.push(`Ligne ${lineNumber} : date ou heure manquante/invalide`);
+          return;
+        }
+
+        const matchedClient = findClientFromCsvName(clientName);
+
+        if (!matchedClient) {
+          rejectedRows.push(
+            `Ligne ${lineNumber} : client introuvable "${clientName}". Aucune fiche client créée automatiquement.`
+          );
+          return;
+        }
+
+        const matchedArtist = findArtistFromCsvName(artistName);
+
+        if (!matchedArtist) {
+          rejectedRows.push(`Ligne ${lineNumber} : tatoueur introuvable "${artistName}"`);
+          return;
+        }
+
+        const duration = parseCsvDuration(durationText);
+        const price = parseCsvPrice(priceText);
+        const appointmentType = findAppointmentTypeFromCsv(typeName);
+
+        validAppointments.push({
+          user_id: session.user.id,
+          client_id: Number(matchedClient.id),
+          artist_id: Number(matchedArtist.id),
+          title: appointmentType || "TATTOO",
+          project: project || "Rendez-vous importé",
+          notes,
+          appointment: `${date}T${time}`,
+          price,
+          duration_hours: duration.durationHours,
+          duration_minutes: duration.durationMinutes,
+          cancelled: false,
+          linked_appointment_id: null,
+          payment_method: null,
+          payment_date: null,
+          original_total_before_deposit: null,
+        });
+      });
+
+      if (validAppointments.length === 0) {
+        alert(
+          "Aucun rendez-vous importé.\n\n" +
+            rejectedRows.join("\n")
+        );
+        event.target.value = "";
+        return;
+      }
+
+      const { error } = await supabase
+        .from("appointments")
+        .insert(validAppointments);
+
+      if (error) {
+        alert(error.message);
+        return;
+      }
+
+      await loadSupabaseData();
+
+      alert(
+        `${validAppointments.length} rendez-vous importé(s).\n\n` +
+          `${rejectedRows.length} ligne(s) ignorée(s).\n\n` +
+          rejectedRows.join("\n")
+      );
+
+      event.target.value = "";
+    },
+    error: (error) => {
+      alert(`Erreur CSV : ${error.message}`);
+    },
+  });
+};
+
 const saveQuickClient = async () => {
   if (!quickClientForm.lastName.trim() || !quickClientForm.firstName.trim()) return;
   if (!session?.user) return;
@@ -3234,6 +3521,20 @@ const goNext = () => {
             <button type="button" onClick={downloadClientsCsvTemplate}>
               Télécharger modèle CSV
             </button>
+
+            <button type="button" onClick={downloadAppointmentsCsvTemplate}>
+              Télécharger modèle CSV RDV
+            </button>
+
+            <label className="button-link" style={{ cursor: "pointer" }}>
+              Importer RDV CSV
+              <input
+                type="file"
+                accept=".csv"
+                onChange={importAppointmentsFromCsv}
+                style={{ display: "none" }}
+              />
+            </label>
 
             <label className="button-link" style={{ cursor: "pointer" }}>
               Importer CSV
