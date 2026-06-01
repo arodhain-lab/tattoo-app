@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import Papa from "papaparse";
 import { supabase } from "./supabaseClient";
 import Auth from "./Auth";
 import "./App.css";
@@ -1106,6 +1107,51 @@ const openNewAppointmentForm = () => {
   } else {
     setPage("clients");
   }
+};
+
+const importClientsFromCsv = async (event) => {
+  const file = event.target.files?.[0];
+  if (!file || !session?.user) return;
+
+  Papa.parse(file, {
+    header: true,
+    skipEmptyLines: true,
+    complete: async (results) => {
+      const rows = results.data;
+
+      const clientsToInsert = rows
+        .map((row) => ({
+          user_id: session.user.id,
+          last_name: (row.nom || row.lastName || row.last_name || "").trim(),
+          first_name: (row.prenom || row.firstName || row.first_name || "").trim(),
+          phone: (row.telephone || row.phone || "").trim(),
+          notes: (row.notes || "").trim(),
+        }))
+        .filter((client) => client.last_name && client.first_name);
+
+      if (clientsToInsert.length === 0) {
+        alert("Aucun client valide trouvé. Le CSV doit contenir au minimum nom et prénom.");
+        return;
+      }
+
+      const { error } = await supabase
+        .from("clients")
+        .insert(clientsToInsert);
+
+      if (error) {
+        alert(error.message);
+        return;
+      }
+
+      await loadSupabaseData();
+      alert(`${clientsToInsert.length} fiche(s) client importée(s).`);
+
+      event.target.value = "";
+    },
+    error: (error) => {
+      alert(`Erreur CSV : ${error.message}`);
+    },
+  });
 };
 
 const saveQuickClient = async () => {
@@ -3160,6 +3206,16 @@ const goNext = () => {
             >
               + Nouvelle fiche client
             </button>
+
+            <label className="button-link" style={{ cursor: "pointer" }}>
+              Importer CSV
+              <input
+                type="file"
+                accept=".csv"
+                onChange={importClientsFromCsv}
+                style={{ display: "none" }}
+              />
+            </label>
           </div>
 
           <input
