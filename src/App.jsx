@@ -1116,8 +1116,9 @@ const importClientsFromCsv = async (event) => {
   if (!file || !session?.user) return;
 
   Papa.parse(file, {
-    header: true,
-    skipEmptyLines: true,
+      header: true,
+      delimiter: ";",
+      skipEmptyLines: true,
     complete: async (results) => {
       const rows = results.data;
 
@@ -1158,16 +1159,16 @@ const importClientsFromCsv = async (event) => {
 
 const downloadClientsCsvTemplate = () => {
   const csvContent =
-    "nom,prenom,telephone,notes\n" +
-    "Dupont,Marie,0612345678,Projet tatouage floral\n";
+    "NOM;PRENOM;TELEPHONE;NOTES\r\n" +
+    "Dupont;Marie;0612345678;Projet tatouage floral\r\n";
 
-  const blob = new Blob([csvContent], {
+  const blob = new Blob(["\uFEFF" + csvContent], {
     type: "text/csv;charset=utf-8;",
   });
 
   const url = URL.createObjectURL(blob);
-  const link = document.createElement("a");
 
+  const link = document.createElement("a");
   link.href = url;
   link.download = "modele-import-clients.csv";
   link.click();
