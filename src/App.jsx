@@ -1125,12 +1125,12 @@ const importClientsFromCsv = async (event) => {
       const clientsToInsert = rows
         .map((row) => ({
           user_id: session.user.id,
-          last_name: (row.nom || row.lastName || row.last_name || "").trim(),
-          first_name: (row.prenom || row.firstName || row.first_name || "").trim(),
-          phone: (row.telephone || row.phone || "").trim(),
-          notes: (row.notes || "").trim(),
+          last_name: (row.NOM || row.nom || row.lastName || row.last_name || "").trim(),
+          first_name: (row.PRENOM || row.prenom || row.firstName || row.first_name || "").trim(),
+          phone: (row.TELEPHONE || row.telephone || row.phone || "").trim(),
+          notes: (row.NOTES || row.notes || "").trim(),
         }))
-        .filter((client) => client.last_name && client.first_name);
+        .filter((client) => client.last_name || client.first_name || client.phone);
 
       if (clientsToInsert.length === 0) {
         alert("Aucun client valide trouvé. Le CSV doit contenir au minimum nom et prénom.");
