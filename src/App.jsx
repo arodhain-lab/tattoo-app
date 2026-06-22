@@ -3689,6 +3689,70 @@ const goNext = () => {
     </section>
   </div>
 )}
+
+{page === "client-form" && setupComplete && (
+  <section className="card">
+    <h2>
+      {editingClientId !== null
+        ? "Modifier la fiche client"
+        : "Nouvelle fiche client"}
+    </h2>
+
+    <div className="form-grid">
+      <input
+        type="text"
+        placeholder="Nom"
+        value={clientForm.lastName}
+        onChange={(e) =>
+          setClientForm({ ...clientForm, lastName: e.target.value })
+        }
+      />
+
+      <input
+        type="text"
+        placeholder="Prénom"
+        value={clientForm.firstName}
+        onChange={(e) =>
+          setClientForm({ ...clientForm, firstName: e.target.value })
+        }
+      />
+
+      <input
+        type="tel"
+        placeholder="Téléphone"
+        value={clientForm.phone}
+        onChange={(e) =>
+          setClientForm({ ...clientForm, phone: e.target.value })
+        }
+      />
+
+      <textarea
+        placeholder="Notes"
+        value={clientForm.notes}
+        onChange={(e) =>
+          setClientForm({ ...clientForm, notes: e.target.value })
+        }
+      />
+
+      <button type="button" onClick={saveClient}>
+        {editingClientId !== null
+          ? "Enregistrer les modifications"
+          : "Créer la fiche client"}
+      </button>
+
+      <button
+        type="button"
+        className="secondary-button"
+        onClick={() => {
+          resetClientForm();
+          setPage("clients");
+        }}
+      >
+        Annuler
+      </button>
+    </div>
+  </section>
+)}
       
       {page === "clients" && setupComplete && (
         <section className="card list-card">
