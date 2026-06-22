@@ -2989,6 +2989,106 @@ const goNext = () => {
         </section>
       )}
 
+      {page === "services" && (
+        <section className="card">
+          <h2>Prestations</h2>
+
+          <div className="form-grid">
+            <input
+              type="text"
+              placeholder="Nom de la prestation"
+              value={serviceForm.name}
+              onChange={(e) =>
+                setServiceForm({ ...serviceForm, name: e.target.value })
+              }
+            />
+      
+            <button type="button" onClick={saveService}>
+              {editingServiceName ? "Modifier la prestation" : "Ajouter la prestation"}
+            </button>
+      
+            {editingServiceName && (
+              <button type="button" onClick={resetServiceForm}>
+                Annuler
+              </button>
+            )}
+          </div>
+      
+          <div className="appointments-list">
+            {appointmentTypes.map((type) => (
+              <div key={type} className="card inner-card">
+                <h3>{type}</h3>
+      
+                {type !== ACOMPTE_TYPE && (
+                  <div className="action-buttons">
+                    <button type="button" onClick={() => editService(type)}>
+                      Modifier
+                    </button>
+      
+                    <button type="button" onClick={() => deleteService(type)}>
+                      Supprimer
+                    </button>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {page === "artists" && (
+        <section className="card">
+          <h2>Tatoueurs</h2>
+      
+          <div className="form-grid">
+            <input
+              type="text"
+              placeholder="Nom du tatoueur"
+              value={artistForm.name}
+              onChange={(e) =>
+                setArtistForm({ ...artistForm, name: e.target.value })
+              }
+            />
+      
+            <input
+              type="color"
+              value={artistForm.color}
+              onChange={(e) =>
+                setArtistForm({ ...artistForm, color: e.target.value })
+              }
+            />
+      
+            <button type="button" onClick={saveArtist}>
+              {editingArtistId ? "Modifier le tatoueur" : "Ajouter le tatoueur"}
+            </button>
+      
+            {editingArtistId && (
+              <button type="button" onClick={resetArtistForm}>
+                Annuler
+              </button>
+            )}
+          </div>
+
+          <div className="appointments-list">
+            {artists.map((artist) => (
+              <div key={artist.id} className="card inner-card">
+                <h3>{artist.name}</h3>
+
+                <div className="action-buttons">
+                  <button type="button" onClick={() => editArtist(artist)}>
+                    Modifier
+                  </button>
+      
+                  <button type="button" onClick={() => deleteArtist(artist.id)}>
+                    Supprimer
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
       {page === "searchAppointments" && setupComplete && (
         <section className="card">
           <h2>Rechercher un rendez-vous</h2>
