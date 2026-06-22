@@ -1079,52 +1079,67 @@ const openNewAppointmentForm = () => {
   setPage("appointments");
 };
 
- const saveClient = async () => {
-  if (!clientForm.lastName.trim() || !clientForm.firstName.trim()) return;
-  if (!session?.user) return;
+const saveClient = async () => {
+  if (!clientForm.lastName.trim() || !clientForm.firstName.trim()) {
+    alert("Erreur : le nom et le prénom sont obligatoires.");
+    return;
+  }
 
-  if (editingClientId !== null) {
-    const { error } = await supabase
-      .from("clients")
-      .update({
+  if (!session?.user) {
+    alert("Erreur : utilisateur non connecté.");
+    return;
+  }
+
+  try {
+    if (editingClientId !== null) {
+      const { error } = await supabase
+        .from("clients")
+        .update({
+          last_name: clientForm.lastName.trim(),
+          first_name: clientForm.firstName.trim(),
+          phone: clientForm.phone.trim(),
+          notes: clientForm.notes.trim(),
+        })
+        .eq("id", editingClientId)
+        .eq("user_id", session.user.id);
+
+      if (error) {
+        alert("Erreur modification client : " + error.message);
+        return;
+      }
+
+      alert("Fiche client modifiée avec succès.");
+    } else {
+      const { error } = await supabase.from("clients").insert({
+        user_id: session.user.id,
         last_name: clientForm.lastName.trim(),
         first_name: clientForm.firstName.trim(),
         phone: clientForm.phone.trim(),
         notes: clientForm.notes.trim(),
-      })
-      .eq("id", editingClientId)
-      .eq("user_id", session.user.id);
+      });
 
-    if (error) {
-      alert(error.message);
-      return;
-    }
-  } else {
-    const { error } = await supabase.from("clients").insert({
-      user_id: session.user.id,
-      last_name: clientForm.lastName.trim(),
-      first_name: clientForm.firstName.trim(),
-      phone: clientForm.phone.trim(),
-      notes: clientForm.notes.trim(),
-    });
+      if (error) {
+        alert("Erreur création client : " + error.message);
+        return;
+      }
 
-    if (error) {
-      alert(error.message);
-      return;
+      alert("Fiche client créée avec succès.");
     }
-  }
 
     const wasEditing = editingClientId !== null;
-  const currentClientId = editingClientId;
+    const currentClientId = editingClientId;
 
-  await loadSupabaseData();
-  resetClientForm();
+    await loadSupabaseData();
+    resetClientForm();
 
-  if (wasEditing) {
-    setSelectedClientId(currentClientId);
-    setPage("client-details");
-  } else {
-    setPage("clients");
+    if (wasEditing) {
+      setSelectedClientId(currentClientId);
+      setPage("client-details");
+    } else {
+      setPage("clients");
+    }
+  } catch (error) {
+    alert("Erreur inattendue : " + error.message);
   }
 };
 
