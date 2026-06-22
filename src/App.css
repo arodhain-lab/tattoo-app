@@ -2538,3 +2538,31 @@ body,
     height: 5px;
   }
 }
+
+/* Liste des RDV d'une fiche client */
+
+.client-appointments-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px; /* espace entre les RDV */
+  margin-top: 16px;
+}
+
+.client-appointment-card {
+  margin-bottom: 0;
+}
+
+.client-appointment-title {
+  color: #d4a03a; /* doré plus foncé */
+  font-size: 19px;
+  font-weight: 800;
+  margin-bottom: 10px;
+}
+
+.client-appointment-card:hover {
+  border-color: #ffd36a;
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 224, 130, 0.12),
+    0 10px 24px rgba(0, 0, 0, 0.55),
+    0 0 18px rgba(240, 199, 102, 0.18);
+}

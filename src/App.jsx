@@ -3120,14 +3120,17 @@ const goNext = () => {
           {selectedClientAppointments.length === 0 ? (
             <p>Aucun rendez-vous trouvé.</p>
           ) : (
+          <div className="client-appointments-list">
             selectedClientAppointments.map((appointment) => (
               <div
                 key={appointment.id}
-                className="appointment-card"
+                className="history-box client-appointment-card"
                 onClick={() => openAppointmentDetails(appointment)}
                 style={{ cursor: "pointer" }}
               >
-                <strong>{appointment.project}</strong>
+                <div className="client-appointment-title">
+                  {appointment.project}
+                </div>
       
                 <div>
                   {formatDateTime(appointment.appointment)}
@@ -3145,6 +3148,7 @@ const goNext = () => {
               </div>
             ))
           )}
+        </div>
         </section>
       )}
 
