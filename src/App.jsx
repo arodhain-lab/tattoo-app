@@ -716,9 +716,16 @@ console.log("appointments chargés :", appointments.length);
 console.log("DATE BRUTE =", appointments[0]?.appointment);
 console.log("TYPE =", typeof appointments[0]?.appointment);
 
-const d = new Date(appointments[0]?.appointment);
+if (appointments.length > 0) {
+  console.log("DATE BRUTE =", appointments[0].appointment);
+  console.log("TYPE =", typeof appointments[0].appointment);
 
-console.log("ISO =", d.toISOString());
+  const d = new Date(appointments[0].appointment);
+
+  console.log("ISO =", d.toISOString());
+  console.log("LOCAL =", d.toString());
+  console.log("SLICE10 =", String(appointments[0].appointment).slice(0, 10));
+}
 console.log("LOCAL =", d.toString());
 console.log("SLICE10 =", String(appointments[0]?.appointment).slice(0,10));
 
