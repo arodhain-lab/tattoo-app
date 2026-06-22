@@ -1080,8 +1080,11 @@ const openNewAppointmentForm = () => {
 };
 
 const saveClient = async () => {
-  if (!clientForm.lastName.trim() || !clientForm.firstName.trim()) {
-    alert("Erreur : le nom et le prénom sont obligatoires.");
+  const lastName = clientForm.lastName.trim();
+  const firstName = clientForm.firstName.trim();
+
+  if (!lastName || !firstName) {
+    alert("Erreur : nom et prénom obligatoires.");
     return;
   }
 
@@ -1090,73 +1093,85 @@ const saveClient = async () => {
     return;
   }
 
-  try {
-    if (editingClientId !== null) {
-      const { error } = await supabase
-        .from("clients")
-        .update({
-          last_name: clientForm.lastName.trim(),
-          first_name: clientForm.firstName.trim(),
-          phone: clientForm.phone.trim(),
-          notes: clientForm.notes.trim(),
-        })
-        .eq("id", editingClientId)
-        .eq("user_id", session.user.id);
+  const payload = {
+    user_id: session.user.id,
+    last_name: lastName,
+    first_name: firstName,
+    phone: clientForm.phone.trim(),
+    notes: clientForm.notes.trim(),
+  };
 
-      if (error) {
-        alert("Erreur modification client : " + error.message);
-        return;
-      }
+  if (editingClientId !== null) {
+    const { data: updatedClient, error } = await supabase
+      .from("clients")
+      .update(payload)
+      .eq("id", editingClientId)
+      .eq("user_id", session.user.id)
+      .select()
+      .single();
 
-      alert("Fiche client modifiée avec succès.");
-    } else {
-      const { data: newClient, error } = await supabase
-        .from("clients")
-        .insert({
-          user_id: session.user.id,
-          last_name: clientForm.lastName.trim(),
-          first_name: clientForm.firstName.trim(),
-          phone: clientForm.phone.trim(),
-          notes: clientForm.notes.trim(),
-        })
-        .select()
-        .single();
-
-      if (error) {
-        alert("Erreur création client : " + error.message);
-        return;
-      }
-
-      if (!newClient) {
-        alert("Erreur : Supabase n'a pas renvoyé la fiche client créée.");
-        return;
-      }
-
-      alert(
-        "Fiche client créée avec succès : " +
-          newClient.first_name +
-          " " +
-          newClient.last_name
-      );
+    if (error) {
+      alert("Erreur modification : " + error.message);
+      return;
     }
 
-    const wasEditing = editingClientId !== null;
-    const currentClientId = editingClientId;
+    setData((prev) => ({
+      ...prev,
+      clients: prev.clients.map((client) =>
+        String(client.id) === String(updatedClient.id)
+          ? {
+              id: updatedClient.id,
+              lastName: updatedClient.last_name,
+              firstName: updatedClient.first_name,
+              phone: updatedClient.phone,
+              notes: updatedClient.notes,
+            }
+          : client
+      ),
+    }));
 
-    await loadSupabaseData();
-    console.log("Clients après rechargement :", clients);
-    setClientSearch("");
+    alert("Cliente modifiée.");
     resetClientForm();
-
-    if (wasEditing) {
-      setSelectedClientId(currentClientId);
-      setPage("client-details");
-    } else {
-      setPage("clients");
-    }
-  } catch (error) {
-    alert("Erreur inattendue : " + error.message);
+    setSelectedClientId(updatedClient.id);
+    setPage("client-details");
+    return;
   }
+
+  const { data: insertedClient, error } = await supabase
+    .from("clients")
+    .insert(payload)
+    .select()
+    .single();
+
+  if (error) {
+    alert("Erreur création : " + error.message);
+    return;
+  }
+
+  if (!insertedClient?.id) {
+    alert("Erreur : Supabase n'a pas renvoyé la cliente créée.");
+    return;
+  }
+
+  const clientForApp = {
+    id: insertedClient.id,
+    lastName: insertedClient.last_name,
+    firstName: insertedClient.first_name,
+    phone: insertedClient.phone,
+    notes: insertedClient.notes,
+  };
+
+  setData((prev) => ({
+    ...prev,
+    clients: [...prev.clients, clientForApp],
+  }));
+
+  setClientSearch("");
+  resetClientForm();
+  setSelectedClientId(insertedClient.id);
+  setPage("client-details");
+
+  alert("Cliente créée : " + insertedClient.first_name + " " + insertedClient.last_name);
 };
 
 
