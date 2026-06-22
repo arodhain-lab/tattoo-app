@@ -603,6 +603,10 @@ const [
     .order("name", { ascending: true }),
 ]);
 
+console.log("SESSION USER ID =", session.user.id);
+console.log("RDV BRUTS SUPABASE =", appointments);
+console.log("ERREUR RDV =", appointmentsError);
+
   const firstError =
     clientsError || artistsError || appointmentsError || servicesError;
 
@@ -652,8 +656,13 @@ const [
   const appointmentsWithClient = useMemo(() => {
     return appointments
       .map((appointmentItem) => {
-        const client = clients.find((c) => c.id === appointmentItem.clientId);
-        const artist = artists.find((a) => a.id === appointmentItem.artistId);
+        const client = clients.find(
+          (c) => String(c.id) === String(appointmentItem.clientId)
+        );
+
+        const artist = artists.find(
+          (a) => String(a.id) === String(appointmentItem.artistId)
+        );
 
         return {
           ...appointmentItem,
@@ -672,6 +681,9 @@ const [
         return aValue.localeCompare(bValue);
       });
   }, [appointments, clients, artists]);
+
+console.log("appointments chargés :", appointments.length);
+console.log("premier RDV :", appointments[0]);
 
   const filteredClients = useMemo(() => {
   const q = normalizeString(clientSearch.trim());
@@ -815,11 +827,11 @@ const [
 }, [searchAppointmentQuery, appointments, clients, artists]);
 
   const selectedDayAppointments = useMemo(() => {
-    return agendaAppointments.filter(
-      (appointmentItem) =>
-        appointmentItem.appointment &&
-        appointmentItem.appointment.slice(0, 10) === selectedDate
-    );
+    return agendaAppointments.filter((appointmentItem) => {
+      if (!appointmentItem.appointment) return false;
+
+      return String(appointmentItem.appointment).slice(0, 10) === selectedDate;
+    });
   }, [agendaAppointments, selectedDate]);
 
   const selectedDayRevenue = useMemo(() => {
@@ -863,26 +875,29 @@ const [
     return slots;
   }, [DAY_START_HOUR, DAY_END_HOUR]);
 
-  const appointmentsByDate = useMemo(() => {
-    const map = {};
+const appointmentsByDate = useMemo(() => {
+  const map = {};
 
-    agendaAppointments.forEach((appointmentItem) => {
-      if (!appointmentItem.appointment) return;
-      const key = appointmentItem.appointment.slice(0, 10);
+  agendaAppointments.forEach((appointmentItem) => {
+    if (!appointmentItem.appointment) return;
 
-      if (!map[key]) {
-        map[key] = [];
-      }
+    const key = String(appointmentItem.appointment).slice(0, 10);
 
-      map[key].push(appointmentItem);
-    });
+    if (!map[key]) {
+      map[key] = [];
+    }
 
-    Object.keys(map).forEach((key) => {
-      map[key].sort((a, b) => (a.appointment || "").localeCompare(b.appointment || ""));
-    });
+    map[key].push(appointmentItem);
+  });
 
-    return map;
-  }, [agendaAppointments]);
+  Object.keys(map).forEach((key) => {
+    map[key].sort((a, b) =>
+      String(a.appointment || "").localeCompare(String(b.appointment || ""))
+    );
+  });
+
+  return map;
+}, [agendaAppointments]);
 
   const homeAgendaTitle = useMemo(() => {
     if (agendaView === "day") {
