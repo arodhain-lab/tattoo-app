@@ -3120,35 +3120,31 @@ const goNext = () => {
           {selectedClientAppointments.length === 0 ? (
             <p>Aucun rendez-vous trouvé.</p>
           ) : (
-          <div className="client-appointments-list">
-            selectedClientAppointments.map((appointment) => (
-              <div
-                key={appointment.id}
-                className="history-box client-appointment-card"
-                onClick={() => openAppointmentDetails(appointment)}
-                style={{ cursor: "pointer" }}
-              >
-                <div className="client-appointment-title">
-                  {appointment.project}
-                </div>
+            <div className="client-appointments-list">
+              {selectedClientAppointments.map((appointment) => (
+                <div
+                  key={appointment.id}
+                  className="history-box client-appointment-card"
+                  onClick={() => openAppointmentDetails(appointment)}
+                  style={{ cursor: "pointer" }}
+                >
+                  <div className="client-appointment-title">
+                    {appointment.project}
+                  </div>
       
-                <div>
-                  {formatDateTime(appointment.appointment)}
-                </div>
+                  <div>{formatDateTime(appointment.appointment)}</div>
       
-                <div>
-                  {appointment.artistName}
-                </div>
+                  <div>{appointment.artistName}</div>
       
-                <div>
-                  {formatCurrency(
-                    getDisplayedPrice(appointment, appointments)
-                  )}
+                  <div>
+                    {formatCurrency(
+                      getDisplayedPrice(appointment, appointments)
+                    )}
+                  </div>
                 </div>
-              </div>
-            ))
+              ))}
+            </div>
           )}
-        </div>
         </section>
       )}
 
