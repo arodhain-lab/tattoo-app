@@ -413,6 +413,11 @@ const openClientDetails = (client) => {
   setPage("client-details");
 };
 
+const openClientAppointments = (clientId) => {
+  setSelectedClientId(clientId);
+  setPage("client-appointments");
+};
+
 const evaluateSetup = (artistsList, servicesList) => {
   const hasArtists = (artistsList || []).length > 0;
   const hasServices = (servicesList || []).some(
@@ -928,6 +933,20 @@ const selectedClientDetails = useMemo(() => {
     clients.find((client) => String(client.id) === String(selectedClientId)) || null
   );
 }, [selectedClientId, clients]);
+
+const selectedClientAppointments = useMemo(() => {
+  if (!selectedClientId) return [];
+
+  return appointmentsWithClient
+    .filter(
+      (appointmentItem) =>
+        String(appointmentItem.clientId) === String(selectedClientId)
+    )
+    .sort(
+      (a, b) =>
+        new Date(b.appointment || 0) - new Date(a.appointment || 0)
+    );
+}, [selectedClientId, appointmentsWithClient]);
 
 const revenueStats = useMemo(() => {
   let scopedAppointments = appointmentsWithClient.filter(
@@ -3092,6 +3111,43 @@ const goNext = () => {
         </section>
       )}
 
+      {page === "client-appointments" && (
+        <section className="card">
+          <h2>
+            Rendez-vous de {formatClientName(selectedClientDetails)}
+          </h2>
+
+          {selectedClientAppointments.length === 0 ? (
+            <p>Aucun rendez-vous trouvé.</p>
+          ) : (
+            selectedClientAppointments.map((appointment) => (
+              <div
+                key={appointment.id}
+                className="appointment-card"
+                onClick={() => openAppointmentDetails(appointment)}
+                style={{ cursor: "pointer" }}
+              >
+                <strong>{appointment.project}</strong>
+      
+                <div>
+                  {formatDateTime(appointment.appointment)}
+                </div>
+      
+                <div>
+                  {appointment.artistName}
+                </div>
+      
+                <div>
+                  {formatCurrency(
+                    getDisplayedPrice(appointment, appointments)
+                  )}
+                </div>
+              </div>
+            ))
+          )}
+        </section>
+      )}
+
       {page === "client-details" && setupComplete && selectedClientDetails && (
         <section className="card">
           <h2>Détail de la fiche client</h2>
@@ -3135,6 +3191,12 @@ const goNext = () => {
               </div>
             )}
           </div>
+
+          <button
+            onClick={() => openClientAppointments(selectedClientDetails.id)}
+          >
+            📅 Voir les rendez-vous du client
+          </button>
 
           <div className="action-buttons" style={{ marginTop: "20px" }}>
             <button onClick={() => editClient(selectedClientDetails)}>Modifier</button>
@@ -3527,7 +3589,7 @@ const goNext = () => {
     </section>
   </div>
 )}
-
+      
       {page === "clients" && setupComplete && (
         <section className="card list-card">
           <h2>Fiches clients</h2>
