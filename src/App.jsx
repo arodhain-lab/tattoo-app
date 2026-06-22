@@ -829,13 +829,16 @@ console.log("agendaArtistFilter =", agendaArtistFilter);
   });
 }, [searchAppointmentQuery, appointments, clients, artists]);
 
-  const selectedDayAppointments = useMemo(() => {
-    return agendaAppointments.filter((appointmentItem) => {
-      if (!appointmentItem.appointment) return false;
+const selectedDayAppointments = useMemo(() => {
+  return agendaAppointments.filter((appointmentItem) => {
+    if (!appointmentItem.appointment) return false;
 
-      return String(appointmentItem.appointment).slice(0, 10) === selectedDate;
-    });
-  }, [agendaAppointments, selectedDate]);
+    const date = toDate(appointmentItem.appointment);
+    if (!date) return false;
+
+    return formatDateKey(date) === selectedDate;
+  });
+}, [agendaAppointments, selectedDate]);
 
   const selectedDayRevenue = useMemo(() => {
     return selectedDayAppointments
@@ -884,7 +887,10 @@ const appointmentsByDate = useMemo(() => {
   agendaAppointments.forEach((appointmentItem) => {
     if (!appointmentItem.appointment) return;
 
-    const key = String(appointmentItem.appointment).slice(0, 10);
+    const date = toDate(appointmentItem.appointment);
+    if (!date) return;
+    
+    const key = formatDateKey(date);
 
     if (!map[key]) {
       map[key] = [];
