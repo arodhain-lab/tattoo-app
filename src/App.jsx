@@ -567,6 +567,36 @@ useEffect(() => {
   appointmentTypes.some(
     (type) => type && type.trim().toUpperCase() !== ACOMPTE_TYPE
   );
+
+  const loadAllAppointments = async () => {
+    let allAppointments = [];
+    let from = 0;
+    const pageSize = 1000;
+
+    while (true) {
+      const { data, error } = await supabase
+        .from("appointments")
+        .select("*")
+        .eq("user_id", session.user.id)
+        .order("appointment", { ascending: true })
+        .range(from, from + pageSize - 1);
+
+      if (error) {
+        return { data: null, error };
+      }
+
+      allAppointments = [...allAppointments, ...(data || [])];
+
+      if (!data || data.length < pageSize) {
+        break;
+      }
+
+      from += pageSize;
+    }
+
+    return { data: allAppointments, error: null };
+  };
+
   const loadSupabaseData = async () => {
     if (!session) return;
 
