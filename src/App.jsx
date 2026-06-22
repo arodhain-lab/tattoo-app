@@ -1329,14 +1329,26 @@ const parseCsvPrice = (value) => {
   return Number.isFinite(price) ? price : null;
 };
 
+const cleanClientSearchName = (value) =>
+  String(value || "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-zA-Z0-9]/g, " ")
+    .toLowerCase()
+    .split(" ")
+    .filter(Boolean)
+    .sort()
+    .join(" ");
+
 const findClientFromCsvName = (clientName) => {
-  const searched = normalizeImportText(clientName);
+  const searched = cleanClientSearchName(clientName);
 
   return clients.find((client) => {
-    const fullName1 = normalizeImportText(`${client.firstName} ${client.lastName}`);
-    const fullName2 = normalizeImportText(`${client.lastName} ${client.firstName}`);
+    const fullName = cleanClientSearchName(
+      `${client.firstName || ""} ${client.lastName || ""}`
+    );
 
-    return searched === fullName1 || searched === fullName2;
+    return searched === fullName;
   });
 };
 
