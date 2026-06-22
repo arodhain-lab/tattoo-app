@@ -2802,12 +2802,6 @@ const goNext = () => {
                   <div className="month-bottom-section">
                     <div className="month-selected-day-header">
                       <h3>Rendez-vous du {formatDateOnly(selectedDate)}</h3>
-                      <div style={{ background: "red", color: "white", padding: "10px", margin: "10px 0" }}>
-                        DEBUG — date sélectionnée : {selectedDate} —
-                        RDV chargés : {appointments.length} —
-                        RDV agenda : {agendaAppointments.length} —
-                        RDV ce jour : {selectedDayAppointments.length}
-                      </div>
                       {renderSpecialDayBadge(selectedDate)}
                     </div>
 
