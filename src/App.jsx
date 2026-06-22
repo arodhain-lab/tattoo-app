@@ -1144,6 +1144,8 @@ const saveClient = async () => {
     const currentClientId = editingClientId;
 
     await loadSupabaseData();
+    console.log("Clients après rechargement :", clients);
+    setClientSearch("");
     resetClientForm();
 
     if (wasEditing) {
