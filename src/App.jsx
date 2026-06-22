@@ -431,7 +431,7 @@ const evaluateSetup = (artistsList, servicesList) => {
   return ok;
 };
 
-  const [selectedDate, setSelectedDate] = useState(getTodayDateOnly());
+  const [selectedDate, setSelectedDate] = useState("2026-06-01");
   const [agendaView, setAgendaView] = useState("week");
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
   const [showMobileWeek, setShowMobileWeek] = useState(false);
