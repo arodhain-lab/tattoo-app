@@ -1408,16 +1408,64 @@ const importAppointmentsFromCsv = async (event) => {
       const validAppointments = [];
       const rejectedRows = [];
 
+      const { data: allClients, error: clientsFetchError } = await supabase
+        .from("clients")
+        .select("*")
+        .eq("user_id", session.user.id);
+
+      if (clientsFetchError) {
+        alert("Impossible de lire les clients Supabase : " + clientsFetchError.message);
+        return;
+      }
+
+      const { data: allArtists, error: artistsFetchError } = await supabase
+        .from("artists")
+        .select("*")
+        .eq("user_id", session.user.id);
+
+      if (artistsFetchError) {
+        alert("Impossible de lire les tatoueurs Supabase : " + artistsFetchError.message);
+        return;
+      }
+
+      const cleanName = (value) =>
+        String(value || "")
+          .normalize("NFD")
+          .replace(/[\u0300-\u036f]/g, "")
+          .replace(/[^a-zA-Z0-9]/g, " ")
+          .toLowerCase()
+          .split(" ")
+          .filter(Boolean);
+
+      const findClient = (clientName) => {
+        const searchedWords = cleanName(clientName);
+
+        return allClients.find((client) => {
+          const dbWords = cleanName(
+            `${client.first_name || ""} ${client.last_name || ""}`
+          );
+
+          return searchedWords.every((word) => dbWords.includes(word));
+        });
+      };
+
+      const findArtist = (artistName) => {
+        const searched = normalizeImportText(artistName);
+
+        if (!searched) return allArtists[0] || null;
+
+        return (
+          allArtists.find(
+            (artist) => normalizeImportText(artist.name) === searched
+          ) || null
+        );
+      };
+
       for (const [index, row] of rows.entries()) {
         const lineNumber = index + 2;
 
-        const date = parseCsvDate(
-          getCsvValue(row, ["date"])
-        );
-
-        const time = parseCsvTime(
-          getCsvValue(row, ["heure"])
-        );
+        const date = parseCsvDate(getCsvValue(row, ["date"]));
+        const time = parseCsvTime(getCsvValue(row, ["heure"]));
 
         const project = getCsvValue(row, [
           "nom du projet",
@@ -1467,36 +1515,24 @@ const importAppointmentsFromCsv = async (event) => {
           continue;
         }
 
-        const { data: allClients, error: clientsFetchError } = await supabase
-          .from("clients")
-          .select("*")
-          .eq("user_id", session.user.id);
-
-        if (clientsFetchError) {
-          rejectedRows.push(
-            `Ligne ${lineNumber} : impossible de lire les clients Supabase : ${clientsFetchError.message}`
-          );
+        if (!clientName) {
+          rejectedRows.push(`Ligne ${lineNumber} : colonne CLIENT vide ou non reconnue`);
           continue;
         }
 
-        const searchedClient = cleanClientSearchName(clientName);
-
-        const matchedClient = allClients.find((client) => {
-          const dbName = cleanClientSearchName(
-            `${client.first_name || ""} ${client.last_name || ""}`
-          );
-
-          return dbName === searchedClient;
-        });
+        const matchedClient = findClient(clientName);
 
         if (!matchedClient) {
           rejectedRows.push(
-            `Ligne ${lineNumber} : client introuvable "${clientName}". Aucune fiche client créée automatiquement.`
+            `Ligne ${lineNumber} : client introuvable "${clientName}". Clients chargés : ` +
+              allClients
+                .map((c) => `${c.first_name || ""} ${c.last_name || ""}`.trim())
+                .join(", ")
           );
           continue;
         }
 
-        const matchedArtist = findArtistFromCsvName(artistName);
+        const matchedArtist = findArtist(artistName);
 
         if (!matchedArtist) {
           rejectedRows.push(`Ligne ${lineNumber} : tatoueur introuvable "${artistName}"`);
@@ -1509,8 +1545,8 @@ const importAppointmentsFromCsv = async (event) => {
 
         validAppointments.push({
           user_id: session.user.id,
-          client_id: Number(matchedClient.id),
-          artist_id: Number(matchedArtist.id),
+          client_id: matchedClient.id,
+          artist_id: matchedArtist.id,
           title: appointmentType || "TATTOO",
           project: project || "Rendez-vous importé",
           notes,
@@ -1527,10 +1563,7 @@ const importAppointmentsFromCsv = async (event) => {
       }
 
       if (validAppointments.length === 0) {
-        alert(
-          "Aucun rendez-vous importé.\n\n" +
-            rejectedRows.join("\n")
-        );
+        alert("Aucun rendez-vous importé.\n\n" + rejectedRows.join("\n"));
         event.target.value = "";
         return;
       }
@@ -1545,30 +1578,24 @@ const importAppointmentsFromCsv = async (event) => {
         return;
       }
 
-      if (!insertedAppointments || insertedAppointments.length === 0) {
-        alert("Erreur : aucun rendez-vous n'a été réellement créé dans Supabase.");
-        return;
-      }
-
       await loadSupabaseData();
 
       setAppointmentSearch("");
       setSearchAppointmentQuery("");
 
       alert(
-        `${insertedAppointments.length} rendez-vous réellement créé(s) dans Supabase.\n\n` +
-          `${validAppointments.length} ligne(s) étaient valides dans le CSV.\n` +
+        `${insertedAppointments.length} rendez-vous créé(s).\n\n` +
           `${rejectedRows.length} ligne(s) ignorée(s).\n\n` +
-          (rejectedRows.length > 0 ? rejectedRows.join("\n") : "Aucune ligne ignorée.")
+          (rejectedRows.length > 0 ? rejectedRows.join("\n") : "Aucune erreur.")
       );
 
-            event.target.value = "";
-          },
-          error: (error) => {
-            alert(`Erreur CSV : ${error.message}`);
-          },
-        });
-      };
+      event.target.value = "";
+    },
+    error: (error) => {
+      alert(`Erreur CSV : ${error.message}`);
+    },
+  });
+};
 
 const saveQuickClient = async () => {
   if (!quickClientForm.lastName.trim() || !quickClientForm.firstName.trim()) return;
