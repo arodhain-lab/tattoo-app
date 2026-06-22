@@ -1408,7 +1408,7 @@ const importAppointmentsFromCsv = async (event) => {
       const validAppointments = [];
       const rejectedRows = [];
 
-      rows.forEach((row, index) => {
+      for (const [index, row] of rows.entries()) {
         const lineNumber = index + 2;
 
         const date = parseCsvDate(
@@ -1464,23 +1464,43 @@ const importAppointmentsFromCsv = async (event) => {
 
         if (!date || !time) {
           rejectedRows.push(`Ligne ${lineNumber} : date ou heure manquante/invalide`);
-          return;
+          continue;
         }
 
-        const matchedClient = findClientFromCsvName(clientName);
+        const { data: allClients, error: clientsFetchError } = await supabase
+          .from("clients")
+          .select("*")
+          .eq("user_id", session.user.id);
+
+        if (clientsFetchError) {
+          rejectedRows.push(
+            `Ligne ${lineNumber} : impossible de lire les clients Supabase : ${clientsFetchError.message}`
+          );
+          continue;
+        }
+
+        const searchedClient = cleanClientSearchName(clientName);
+
+        const matchedClient = allClients.find((client) => {
+          const dbName = cleanClientSearchName(
+            `${client.first_name || ""} ${client.last_name || ""}`
+          );
+
+          return dbName === searchedClient;
+        });
 
         if (!matchedClient) {
           rejectedRows.push(
             `Ligne ${lineNumber} : client introuvable "${clientName}". Aucune fiche client créée automatiquement.`
           );
-          return;
+          continue;
         }
 
         const matchedArtist = findArtistFromCsvName(artistName);
 
         if (!matchedArtist) {
           rejectedRows.push(`Ligne ${lineNumber} : tatoueur introuvable "${artistName}"`);
-          return;
+          continue;
         }
 
         const duration = parseCsvDuration(durationText);
@@ -1504,7 +1524,7 @@ const importAppointmentsFromCsv = async (event) => {
           payment_date: null,
           original_total_before_deposit: null,
         });
-      });
+      }
 
       if (validAppointments.length === 0) {
         alert(
