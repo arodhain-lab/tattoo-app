@@ -1110,20 +1110,34 @@ const saveClient = async () => {
 
       alert("Fiche client modifiée avec succès.");
     } else {
-      const { error } = await supabase.from("clients").insert({
-        user_id: session.user.id,
-        last_name: clientForm.lastName.trim(),
-        first_name: clientForm.firstName.trim(),
-        phone: clientForm.phone.trim(),
-        notes: clientForm.notes.trim(),
-      });
+      const { data: newClient, error } = await supabase
+        .from("clients")
+        .insert({
+          user_id: session.user.id,
+          last_name: clientForm.lastName.trim(),
+          first_name: clientForm.firstName.trim(),
+          phone: clientForm.phone.trim(),
+          notes: clientForm.notes.trim(),
+        })
+        .select()
+        .single();
 
       if (error) {
         alert("Erreur création client : " + error.message);
         return;
       }
 
-      alert("Fiche client créée avec succès.");
+      if (!newClient) {
+        alert("Erreur : Supabase n'a pas renvoyé la fiche client créée.");
+        return;
+      }
+
+      alert(
+        "Fiche client créée avec succès : " +
+          newClient.first_name +
+          " " +
+          newClient.last_name
+      );
     }
 
     const wasEditing = editingClientId !== null;
