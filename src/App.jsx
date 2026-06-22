@@ -1503,30 +1503,40 @@ const importAppointmentsFromCsv = async (event) => {
         return;
       }
 
-      const { error } = await supabase
+      const { data: insertedAppointments, error } = await supabase
         .from("appointments")
-        .insert(validAppointments);
+        .insert(validAppointments)
+        .select();
 
       if (error) {
-        alert(error.message);
+        alert("Erreur import rendez-vous : " + error.message);
+        return;
+      }
+
+      if (!insertedAppointments || insertedAppointments.length === 0) {
+        alert("Erreur : aucun rendez-vous n'a été réellement créé dans Supabase.");
         return;
       }
 
       await loadSupabaseData();
 
+      setAppointmentSearch("");
+      setSearchAppointmentQuery("");
+
       alert(
-        `${validAppointments.length} rendez-vous importé(s).\n\n` +
+        `${insertedAppointments.length} rendez-vous réellement créé(s) dans Supabase.\n\n` +
+          `${validAppointments.length} ligne(s) étaient valides dans le CSV.\n` +
           `${rejectedRows.length} ligne(s) ignorée(s).\n\n` +
-          rejectedRows.join("\n")
+          (rejectedRows.length > 0 ? rejectedRows.join("\n") : "Aucune ligne ignorée.")
       );
 
-      event.target.value = "";
-    },
-    error: (error) => {
-      alert(`Erreur CSV : ${error.message}`);
-    },
-  });
-};
+            event.target.value = "";
+          },
+          error: (error) => {
+            alert(`Erreur CSV : ${error.message}`);
+          },
+        });
+      };
 
 const saveQuickClient = async () => {
   if (!quickClientForm.lastName.trim() || !quickClientForm.firstName.trim()) return;
