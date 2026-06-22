@@ -685,6 +685,18 @@ console.log("ERREUR RDV =", appointmentsError);
 console.log("appointments chargés :", appointments.length);
 console.log("premier RDV :", appointments[0]);
 
+console.log("selectedDate =", selectedDate);
+console.log("agendaArtistFilter =", agendaArtistFilter);
+console.log("agendaAppointments =", agendaAppointments.length);
+console.log("selectedDayAppointments =", selectedDayAppointments.length);
+console.log(
+  "RDV du 1 juin =",
+  appointmentsWithClient.filter((r) =>
+    String(r.appointment).slice(0, 10) === "2026-06-01"
+  ).length
+);
+console.log("appointmentsByDate 2026-06-01 =", appointmentsByDate["2026-06-01"]);
+
   const filteredClients = useMemo(() => {
   const q = normalizeString(clientSearch.trim());
   if (!q) return clients;
