@@ -606,6 +606,33 @@ useEffect(() => {
     return { data: allAppointments, error: null };
   };
 
+  const loadAllClients = async () => {
+    let allClients = [];
+    let from = 0;
+    const pageSize = 1000;
+
+    while (true) {
+      const { data, error } = await supabase
+        .from("clients")
+        .select("*")
+        .eq("user_id", session.user.id)
+        .order("last_name", { ascending: true })
+        .range(from, from + pageSize - 1);
+
+      if (error) {
+        return { data: null, error };
+      }
+
+      allClients = [...allClients, ...(data || [])];
+
+      if (!data || data.length < pageSize) break;
+
+      from += pageSize;
+    }
+
+    return { data: allClients, error: null };
+  };
+
   const loadSupabaseData = async () => {
     if (!session) return;
 
@@ -617,11 +644,7 @@ const [
   { data: appointments, error: appointmentsError },
   { data: services, error: servicesError },
 ] = await Promise.all([
-  supabase
-    .from("clients")
-    .select("*")
-    .eq("user_id", session.user.id)
-    .order("last_name", { ascending: true }),
+  loadAllClients(),
 
   supabase
     .from("artists")
