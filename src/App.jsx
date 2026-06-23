@@ -431,7 +431,7 @@ const evaluateSetup = (artistsList, servicesList) => {
   return ok;
 };
 
-  const [selectedDate, setSelectedDate] = useState("2026-06-01");
+  const [selectedDate, setSelectedDate] = useState(getTodayDateOnly());
   const [agendaView, setAgendaView] = useState("week");
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
   const [showMobileWeek, setShowMobileWeek] = useState(false);
@@ -2478,7 +2478,10 @@ const goNext = () => {
 
             <button
               className="home-menu-button home-menu-primary home-menu-logo-button"
-              onClick={() => setPage("agenda")}
+              onClick={() => {
+                setSelectedDate(getTodayDateOnly());
+                setPage("agenda");
+              }}
             >
               <div className="home-menu-logo-wrap">
                 <img
