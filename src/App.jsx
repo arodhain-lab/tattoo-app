@@ -667,6 +667,15 @@ console.log("ERREUR RDV =", appointmentsError);
     appointments: (appointments || []).map((appointment) => ({
       id: appointment.id,
       clientId: appointment.client_id,
+      client: appointment.client
+        ? {
+            id: appointment.client.id,
+            lastName: appointment.client.last_name,
+            firstName: appointment.client.first_name,
+            phone: appointment.client.phone,
+            notes: appointment.client.notes,
+          }
+        : null,
       artistId: appointment.artist_id,
       title: appointment.title,
       project: appointment.project,
@@ -691,9 +700,9 @@ console.log("ERREUR RDV =", appointmentsError);
   const appointmentsWithClient = useMemo(() => {
     return appointments
       .map((appointmentItem) => {
-        const client = clients.find(
-          (c) => String(c.id) === String(appointmentItem.clientId)
-        );
+        const client =
+          appointmentItem.client ||
+          clients.find((c) => String(c.id) === String(appointmentItem.clientId));
 
         const artist = artists.find(
           (a) => String(a.id) === String(appointmentItem.artistId)
@@ -1168,20 +1177,7 @@ const saveClient = async () => {
       return;
     }
 
-    setData((prev) => ({
-      ...prev,
-      clients: prev.clients.map((client) =>
-        String(client.id) === String(updatedClient.id)
-          ? {
-              id: updatedClient.id,
-              lastName: updatedClient.last_name,
-              firstName: updatedClient.first_name,
-              phone: updatedClient.phone,
-              notes: updatedClient.notes,
-            }
-          : client
-      ),
-    }));
+    await loadSupabaseData();
 
     alert("Cliente modifiée.");
     resetClientForm();
