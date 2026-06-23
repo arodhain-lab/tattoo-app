@@ -2767,10 +2767,7 @@ const goNext = () => {
                             </p>
               
                             <p>
-                              <strong>Notes :</strong>{" "}
-                              {[appointmentItem.notes, buildSystemDepositNotes(appointments, appointmentItem)]
-                                .filter(Boolean)
-                                .join(" | ") || "Aucune note"}
+                              <strong>Client :</strong> {appointmentItem.clientName}
                             </p>
                           </div>
                         </button>
