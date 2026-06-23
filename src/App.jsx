@@ -576,7 +576,16 @@ useEffect(() => {
     while (true) {
       const { data, error } = await supabase
         .from("appointments")
-        .select("*")
+        .select(`
+          *,
+          client:clients (
+            id,
+            last_name,
+            first_name,
+            phone,
+            notes
+          )
+        `)
         .eq("user_id", session.user.id)
         .order("appointment", { ascending: true })
         .range(from, from + pageSize - 1);
