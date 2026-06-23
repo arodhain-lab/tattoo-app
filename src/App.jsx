@@ -2732,43 +2732,35 @@ const goNext = () => {
                         <button
                           key={appointmentItem.id}
                           type="button"
-                          className={`agenda-item artist-bordered ${
+                          className={`agenda-item month-day-appointment-card ${
                             appointmentItem.cancelled ? "cancelled-appointment" : ""
                           }`}
                           style={{
-                            borderLeftColor: appointmentItem.artistColor,
+                            borderLeft: `6px solid ${appointmentItem.artistColor || "#111111"}`,
+                            backgroundColor: appointmentItem.cancelled ? "#d3d3d3" : "",
                           }}
                           onClick={() => openAppointmentDetails(appointmentItem)}
                         >
-                          <div className="agenda-item-time">
-                            {formatTimeOnly(appointmentItem.appointment)}
-                          </div>
-              
-                          <div className="agenda-item-content">
-                            <h4 className="appointment-project-title">
-                              {appointmentItem.project}
-                            </h4>
-              
-                            <p>
-                              <strong>Tarif :</strong>{" "}
-                              {appointmentItem.price !== ""
-                                ? formatCurrency(
-                                    getDisplayedPrice(appointmentItem, appointments)
-                                  )
-                                : "Non renseigné"}
-                            </p>
-              
-                            <p>
-                              <strong>Durée estimée :</strong>{" "}
-                              {formatDuration(
-                                appointmentItem.durationHours,
-                                appointmentItem.durationMinutes
-                              )}
-                            </p>
-              
-                            <p>
+                          <div className="month-rdv-card-content">
+                            <div className="month-rdv-topline">
+                              <span className="month-rdv-time">
+                                {formatTimeOnly(appointmentItem.appointment)}
+                              </span>
+                        
+                              <span className="month-rdv-price">
+                                {appointmentItem.price !== ""
+                                  ? formatCurrency(getDisplayedPrice(appointmentItem, appointments))
+                                  : "Non renseigné"}
+                              </span>
+                            </div>
+                        
+                            <div className="month-rdv-description">
+                              {appointmentItem.project || appointmentItem.title || "Sans descriptif"}
+                            </div>
+                        
+                            <div className="month-rdv-client">
                               <strong>Client :</strong> {appointmentItem.clientName}
-                            </p>
+                            </div>
                           </div>
                         </button>
                       ))}
