@@ -501,7 +501,7 @@ const [quickClientForm, setQuickClientForm] = useState({
 
   const navigateTo = (newPage) => {
     setPageHistory((prev) => [...prev, page]);
-    navigateTo(newPage);
+    setPage(newPage);
   };
 
   const goBack = () => {
