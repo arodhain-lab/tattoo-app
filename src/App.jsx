@@ -396,6 +396,7 @@ export default function App() {
     clients: [],
     appointments: [],
     artists: [],
+    closedDays: [],
     appointmentTypes: ["TATTOO", "PIERCING", "VENTE", "ACOMPTE"],
   });
 
@@ -563,6 +564,7 @@ useEffect(() => {
   const clients = data.clients || [];
   const appointments = data.appointments || [];
   const artists = data.artists || [];
+  const closedDays = data.closedDays || [];
   const filteredAppointmentClients = useMemo(() => {
     const q = normalizeString(appointmentClientSearch);
 
@@ -661,6 +663,7 @@ const [
   { data: artists, error: artistsError },
   { data: appointments, error: appointmentsError },
   { data: services, error: servicesError },
+  { data: closedDays, error: closedDaysError },
 ] = await Promise.all([
   loadAllClients(),
 
@@ -672,12 +675,18 @@ const [
 
   loadAllAppointments(),
 
-  supabase
-    .from("services")
-    .select("*")
-    .eq("user_id", session.user.id)
-    .order("name", { ascending: true }),
-]);
+    supabase
+        .from("services")
+        .select("*")
+        .eq("user_id", session.user.id)
+        .order("name", { ascending: true }),
+
+      supabase
+        .from("closed_days")
+        .select("*")
+        .eq("user_id", session.user.id)
+        .order("day", { ascending: true }),
+    ]);
 
 console.log("SESSION USER ID =", session.user.id);
 console.log("RDV BRUTS SUPABASE =", appointments);
@@ -730,6 +739,10 @@ console.log("ERREUR RDV =", appointmentsError);
       paymentMethod: appointment.payment_method || "",
       paymentDate: appointment.payment_date || "",
       originalTotalBeforeDeposit: appointment.original_total_before_deposit ?? "",
+    })),
+    closedDays: (closedDays || []).map((item) => ({
+      id: item.id,
+      day: item.day,
     })),
     appointmentTypes: Array.from(
       new Set([...(services?.map((s) => s.name) || []), "ACOMPTE"])
