@@ -3527,10 +3527,43 @@ const goNext = () => {
 
           <div className="client-box">
             <h3>{selectedAppointmentDetails.project || selectedAppointmentDetails.title || "Rendez-vous"}</h3>
+            {page === "appointment-details" && setupComplete && selectedAppointmentDetails && (
 
             <p>
-              <strong>Client :</strong> {selectedAppointmentDetails.clientName || "Non renseigné"}
+              <strong>Client :</strong>{" "}
+              {selectedAppointmentDetails.client ? (
+                <button
+                  type="button"
+                  className="inline-link-button"
+                  onClick={() => {
+                    setSelectedClientId(selectedAppointmentDetails.client.id);
+                    navigateTo("client-details");
+                  }}
+                >
+                  {selectedAppointmentDetails.clientName}
+                </button>
+              ) : (
+                selectedAppointmentDetails.clientName || "Non renseigné"
+              )}
             </p>
+
+            {getClientPhone(selectedAppointmentDetails.client) && (
+              <div className="action-buttons" style={{ marginTop: "12px" }}>
+                <a
+                  href={`tel:${getClientPhone(selectedAppointmentDetails.client)}`}
+                  className="button-link"
+                >
+                  Appeler
+                </a>
+
+                <a
+                  href={`sms:${getClientPhone(selectedAppointmentDetails.client)}`}
+                  className="button-link"
+                >
+                  Envoyer SMS
+                </a>
+              </div>
+            )}
 
             <p>
               <strong>Tatoueur :</strong> {selectedAppointmentDetails.artistName || "Non renseigné"}
