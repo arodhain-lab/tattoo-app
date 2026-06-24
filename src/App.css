@@ -2584,3 +2584,7 @@ body,
   background: #d6d6d6 !important;
 }
 
+.closed-day-cell::after {
+  content: none !important;
+  display: none !important;
+}
