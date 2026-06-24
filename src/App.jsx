@@ -382,6 +382,7 @@ export default function App() {
   const [checkingSetup, setCheckingSetup] = useState(true);
   const [setupComplete, setSetupComplete] = useState(false);
   const [page, setPage] = useState("home");
+  const [pageHistory, setPageHistory] = useState([]);
   const [selectedAppointmentId, setSelectedAppointmentId] = useState(null);
   const [selectedClientId, setSelectedClientId] = useState(null);
   function normalizeSearchText(value) {
@@ -405,17 +406,17 @@ export default function App() {
     setSelectedDate(appointmentItem.appointment.slice(0, 10));
   }
 
-  setPage("appointment-details");
+  navigateTo("appointment-details");
 };
 
 const openClientDetails = (client) => {
   setSelectedClientId(client.id);
-  setPage("client-details");
+  navigateTo("client-details");
 };
 
 const openClientAppointments = (clientId) => {
   setSelectedClientId(clientId);
-  setPage("client-appointments");
+  navigateTo("client-appointments");
 };
 
 const evaluateSetup = (artistsList, servicesList) => {
@@ -497,6 +498,23 @@ const [quickClientForm, setQuickClientForm] = useState({
   const DAY_COLUMN_HEIGHT = (DAY_END_HOUR - DAY_START_HOUR) * HOUR_HEIGHT;
 
   const [showSuccess, setShowSuccess] = useState(false);
+
+  const navigateTo = (newPage) => {
+    setPageHistory((prev) => [...prev, page]);
+    navigateTo(newPage);
+  };
+
+  const goBack = () => {
+    if (pageHistory.length === 0) {
+      setPage("home");
+      return;
+    }
+
+    const previousPage = pageHistory[pageHistory.length - 1];
+
+    setPageHistory((prev) => prev.slice(0, -1));
+    setPage(previousPage);
+  };
 
 
 useEffect(() => {
@@ -1161,7 +1179,7 @@ const openNewAppointmentForm = () => {
     originalTotalBeforeDeposit: "",
   });
 
-  setPage("appointments");
+  navigateTo("appointments");
 };
 
 const saveClient = async () => {
@@ -1205,7 +1223,7 @@ const saveClient = async () => {
     alert("Cliente modifiée.");
     resetClientForm();
     setSelectedClientId(updatedClient.id);
-    setPage("client-details");
+    navigateTo("client-details");
     return;
   }
 
@@ -1241,7 +1259,7 @@ const saveClient = async () => {
   setClientSearch("");
   resetClientForm();
   setSelectedClientId(insertedClient.id);
-  setPage("client-details");
+  navigateTo("client-details");
 
   alert("Cliente créée : " + insertedClient.first_name + " " + insertedClient.last_name);
 };
@@ -1659,7 +1677,7 @@ const importAppointmentsFromCsv = async (event) => {
       setAgendaArtistFilter("all");
       setSelectedDate("2026-06-01");
       setAgendaView("month");
-      setPage("agenda");
+      navigateTo("agenda");
 
       alert(
         `${insertedAppointments?.length || 0} RDV envoyés à Supabase.\n` +
@@ -1749,7 +1767,7 @@ const saveArtist = async () => {
       color: artist.color || "#111111",
     });
     setEditingArtistId(artist.id);
-    setPage("artists");
+    navigateTo("artists");
   };
 
 const deleteArtist = async (artistId) => {
@@ -1848,7 +1866,7 @@ const editService = (serviceName) => {
     name: serviceName || "",
   });
   setEditingServiceName(serviceName);
-  setPage("services");
+  navigateTo("services");
 };
 
 const deleteService = async (serviceName) => {
@@ -1885,7 +1903,7 @@ const deleteService = async (serviceName) => {
       notes: client.notes || "",
     });
     setEditingClientId(client.id);
-    setPage("client-form");
+    navigateTo("client-form");
   };
 
 const deleteClient = async (clientId) => {
@@ -1921,7 +1939,7 @@ const deleteClient = async (clientId) => {
     
   if (String(selectedClientId) === String(clientId)) {
     setSelectedClientId(null);
-    setPage("clients");
+    navigateTo("clients");
   }
 
   if (editingClientId === clientId) {
@@ -2101,7 +2119,7 @@ if (
 
   setTimeout(() => {
     setShowSuccess(false);
-    setPage("home");
+    navigateTo("home");
   }, 1500);
 
   setSelectedDate(appointmentForm.appointment.slice(0, 10));
@@ -2133,7 +2151,7 @@ if (
     }
 
     setEditingAppointmentId(appointmentItem.id);
-    setPage("appointments");
+    navigateTo("appointments");
   };
 
 const deleteAppointment = async (appointmentId) => {
@@ -2194,7 +2212,7 @@ const deleteAppointment = async (appointmentId) => {
 
                   if (String(selectedAppointmentId) === String(appointmentId)) {
                     setSelectedAppointmentId(null);
-                    setPage("agenda");
+                    navigateTo("agenda");
                   }
 
                   return;
@@ -2225,7 +2243,7 @@ const deleteAppointment = async (appointmentId) => {
 
             if (String(selectedAppointmentId) === String(appointmentId)) {
               setSelectedAppointmentId(null);
-              setPage("agenda");
+              navigateTo("agenda");
             }
 
             return;
@@ -2256,7 +2274,7 @@ const deleteAppointment = async (appointmentId) => {
 
   if (String(selectedAppointmentId) === String(appointmentId)) {
     setSelectedAppointmentId(null);
-    setPage("agenda");
+    navigateTo("agenda");
   }
 };
 
@@ -2385,10 +2403,10 @@ const goNext = () => {
           </div>
 
           <div className="action-buttons" style={{ marginBottom: "16px" }}>
-            <button onClick={() => setPage("artists")}>
+            <button onClick={() => navigateTo("artists")}>
               Configurer les tatoueurs
             </button>
-            <button onClick={() => setPage("services")}>
+            <button onClick={() => navigateTo("services")}>
               Configurer les prestations
             </button>
           </div>
@@ -2400,7 +2418,7 @@ const goNext = () => {
                 return;
               }
               setSetupComplete(true);
-              setPage("home");
+              navigateTo("home");
             }}
             disabled={!canFinishSetup}
           >
@@ -2427,7 +2445,7 @@ const goNext = () => {
             marginBottom: "16px",
           }}
         >
-          <button className="back-button" onClick={() => setPage("home")}>
+          <button className="back-button" onClick={() => navigateTo("home")}>
             ← Retour accueil
           </button>
         </div>
@@ -2442,8 +2460,8 @@ const goNext = () => {
           </p>
 
           <div className="action-buttons">
-            <button onClick={() => setPage("artists")}>Tatoueurs</button>
-            <button onClick={() => setPage("services")}>Prestations</button>
+            <button onClick={() => navigateTo("artists")}>Tatoueurs</button>
+            <button onClick={() => navigateTo("services")}>Prestations</button>
           </div>
         </div>
       )}
@@ -2465,7 +2483,7 @@ const goNext = () => {
           >
             <button
               className="home-menu-button home-menu-primary home-menu-logo-button"
-              onClick={() => setPage("appointments")}
+              onClick={() => navigateTo("appointments")}
             >
               <div className="home-menu-logo-wrap">
                 <img
@@ -2480,7 +2498,7 @@ const goNext = () => {
               className="home-menu-button home-menu-primary home-menu-logo-button"
               onClick={() => {
                 setSelectedDate(getTodayDateOnly());
-                setPage("agenda");
+                navigateTo("agenda");
               }}
             >
               <div className="home-menu-logo-wrap">
@@ -2494,7 +2512,7 @@ const goNext = () => {
 
             <button
               className="home-menu-button home-menu-primary home-menu-logo-button"
-              onClick={() => setPage("revenue")}
+              onClick={() => navigateTo("revenue")}
             >
               <div className="home-menu-logo-wrap">
                 <img
@@ -2507,7 +2525,7 @@ const goNext = () => {
 
             <button
               className="home-menu-button home-menu-primary home-menu-logo-button"
-              onClick={() => setPage("clients")}
+              onClick={() => navigateTo("clients")}
             >
               <div className="home-menu-logo-wrap">
                 <img
@@ -2520,7 +2538,7 @@ const goNext = () => {
 
             <button
               className="home-menu-button home-menu-primary home-menu-logo-button"
-              onClick={() => setPage("searchAppointments")}
+              onClick={() => navigateTo("searchAppointments")}
             >
               <div className="home-menu-logo-wrap">
                 <img
@@ -2533,7 +2551,7 @@ const goNext = () => {
 
             <button
               className="home-menu-button home-menu-primary home-menu-logo-button"
-              onClick={() => setPage("stats")}
+              onClick={() => navigateTo("stats")}
             >
               <div className="home-menu-logo-wrap">
                 <img
@@ -2546,7 +2564,7 @@ const goNext = () => {
 
             <button
               className="home-menu-button home-menu-primary home-menu-logo-button"
-              onClick={() => setPage("settings")}
+              onClick={() => navigateTo("settings")}
             >
               <div className="home-menu-logo-wrap">
                 <img
@@ -3134,7 +3152,7 @@ const goNext = () => {
           </div>
 
           <div className="home-menu-grid">
-            <button className="home-menu-button" onClick={() => setPage("services")}>
+            <button className="home-menu-button" onClick={() => navigateTo("services")}>
               <span className="home-menu-icon">🧾</span>
               <span className="home-menu-title">Prestations</span>
               <span className="home-menu-subtitle">
@@ -3142,7 +3160,7 @@ const goNext = () => {
               </span>
             </button>
 
-            <button className="home-menu-button" onClick={() => setPage("artists")}>
+            <button className="home-menu-button" onClick={() => navigateTo("artists")}>
               <span className="home-menu-icon">🎨</span>
               <span className="home-menu-title">Tatoueurs</span>
               <span className="home-menu-subtitle">
@@ -3150,7 +3168,7 @@ const goNext = () => {
               </span>
             </button>
 
-            <button className="home-menu-button" onClick={() => setPage("clients")}>
+            <button className="home-menu-button" onClick={() => navigateTo("clients")}>
               <span className="home-menu-icon">👤</span>
               <span className="home-menu-title">Fiches clients</span>
               <span className="home-menu-subtitle">
@@ -3932,7 +3950,7 @@ const goNext = () => {
         className="secondary-button"
         onClick={() => {
           resetClientForm();
-          setPage("clients");
+          navigateTo("clients");
         }}
       >
         Annuler
@@ -3949,7 +3967,7 @@ const goNext = () => {
             <button
               onClick={() => {
                 resetClientForm();
-               setPage("client-form");
+               navigateTo("client-form");
               }}
             >
               + Nouvelle fiche client
