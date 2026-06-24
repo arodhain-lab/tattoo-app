@@ -2581,7 +2581,8 @@ body,
 }
 
 .closed-day-panel {
-  background: #d6d6d6 !important;
+  background: rgba(180, 180, 180, 0.18) !important;
+  border-radius: 12px;
 }
 
 .closed-day-cell::after {
