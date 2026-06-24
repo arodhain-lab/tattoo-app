@@ -2445,8 +2445,8 @@ const goNext = () => {
             marginBottom: "16px",
           }}
         >
-          <button className="back-button" onClick={() => navigateTo("home")}>
-            ← Retour accueil
+          <button className="back-button" onClick={goBack}>
+            ← Retour
           </button>
         </div>
       )}
