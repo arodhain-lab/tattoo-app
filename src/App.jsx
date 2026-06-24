@@ -693,7 +693,11 @@ console.log("RDV BRUTS SUPABASE =", appointments);
 console.log("ERREUR RDV =", appointmentsError);
 
   const firstError =
-    clientsError || artistsError || appointmentsError || servicesError;
+    clientsError ||
+    artistsError ||
+    appointmentsError ||
+    servicesError ||
+    closedDaysError;
 
     if (firstError) {
       alert(firstError.message);
@@ -2313,6 +2317,44 @@ const serviceHasAppointments = (serviceName) => {
   );
 };
 
+const isClosedDay = (dateKey) => {
+  return closedDays.some((item) => item.day === dateKey);
+};
+
+const toggleClosedDay = async (dateKey) => {
+  if (!session?.user) return;
+
+  const existing = closedDays.find(
+    (item) => item.day === dateKey
+  );
+
+  if (existing) {
+    const { error } = await supabase
+      .from("closed_days")
+      .delete()
+      .eq("id", existing.id);
+
+    if (error) {
+      alert(error.message);
+      return;
+    }
+  } else {
+    const { error } = await supabase
+      .from("closed_days")
+      .insert({
+        user_id: session.user.id,
+        day: dateKey,
+      });
+
+    if (error) {
+      alert(error.message);
+      return;
+    }
+  }
+
+  await loadSupabaseData();
+};
+
 const artistHasAppointments = (artistId) => {
   return appointments.some(
     (appointmentItem) => String(appointmentItem.artistId) === String(artistId)
@@ -2744,10 +2786,24 @@ const goNext = () => {
                     </div>
                   ) : null}
                 </div>
+                 <div className="closed-day-toggle">
+                 <label>
+                   <input
+                     type="checkbox"
+                     checked={isClosedDay(selectedDate)}
+                     onChange={() => toggleClosedDay(selectedDate)}
+                   />
+                   Journée en congés
+                </label>
+               </div>
               </div>
 
               {agendaView === "day" && (
-                <div className="agenda-panel">
+                <div
+                  className={`agenda-panel ${
+                    isClosedDay(selectedDate) ? "closed-day-panel" : ""
+                  }`}
+                >
                   <h3>Planning du jour</h3>
 
                   {renderSpecialDayBadge(selectedDate)}
@@ -2817,6 +2873,7 @@ const goNext = () => {
                         const specialDayInfo = getSpecialDayInfo(key, schoolZone);
                         const isToday = key === getTodayDateOnly();
                         const items = appointmentsByDate[key] || [];
+                        const closed = isClosedDay(key);
 
                         return (
                           <button
@@ -2825,6 +2882,8 @@ const goNext = () => {
                             className={`month-cell month-cell-compact week-day-cell ${
                               isSelected ? "selected-cell" : ""
                             } ${isToday ? "today-cell" : ""} ${
+                              closed ? "closed-day-cell" : ""
+                            } ${
                               specialDayInfo?.type === "publicHoliday"
                                 ? "public-holiday-cell"
                                 : specialDayInfo?.type === "schoolHoliday"
@@ -2976,6 +3035,7 @@ const goNext = () => {
                         const isSelected = key === selectedDate;
                         const specialDayInfo = getSpecialDayInfo(key, schoolZone);
                         const isToday = key === getTodayDateOnly();
+                        const closed = isClosedDay(key);
 
                         return (
                           <button
@@ -2984,6 +3044,8 @@ const goNext = () => {
                             className={`month-cell month-cell-compact week-day-cell ${
                               isSelected ? "selected-cell" : ""
                             } ${isToday ? "today-cell" : ""} ${
+                              closed ? "closed-day-cell" : ""
+                            } ${
                               specialDayInfo?.type === "publicHoliday"
                                 ? "public-holiday-cell"
                                 : specialDayInfo?.type === "schoolHoliday"

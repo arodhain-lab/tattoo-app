@@ -2566,3 +2566,28 @@ body,
     0 10px 24px rgba(0, 0, 0, 0.55),
     0 0 18px rgba(240, 199, 102, 0.18);
 }
+
+.closed-day-toggle {
+  margin: 10px 0;
+  padding: 10px;
+  border-radius: 12px;
+  background: rgba(0,0,0,0.05);
+}
+
+.closed-day-cell {
+  background: #bdbdbd !important;
+  opacity: 0.65;
+  filter: grayscale(100%);
+}
+
+.closed-day-panel {
+  background: #d6d6d6 !important;
+}
+
+.closed-day-cell::after {
+  content: "CONGÉS";
+  display: block;
+  font-size: 10px;
+  font-weight: bold;
+  margin-top: 4px;
+}
