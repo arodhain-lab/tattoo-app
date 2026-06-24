@@ -2584,10 +2584,3 @@ body,
   background: #d6d6d6 !important;
 }
 
-.closed-day-cell::after {
-  content: "CONGÉS";
-  display: block;
-  font-size: 10px;
-  font-weight: bold;
-  margin-top: 4px;
-}
