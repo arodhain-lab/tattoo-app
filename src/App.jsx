@@ -3524,11 +3524,14 @@ const goNext = () => {
       {page === "appointment-details" && setupComplete && selectedAppointmentDetails && (
         <section className="card">
           <h2>Détail du rendez-vous</h2>
-
+      
           <div className="client-box">
-            <h3>{selectedAppointmentDetails.project || selectedAppointmentDetails.title || "Rendez-vous"}</h3>
-            {page === "appointment-details" && setupComplete && selectedAppointmentDetails && (
-
+            <h3>
+              {selectedAppointmentDetails.project ||
+                selectedAppointmentDetails.title ||
+                "Rendez-vous"}
+            </h3>
+      
             <p>
               <strong>Client :</strong>{" "}
               {selectedAppointmentDetails.client ? (
@@ -3546,45 +3549,24 @@ const goNext = () => {
                 selectedAppointmentDetails.clientName || "Non renseigné"
               )}
             </p>
-
+      
             {getClientPhone(selectedAppointmentDetails.client) && (
               <div className="action-buttons" style={{ marginTop: "12px" }}>
-                <a
-                  href={`tel:${getClientPhone(selectedAppointmentDetails.client)}`}
-                  className="button-link"
-                >
+                <a href={`tel:${getClientPhone(selectedAppointmentDetails.client)}`} className="button-link">
                   Appeler
                 </a>
-
-                <a
-                  href={`sms:${getClientPhone(selectedAppointmentDetails.client)}`}
-                  className="button-link"
-                >
+      
+                <a href={`sms:${getClientPhone(selectedAppointmentDetails.client)}`} className="button-link">
                   Envoyer SMS
                 </a>
               </div>
             )}
-
-            <p>
-              <strong>Tatoueur :</strong> {selectedAppointmentDetails.artistName || "Non renseigné"}
-            </p>
       
-            <p>
-              <strong>Type :</strong> {selectedAppointmentDetails.title || "Non renseigné"}
-            </p>
+            <p><strong>Tatoueur :</strong> {selectedAppointmentDetails.artistName || "Non renseigné"}</p>
+            <p><strong>Type :</strong> {selectedAppointmentDetails.title || "Non renseigné"}</p>
+            <p><strong>Date :</strong> {formatDateTime(selectedAppointmentDetails.appointment)}</p>
+            <p><strong>Durée :</strong> {formatDuration(selectedAppointmentDetails.durationHours, selectedAppointmentDetails.durationMinutes)}</p>
       
-            <p>
-              <strong>Date :</strong> {formatDateTime(selectedAppointmentDetails.appointment)}
-            </p>
-      
-            <p>
-              <strong>Durée :</strong>{" "}
-              {formatDuration(
-                selectedAppointmentDetails.durationHours,
-                selectedAppointmentDetails.durationMinutes
-              )}
-            </p>
-
             <p>
               <strong>Tarif :</strong>{" "}
               {selectedAppointmentDetails.price !== ""
@@ -3598,12 +3580,6 @@ const goNext = () => {
                 .filter(Boolean)
                 .join(" | ") || "Aucune note"}
             </p>
-      
-            {selectedAppointmentDetails.cancelled && (
-              <p>
-                <strong>Statut :</strong> Rendez-vous annulé
-              </p>
-            )}
           </div>
       
           <div className="action-buttons" style={{ marginTop: "20px" }}>
@@ -3616,7 +3592,7 @@ const goNext = () => {
             </button>
           </div>
         </section>
-      )}
+      )}      
 
       {page === "appointments" && setupComplete && (
   <div className="grid">
