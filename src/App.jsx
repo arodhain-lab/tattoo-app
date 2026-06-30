@@ -483,9 +483,13 @@ const [quickClientForm, setQuickClientForm] = useState({
   notes: "",
   appointment: "",
   price: "",
+  saleAmount: "",
+  serviceAmount: "",
   durationHours: "",
   durationMinutes: "",
   cancelled: false,
+  saleAmount: "",
+  serviceAmount: "",
   linkedAppointmentId: "",
      paymentMethod: "",
      paymentCbAmount: "",
@@ -771,6 +775,8 @@ console.log("ERREUR RDV =", appointmentsError);
       paymentCashAmount: appointment.payment_cash_amount ?? "",
       paymentDate: appointment.payment_date || "",
       originalTotalBeforeDeposit: appointment.original_total_before_deposit ?? "",
+      saleAmount: appointment.sale_amount ?? "",
+      serviceAmount: appointment.service_amount ?? "",
     })),
     closedDays: (closedDays || []).map((item) => ({
       id: item.id,
@@ -1198,6 +1204,8 @@ const resetAppointmentForm = () => {
     notes: "",
     appointment: "",
     price: 0,
+    saleAmount: "",
+    serviceAmount: "",
     durationHours: "",
     durationMinutes: "",
     cancelled: false,
@@ -1223,6 +1231,8 @@ const openNewAppointmentForm = () => {
     notes: "",
     appointment: `${selectedDate}T10:00`,
     price: 0,
+    saleAmount: "",
+    serviceAmount: "",
     durationHours: "",
     durationMinutes: "",
     cancelled: false,
@@ -1589,6 +1599,8 @@ const exportAppointmentsCsv = () => {
     "TYPE",
     "PROJET",
     "PRIX TOTAL",
+    "PRESTATION",
+    "VENTE",
     "MONTANT CB",
     "MONTANT ESPECES",
     "MOYEN DE PAIEMENT",
@@ -1596,6 +1608,8 @@ const exportAppointmentsCsv = () => {
 
   const rows = appointmentsToExport.map((appointmentItem) => {
     const total = getDisplayedPrice(appointmentItem, appointments);
+    const serviceAmount = Number(appointmentItem.serviceAmount) || 0;
+    const saleAmount = Number(appointmentItem.saleAmount) || 0;
     const cbAmount = Number(appointmentItem.paymentCbAmount) || 0;
     const cashAmount = Number(appointmentItem.paymentCashAmount) || 0;
 
@@ -1609,6 +1623,8 @@ const exportAppointmentsCsv = () => {
       appointmentItem.project || "",
       appointmentItem.notes || "",
       total.toString().replace(".", ","),
+      serviceAmount.toString().replace(".", ","),
+      saleAmount.toString().replace(".", ","),
       cbAmount.toString().replace(".", ","),
       cashAmount.toString().replace(".", ","),
       formatDuration(
@@ -2254,6 +2270,30 @@ if (
   let paymentCbAmount = 0;
   let paymentCashAmount = 0;
 
+  const appointmentCategory = getAppointmentTypeCategory(
+    appointmentForm.title
+  );
+
+  let saleAmount = 0;
+  let serviceAmount = 0;
+
+  if (appointmentCategory === "VENTE") {
+    saleAmount = appointmentPrice;
+    serviceAmount = 0;
+  } else if (appointmentCategory === "PRESTATION + VENTE") {
+    saleAmount = Number(appointmentForm.saleAmount) || 0;
+
+    if (saleAmount > appointmentPrice) {
+      alert("Le montant vente ne peut pas dépasser le montant total.");
+      return;
+    }
+  
+    serviceAmount = appointmentPrice - saleAmount;
+  } else {
+    saleAmount = 0;
+    serviceAmount = appointmentPrice;
+  }
+
   if (appointmentForm.paymentMethod === "CB") {
     paymentCbAmount = appointmentPrice;
   }
@@ -2282,6 +2322,8 @@ if (
     notes: appointmentForm.notes.trim(),
     appointment: appointmentForm.appointment,
     price: appointmentPrice,
+    sale_amount: saleAmount,
+    service_amount: serviceAmount,
     duration_hours:
       appointmentForm.durationHours === "" ? null : Number(appointmentForm.durationHours),
     duration_minutes:
@@ -2353,6 +2395,8 @@ if (
       notes: appointmentItem.notes || "",
       appointment: formatDateTimeLocalInput(appointmentItem.appointment),
       price: appointmentItem.price ?? "",
+      saleAmount: "",
+      serviceAmount: "",
       durationHours: appointmentItem.durationHours ?? "",
       durationMinutes: appointmentItem.durationMinutes ?? "",
       cancelled: appointmentItem.cancelled || false,
@@ -2364,6 +2408,8 @@ if (
       paymentCashAmount: appointmentItem.paymentCashAmount ?? "",
       paymentDate: appointmentItem.paymentDate || "",
       originalTotalBeforeDeposit: appointmentItem.originalTotalBeforeDeposit ?? "",
+      saleAmount: appointmentItem.saleAmount ?? "",
+      serviceAmount: appointmentItem.serviceAmount ?? "",
     });
 
     if (appointmentItem.appointment) {
@@ -3878,6 +3924,37 @@ const goNext = () => {
       
             <p><strong>Tatoueur :</strong> {selectedAppointmentDetails.artistName || "Non renseigné"}</p>
             <p><strong>Type :</strong> {selectedAppointmentDetails.title || "Non renseigné"}</p>
+            <p>
+              <strong>Catégorie :</strong>{" "}
+              {getAppointmentTypeCategory(selectedAppointmentDetails.title)}
+            </p>
+            {getAppointmentTypeCategory(selectedAppointmentDetails.title) === "VENTE" && (
+              <p>
+                <strong>Montant vente :</strong>{" "}
+                {formatCurrency(selectedAppointmentDetails.saleAmount)}
+              </p>
+            )}
+
+            {getAppointmentTypeCategory(selectedAppointmentDetails.title) === "PRESTATION" && (
+              <p>
+                <strong>Montant prestation :</strong>{" "}
+                {formatCurrency(selectedAppointmentDetails.serviceAmount)}
+              </p>
+            )}
+
+            {getAppointmentTypeCategory(selectedAppointmentDetails.title) === "PRESTATION + VENTE" && (
+              <>
+                <p>
+                  <strong>Montant prestation :</strong>{" "}
+                  {formatCurrency(selectedAppointmentDetails.serviceAmount)}
+                </p>
+            
+                <p>
+                  <strong>Montant vente :</strong>{" "}
+                  {formatCurrency(selectedAppointmentDetails.saleAmount)}
+                </p>
+              </>
+            )}
             <p><strong>Date :</strong> {formatDateTime(selectedAppointmentDetails.appointment)}</p>
             <p><strong>Durée :</strong> {formatDuration(selectedAppointmentDetails.durationHours, selectedAppointmentDetails.durationMinutes)}</p>
       
@@ -4150,6 +4227,42 @@ const goNext = () => {
           <span className="input-suffix">€</span>
         </div>
       </div>
+
+      {getAppointmentTypeCategory(appointmentForm.title) === "PRESTATION + VENTE" && (
+        <div className="form-field">
+          <label className="input-label">Montant vente</label>
+
+          <div className="input-with-suffix">
+            <input
+              type="number"
+              min="0"
+              step="0.01"
+              value={appointmentForm.saleAmount}
+              onChange={(e) =>
+                setAppointmentForm({
+                  ...appointmentForm,
+                  saleAmount: e.target.value,
+                })
+              }
+              className="price-input"
+            />
+            <span className="input-suffix">€</span>
+          </div>
+
+          <p>
+            Prestation calculée :{" "}
+            <strong>
+              {formatCurrency(
+                Math.max(
+                  0,
+                  Number(appointmentForm.price) -
+                    Number(appointmentForm.saleAmount || 0)
+                )
+              )}
+            </strong>
+          </p>
+        </div>
+      )}
 
       <div className="duration-row">
         <div className="input-with-suffix">
