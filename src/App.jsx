@@ -443,6 +443,8 @@ const evaluateSetup = (artistsList, servicesList) => {
 
   const [clientSearch, setClientSearch] = useState("");
   const [appointmentSearch, setAppointmentSearch] = useState("");
+  const [exportStartDate, setExportStartDate] = useState("");
+  const [exportEndDate, setExportEndDate] = useState("");
   const [appointmentClientSearch, setAppointmentClientSearch] = useState("");
   const [expandedClientId, setExpandedClientId] = useState(null);
 
@@ -3439,7 +3441,7 @@ const goNext = () => {
               type="color"
               value={artistForm.color}
               onChange={(e) =>
-                setArtistForm({ ...artistForm, color: e.target.value })
+                setArtistForm({ ...artistForm, name: e.target.value })
               }
             />
       
