@@ -3884,7 +3884,7 @@ const goNext = () => {
       {page === "appointment-details" && setupComplete && selectedAppointmentDetails && (
         <section className="card">
           <h2>Détail du rendez-vous</h2>
-      
+
           <div className="client-box">
             <h3>
               {selectedAppointmentDetails.project ||
@@ -3912,80 +3912,68 @@ const goNext = () => {
       
             {getClientPhone(selectedAppointmentDetails.client) && (
               <div className="action-buttons" style={{ marginTop: "12px" }}>
-                <a href={`tel:${getClientPhone(selectedAppointmentDetails.client)}`} className="button-link">
+                <a
+                  href={`tel:${getClientPhone(selectedAppointmentDetails.client)}`}
+                  className="button-link"
+                >
                   Appeler
                 </a>
       
-                <a href={`sms:${getClientPhone(selectedAppointmentDetails.client)}`} className="button-link">
+                <a
+                  href={`sms:${getClientPhone(selectedAppointmentDetails.client)}`}
+                  className="button-link"
+                >
                   Envoyer SMS
                 </a>
               </div>
             )}
-      
+
             <p><strong>Tatoueur :</strong> {selectedAppointmentDetails.artistName || "Non renseigné"}</p>
             <p><strong>Type :</strong> {selectedAppointmentDetails.title || "Non renseigné"}</p>
-            <p>
-              <strong>Catégorie :</strong>{" "}
-              {getAppointmentTypeCategory(selectedAppointmentDetails.title)}
-            </p>
-            {getAppointmentTypeCategory(selectedAppointmentDetails.title) === "VENTE" && (
-              <p>
-                <strong>Montant vente :</strong>{" "}
-                {formatCurrency(selectedAppointmentDetails.saleAmount)}
-              </p>
-            )}
-
-            {getAppointmentTypeCategory(selectedAppointmentDetails.title) === "PRESTATION" && (
-              <p>
-                <strong>Montant prestation :</strong>{" "}
-                {formatCurrency(selectedAppointmentDetails.serviceAmount)}
-              </p>
-            )}
-
-            {getAppointmentTypeCategory(selectedAppointmentDetails.title) === "PRESTATION + VENTE" && (
-              <>
-                <p>
-                  <strong>Montant prestation :</strong>{" "}
-                  {formatCurrency(selectedAppointmentDetails.serviceAmount)}
-                </p>
-            
-                <p>
-                  <strong>Montant vente :</strong>{" "}
-                  {formatCurrency(selectedAppointmentDetails.saleAmount)}
-                </p>
-              </>
-            )}
             <p><strong>Date :</strong> {formatDateTime(selectedAppointmentDetails.appointment)}</p>
             <p><strong>Durée :</strong> {formatDuration(selectedAppointmentDetails.durationHours, selectedAppointmentDetails.durationMinutes)}</p>
       
             <p>
-              <strong>Tarif :</strong>{" "}
+              <strong>Tarif total :</strong>{" "}
               {selectedAppointmentDetails.price !== ""
                 ? formatCurrency(getDisplayedPrice(selectedAppointmentDetails, appointments))
                 : "Non renseigné"}
             </p>
-
-            <p>
-              <strong>Mode de paiement :</strong>{" "}
-              {selectedAppointmentDetails.paymentMethod || "Non renseigné"}
-            </p>
-
-            <p>
-              <strong>Mode de paiement :</strong>{" "}
-              {selectedAppointmentDetails.paymentMethod || "Non renseigné"}
-
-              {selectedAppointmentDetails.paymentMethod === "CB + ESPÈCES" &&
-                ` (${formatCurrency(selectedAppointmentDetails.paymentCbAmount)} en CB + ${formatCurrency(selectedAppointmentDetails.paymentCashAmount)} en espèces)`}
-            </p>
       
-            <p>
-              <strong>Notes :</strong>{" "}
-              {[selectedAppointmentDetails.notes, buildSystemDepositNotes(appointments, selectedAppointmentDetails)]
-                .filter(Boolean)
-                .join(" | ") || "Aucune note"}
-            </p>
+            <div style={{ marginTop: "22px", paddingTop: "16px", borderTop: "1px solid rgba(245, 190, 65, 0.35)" }}>
+              <p>
+                <strong>Mode de paiement :</strong>{" "}
+                {selectedAppointmentDetails.paymentMethod || "Non renseigné"}
+                {selectedAppointmentDetails.paymentMethod === "CB + ESPÈCES" &&
+                  ` (${formatCurrency(selectedAppointmentDetails.paymentCbAmount)} en CB + ${formatCurrency(selectedAppointmentDetails.paymentCashAmount)} en espèces)`}
+              </p>
+      
+              <p>
+                <strong>Catégorie :</strong>{" "}
+                {getAppointmentTypeCategory(selectedAppointmentDetails.title)}
+              </p>
+      
+              <p>
+                <strong>Montant prestation :</strong>{" "}
+                {formatCurrency(selectedAppointmentDetails.serviceAmount)}
+              </p>
+      
+              <p>
+                <strong>Montant vente :</strong>{" "}
+                {formatCurrency(selectedAppointmentDetails.saleAmount)}
+              </p>
+            </div>
+      
+            <div style={{ marginTop: "22px", paddingTop: "16px", borderTop: "1px solid rgba(245, 190, 65, 0.35)" }}>
+              <p>
+                <strong>Notes :</strong>{" "}
+                {[selectedAppointmentDetails.notes, buildSystemDepositNotes(appointments, selectedAppointmentDetails)]
+                  .filter(Boolean)
+                  .join(" | ") || "Aucune note"}
+              </p>
+            </div>
           </div>
-      
+
           <div className="action-buttons" style={{ marginTop: "20px" }}>
             <button onClick={() => editAppointment(selectedAppointmentDetails)}>
               Modifier
@@ -3996,7 +3984,7 @@ const goNext = () => {
             </button>
           </div>
         </section>
-      )}      
+      )}    
 
       {page === "appointments" && setupComplete && (
   <div className="grid">
