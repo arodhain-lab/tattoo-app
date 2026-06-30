@@ -1608,8 +1608,20 @@ const exportAppointmentsCsv = () => {
 
   const rows = appointmentsToExport.map((appointmentItem) => {
     const total = getDisplayedPrice(appointmentItem, appointments);
-    const serviceAmount = Number(appointmentItem.serviceAmount) || 0;
-    const saleAmount = Number(appointmentItem.saleAmount) || 0;
+    const category = getAppointmentTypeCategory(appointmentItem.title);
+
+    const saleAmount =
+      category === "VENTE"
+        ? total
+        : Number(appointmentItem.saleAmount) || 0;
+
+    const serviceAmount =
+      category === "PRESTATION"
+        ? total
+        : category === "PRESTATION + VENTE"
+        ? Math.max(0, total - saleAmount)
+        : 0;
+
     const cbAmount = Number(appointmentItem.paymentCbAmount) || 0;
     const cashAmount = Number(appointmentItem.paymentCashAmount) || 0;
 
@@ -1621,16 +1633,11 @@ const exportAppointmentsCsv = () => {
       appointmentItem.artistName || "",
       appointmentItem.title || "",
       appointmentItem.project || "",
-      appointmentItem.notes || "",
       total.toString().replace(".", ","),
       serviceAmount.toString().replace(".", ","),
       saleAmount.toString().replace(".", ","),
       cbAmount.toString().replace(".", ","),
       cashAmount.toString().replace(".", ","),
-      formatDuration(
-        appointmentItem.durationHours,
-        appointmentItem.durationMinutes
-      ),
       appointmentItem.paymentMethod || "",
     ];
   });
