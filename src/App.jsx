@@ -481,6 +481,8 @@ const [quickClientForm, setQuickClientForm] = useState({
   cancelled: false,
   linkedAppointmentId: "",
      paymentMethod: "",
+     paymentCbAmount: "",
+     paymentCashAmount: "",
      paymentDate: "",
      originalTotalBeforeDeposit: "",
    });
@@ -743,6 +745,8 @@ console.log("ERREUR RDV =", appointmentsError);
       cancelled: appointment.cancelled,
       linkedAppointmentId: appointment.linked_appointment_id ?? "",
       paymentMethod: appointment.payment_method || "",
+      paymentCbAmount: appointment.payment_cb_amount ?? "",
+      paymentCashAmount: appointment.payment_cash_amount ?? "",
       paymentDate: appointment.payment_date || "",
       originalTotalBeforeDeposit: appointment.original_total_before_deposit ?? "",
     })),
@@ -1165,12 +1169,14 @@ const resetAppointmentForm = () => {
     project: "",
     notes: "",
     appointment: "",
-    price: "",
+    price: 0,
     durationHours: "",
     durationMinutes: "",
     cancelled: false,
     linkedAppointmentId: "",
     paymentMethod: "",
+    paymentCbAmount: "",
+    paymentCashAmount: "",
     paymentDate: "",
     originalTotalBeforeDeposit: "",
   });
@@ -1188,14 +1194,16 @@ const openNewAppointmentForm = () => {
     project: "",
     notes: "",
     appointment: `${selectedDate}T10:00`,
-    price: "",
+    price: 0,
     durationHours: "",
     durationMinutes: "",
     cancelled: false,
     linkedAppointmentId: "",
     paymentMethod: "",
+    paymentCbAmount: "",
+    paymentCashAmount: "",
     paymentDate: "",
-    originalTotalBeforeDeposit: "",
+    originalTotalBeforeDeposit: "",    
   });
 
   navigateTo("appointments");
@@ -1213,6 +1221,31 @@ const saveClient = async () => {
   if (!session?.user) {
     alert("Erreur : utilisateur non connecté.");
     return;
+  }
+
+  const appointmentPrice =
+    appointmentForm.price === "" ? 0 : Number(appointmentForm.price);
+
+  let paymentCbAmount = 0;
+  let paymentCashAmount = 0;
+
+  if (appointmentForm.paymentMethod === "CB") {
+    paymentCbAmount = appointmentPrice;
+  }
+
+  if (appointmentForm.paymentMethod === "ESPÈCES") {
+    paymentCashAmount = appointmentPrice;
+  }
+
+  if (appointmentForm.paymentMethod === "CB + ESPÈCES") {
+    paymentCbAmount = Number(appointmentForm.paymentCbAmount) || 0;
+
+    if (paymentCbAmount > appointmentPrice) {
+      alert("Le montant CB ne peut pas dépasser le montant total du rendez-vous.");
+      return;
+    }
+
+    paymentCashAmount = Math.max(0, appointmentPrice - paymentCbAmount);
   }
 
   const payload = {
@@ -1517,6 +1550,8 @@ const exportAppointmentsCsv = () => {
   const appointmentsToExport = appointmentsWithClient
     .filter((appointmentItem) => {
       if (!appointmentItem.appointment) return false;
+      if (appointmentItem.cancelled) return false;
+      if (isAcompteAppointment(appointmentItem)) return false;
 
       const appointmentDate = appointmentItem.appointment.slice(0, 10);
 
@@ -1544,32 +1579,36 @@ const exportAppointmentsCsv = () => {
     "TATOUEUR",
     "TYPE",
     "PROJET",
-    "NOTES",
-    "PRIX",
-    "DUREE",
+    "PRIX TOTAL",
+    "MONTANT CB",
+    "MONTANT ESPECES",
     "MOYEN DE PAIEMENT",
-    "ANNULE",
   ];
 
-  const rows = appointmentsToExport.map((appointmentItem) => [
-    formatDateOnly(appointmentItem.appointment),
-    formatTimeOnly(appointmentItem.appointment),
-    appointmentItem.clientName || "",
-    appointmentItem.clientPhone || "",
-    appointmentItem.artistName || "",
-    appointmentItem.title || "",
-    appointmentItem.project || "",
-    appointmentItem.notes || "",
-    appointmentItem.price === "" || appointmentItem.price == null
-      ? ""
-      : Number(appointmentItem.price).toString().replace(".", ","),
-    formatDuration(
-      appointmentItem.durationHours,
-      appointmentItem.durationMinutes
-    ),
-    appointmentItem.paymentMethod || "",
-    appointmentItem.cancelled ? "OUI" : "NON",
-  ]);
+  const rows = appointmentsToExport.map((appointmentItem) => {
+    const total = getDisplayedPrice(appointmentItem, appointments);
+    const cbAmount = Number(appointmentItem.paymentCbAmount) || 0;
+    const cashAmount = Number(appointmentItem.paymentCashAmount) || 0;
+
+    return [
+      formatDateOnly(appointmentItem.appointment),
+      formatTimeOnly(appointmentItem.appointment),
+      appointmentItem.clientName || "",
+      appointmentItem.clientPhone || "",
+      appointmentItem.artistName || "",
+      appointmentItem.title || "",
+      appointmentItem.project || "",
+      appointmentItem.notes || "",
+      total.toString().replace(".", ","),
+      cbAmount.toString().replace(".", ","),
+      cashAmount.toString().replace(".", ","),
+      formatDuration(
+        appointmentItem.durationHours,
+        appointmentItem.durationMinutes
+      ),
+      appointmentItem.paymentMethod || "",
+    ];
+  });
 
   const csvContent = [
     header.map(escapeCsv).join(";"),
@@ -1728,7 +1767,7 @@ const importAppointmentsFromCsv = async (event) => {
           clientsCache.push(createdClient);
         }
 
-        const price = parseCsvPrice(priceText);
+        const price = parseCsvPrice(priceText) ?? 0;
         const appointmentType = findAppointmentTypeFromCsv(typeName) || "TATTOO";
 
         validAppointments.push({
@@ -2175,7 +2214,7 @@ if (
     project: appointmentForm.project.trim(),
     notes: appointmentForm.notes.trim(),
     appointment: appointmentForm.appointment,
-    price: appointmentForm.price === "" ? null : Number(appointmentForm.price),
+    price: appointmentPrice,
     duration_hours:
       appointmentForm.durationHours === "" ? null : Number(appointmentForm.durationHours),
     duration_minutes:
@@ -2186,6 +2225,8 @@ if (
         ? Number(appointmentForm.linkedAppointmentId)
         : null,
     payment_method: appointmentForm.paymentMethod.trim() || null,
+    payment_cb_amount: paymentCbAmount,
+    payment_cash_amount: paymentCashAmount,
     payment_date:
       appointmentForm.title === ACOMPTE_TYPE
         ? appointmentForm.appointment
@@ -2218,15 +2259,22 @@ if (
 
   await loadSupabaseData();
 
+  const appointmentDate = appointmentForm.appointment.slice(0, 10);
+
+  setSelectedDate(appointmentDate);
+
   setShowSuccess(true);
 
   setTimeout(() => {
     setShowSuccess(false);
-    navigateTo("home");
-  }, 1500);
+    resetAppointmentForm();
 
-  setSelectedDate(appointmentForm.appointment.slice(0, 10));
-  resetAppointmentForm();
+    if (pageHistory.includes("agenda")) {
+      setPage("agenda");
+    } else {
+      goBack();
+    }
+  }, 1500);
 };
 
   const editAppointment = (appointmentItem) => {
@@ -2245,6 +2293,8 @@ if (
         ? String(appointmentItem.linkedAppointmentId)
         : "",
       paymentMethod: appointmentItem.paymentMethod || "",
+      paymentCbAmount: appointmentItem.paymentCbAmount ?? "",
+      paymentCashAmount: appointmentItem.paymentCashAmount ?? "",
       paymentDate: appointmentItem.paymentDate || "",
       originalTotalBeforeDeposit: appointmentItem.originalTotalBeforeDeposit ?? "",
     });
@@ -4043,18 +4093,59 @@ const goNext = () => {
 
       <select
         value={appointmentForm.paymentMethod}
-        onChange={(e) =>
+        onChange={(e) => {
+          const paymentMethod = e.target.value;
+          const total = Number(appointmentForm.price) || 0;
+
           setAppointmentForm({
             ...appointmentForm,
-            paymentMethod: e.target.value,
-          })
-        }
+            paymentMethod,
+            paymentCbAmount:
+              paymentMethod === "CB" ? total : paymentMethod === "CB + ESPÈCES" ? appointmentForm.paymentCbAmount : "",
+            paymentCashAmount:
+              paymentMethod === "ESPÈCES" ? total : paymentMethod === "CB + ESPÈCES" ? appointmentForm.paymentCashAmount : "",
+          });
+        }}
       >
         <option value="">Moyen de paiement non renseigné</option>
         <option value="CB">CB</option>
         <option value="ESPÈCES">Espèces</option>
+        <option value="CB + ESPÈCES">CB + Espèces</option>
         <option value="VIREMENT">Virement</option>
       </select>
+
+      {appointmentForm.paymentMethod === "CB + ESPÈCES" && (
+        <div className="form-field">
+          <label className="input-label">Montant payé en CB</label>
+
+          <div className="input-with-suffix">
+            <input
+              type="number"
+              min="0"
+              step="0.01"
+              value={appointmentForm.paymentCbAmount}
+              onChange={(e) => {
+                const cbAmount = Number(e.target.value) || 0;
+                const total = Number(appointmentForm.price) || 0;
+                const cashAmount = Math.max(0, total - cbAmount);
+
+                setAppointmentForm({
+                  ...appointmentForm,
+                  paymentCbAmount: e.target.value,
+                  paymentCashAmount: cashAmount,
+                });
+              }}
+              className="price-input"
+            />
+            <span className="input-suffix">€</span>
+          </div>
+
+          <p>
+            Espèces calculées automatiquement :{" "}
+            <strong>{formatCurrency(appointmentForm.paymentCashAmount)}</strong>
+          </p>
+        </div>
+      )}
 
       <textarea
         placeholder="Notes du rendez-vous"
