@@ -441,7 +441,7 @@ const evaluateSetup = (artistsList, servicesList) => {
 };
 
   const [selectedDate, setSelectedDate] = useState(getTodayDateOnly());
-  const [agendaView, setAgendaView] = useState("week");
+  const [agendaView, setAgendaView] = useState("month");
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
   const [showMobileWeek, setShowMobileWeek] = useState(false);
   const [schoolZone, setSchoolZone] = useState("B");
@@ -745,7 +745,7 @@ console.log("ERREUR RDV =", appointmentsError);
       title: appointment.title,
       project: appointment.project,
       notes: appointment.notes,
-      appointment: appointment.appointment,
+      appointment: formatDateTimeLocalInput(appointment.appointment),
       price: appointment.price ?? "",
       durationHours: appointment.duration_hours ?? "",
       durationMinutes: appointment.duration_minutes ?? "",
@@ -1228,31 +1228,6 @@ const saveClient = async () => {
   if (!session?.user) {
     alert("Erreur : utilisateur non connecté.");
     return;
-  }
-
-  const appointmentPrice =
-    appointmentForm.price === "" ? 0 : Number(appointmentForm.price);
-
-  let paymentCbAmount = 0;
-  let paymentCashAmount = 0;
-
-  if (appointmentForm.paymentMethod === "CB") {
-    paymentCbAmount = appointmentPrice;
-  }
-
-  if (appointmentForm.paymentMethod === "ESPÈCES") {
-    paymentCashAmount = appointmentPrice;
-  }
-
-  if (appointmentForm.paymentMethod === "CB + ESPÈCES") {
-    paymentCbAmount = Number(appointmentForm.paymentCbAmount) || 0;
-
-    if (paymentCbAmount > appointmentPrice) {
-      alert("Le montant CB ne peut pas dépasser le montant total du rendez-vous.");
-      return;
-    }
-
-    paymentCashAmount = Math.max(0, appointmentPrice - paymentCbAmount);
   }
 
   const payload = {
@@ -2228,6 +2203,31 @@ if (
         )
       : null;
 
+  const appointmentPrice =
+    appointmentForm.price === "" ? 0 : Number(appointmentForm.price);
+
+  let paymentCbAmount = 0;
+  let paymentCashAmount = 0;
+
+  if (appointmentForm.paymentMethod === "CB") {
+    paymentCbAmount = appointmentPrice;
+  }
+
+  if (appointmentForm.paymentMethod === "ESPÈCES") {
+    paymentCashAmount = appointmentPrice;
+  }
+
+  if (appointmentForm.paymentMethod === "CB + ESPÈCES") {
+    paymentCbAmount = Number(appointmentForm.paymentCbAmount) || 0;
+
+    if (paymentCbAmount > appointmentPrice) {
+      alert("Le montant CB ne peut pas dépasser le montant total du rendez-vous.");
+      return;
+    }
+
+    paymentCashAmount = Math.max(0, appointmentPrice - paymentCbAmount);
+  }    
+
   const payload = {
     user_id: session.user.id,
     client_id: Number(appointmentForm.clientId),
@@ -2306,7 +2306,7 @@ if (
       title: appointmentItem.title || "",
       project: appointmentItem.project || "",
       notes: appointmentItem.notes || "",
-      appointment: appointmentItem.appointment || "",
+      appointment: formatDateTimeLocalInput(appointmentItem.appointment),
       price: appointmentItem.price ?? "",
       durationHours: appointmentItem.durationHours ?? "",
       durationMinutes: appointmentItem.durationMinutes ?? "",
@@ -2698,7 +2698,7 @@ const goNext = () => {
             <button
               className="home-menu-button home-menu-primary home-menu-logo-button"
               onClick={() => {
-                setSelectedDate(getTodayDateOnly());
+                setAgendaView("month");
                 navigateTo("agenda");
               }}
             >
