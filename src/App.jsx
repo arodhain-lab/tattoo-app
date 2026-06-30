@@ -2097,13 +2097,28 @@ const deleteClient = async (clientId) => {
 };
 
 const saveAppointment = async () => {
-  if (
-    !appointmentForm.clientId ||
-    !appointmentForm.artistId ||
-    !appointmentForm.title ||
-    !appointmentForm.project.trim() ||
-    !appointmentForm.appointment
-  ) {
+  if (!appointmentForm.clientId) {
+    alert("Client obligatoire.");
+    return;
+  }
+
+  if (!appointmentForm.artistId) {
+    alert("Tatoueur obligatoire.");
+    return;
+  }
+
+  if (!appointmentForm.title) {
+    alert("Type de prestation obligatoire.");
+    return;
+  }
+
+  if (!appointmentForm.project.trim()) {
+    alert("Nom du projet obligatoire.");
+    return;
+  }
+
+  if (!appointmentForm.appointment) {
+    alert("Date et heure obligatoires.");
     return;
   }
 
@@ -4174,7 +4189,7 @@ const goNext = () => {
         </label>
       )}
 
-      <button onClick={saveAppointment}>
+      <button type="button" onClick={saveAppointment}>
         {editingAppointmentId !== null
           ? "Enregistrer les modifications"
           : "Ajouter le rendez-vous"}
