@@ -499,6 +499,7 @@ const [quickClientForm, setQuickClientForm] = useState({
   const [editingArtistId, setEditingArtistId] = useState(null);
   const [serviceForm, setServiceForm] = useState({
     name: "",
+    category: "PRESTATION",
   });
 
   const [editingServiceName, setEditingServiceName] = useState(null);
@@ -593,11 +594,25 @@ useEffect(() => {
       .sort((a, b) => formatClientName(a).localeCompare(formatClientName(b)));
   }, [clients, appointmentClientSearch]);
   const appointmentTypes = data.appointmentTypes || [];
+  const getAppointmentTypeName = (type) =>
+    typeof type === "string" ? type : type?.name || "";
+
+  const getAppointmentTypeCategory = (typeName) => {
+    const found = appointmentTypes.find(
+      (type) => getAppointmentTypeName(type) === typeName
+    );
+
+    return typeof found === "string"
+      ? "PRESTATION"
+      : found?.category || "PRESTATION";
+  };
+
   const canFinishSetup =
-  artists.length > 0 &&
-  appointmentTypes.some(
-    (type) => type && type.trim().toUpperCase() !== ACOMPTE_TYPE
-  );
+    artists.length > 0 &&
+    appointmentTypes.some(
+      (type) =>
+        getAppointmentTypeName(type).trim().toUpperCase() !== ACOMPTE_TYPE
+    );
 
   const loadAllAppointments = async () => {
     let allAppointments = [];
@@ -761,9 +776,13 @@ console.log("ERREUR RDV =", appointmentsError);
       id: item.id,
       day: item.day,
     })),
-    appointmentTypes: Array.from(
-      new Set([...(services?.map((s) => s.name) || []), "ACOMPTE"])
-    ),
+    appointmentTypes: [
+      ...(services || []).map((service) => ({
+        name: service.name,
+        category: service.category || "PRESTATION",
+      })),
+      { name: "ACOMPTE", category: "ACOMPTE" },
+    ],
   });
     evaluateSetup(artists || [], services || []);
 };
@@ -1135,9 +1154,11 @@ const globalStats = useMemo(() => {
     artistsCount: artists.length,
     appointmentsCount: appointments.length,
     activeAppointmentsCount: activeAppointments.length,
-    servicesCount: appointmentTypes.filter((type) => type !== ACOMPTE_TYPE).length,
+    servicesCount: appointmentTypes.filter(
+      (type) => getAppointmentTypeName(type) !== ACOMPTE_TYPE
+    ).length,
     totalRevenue,
-  };
+   };
 }, [clients, artists, appointments, appointmentTypes]);
 
   const resetClientForm = () => {
@@ -1490,11 +1511,17 @@ const findAppointmentTypeFromCsv = (typeName) => {
   const searched = normalizeImportText(typeName);
 
   if (!searched) {
-    return appointmentTypes.find((type) => type !== ACOMPTE_TYPE) || "";
+    return (
+      appointmentTypes.find(
+        (type) => getAppointmentTypeName(type) !== ACOMPTE_TYPE
+      )?.name || ""
+    );
   }
 
   return (
-    appointmentTypes.find((type) => normalizeImportText(type) === searched) ||
+    appointmentTypes.find(
+      (type) => normalizeImportText(getAppointmentTypeName(type)) === searched
+    )?.name ||
     typeName.trim().toUpperCase()
   );
 };
@@ -1940,6 +1967,7 @@ const deleteArtist = async (artistId) => {
   const resetServiceForm = () => {
   setServiceForm({
     name: "",
+    category: "PRESTATION",
   });
   setEditingServiceName(null);
 };
@@ -1958,7 +1986,10 @@ const saveService = async () => {
 
     const { error } = await supabase
       .from("services")
-      .update({ name: cleanedName })
+      .update({
+        name: cleanedName,
+        category: serviceForm.category,
+      })
       .eq("name", editingServiceName)
       .eq("user_id", session.user.id);
 
@@ -1967,11 +1998,18 @@ const saveService = async () => {
       return;
     }
   } else {
-    if (appointmentTypes.includes(cleanedName)) return;
+    if (
+      appointmentTypes.some(
+        (type) => getAppointmentTypeName(type) === cleanedName
+      )
+    ) {
+      return;
+    }
 
     const { error } = await supabase.from("services").insert({
       user_id: session.user.id,
       name: cleanedName,
+      category: serviceForm.category,
     });
 
     if (error) {
@@ -1982,32 +2020,39 @@ const saveService = async () => {
 
   await loadSupabaseData();
   resetServiceForm();
-};
+  };
 
-const editService = (serviceName) => {
+const editService = (service) => {
+  const serviceName = service.name || service;
+
   if (serviceName === ACOMPTE_TYPE) {
     return;
   }
 
   setServiceForm({
     name: serviceName || "",
+    category: service.category || "PRESTATION",
   });
+
   setEditingServiceName(serviceName);
   navigateTo("services");
 };
 
 const deleteService = async (serviceName) => {
-  if (serviceName === ACOMPTE_TYPE) return;
+  const serviceNameValue = getAppointmentTypeName(serviceName);
+
+  if (serviceNameValue === ACOMPTE_TYPE) return;
   if (!session?.user) return;
-  if (serviceHasAppointments(serviceName)) {
-  alert("Suppression impossible : cette prestation est utilisée dans un ou plusieurs rendez-vous.");
-  return;
-}
+
+  if (serviceHasAppointments(serviceNameValue)) {
+    alert("Suppression impossible : cette prestation est utilisée dans un ou plusieurs rendez-vous.");
+    return;
+  }
 
   const { error } = await supabase
     .from("services")
     .delete()
-    .eq("name", serviceName)
+    .eq("name", serviceNameValue)
     .eq("user_id", session.user.id);
 
   if (error) {
@@ -2017,7 +2062,7 @@ const deleteService = async (serviceName) => {
 
   await loadSupabaseData();
 
-  if (editingServiceName === serviceName) {
+  if (editingServiceName === serviceNameValue) {
     resetServiceForm();
   }
 };
@@ -3461,6 +3506,20 @@ const goNext = () => {
                 setServiceForm({ ...serviceForm, name: e.target.value })
               }
             />
+
+            <select
+              value={serviceForm.category}
+              onChange={(e) =>
+                setServiceForm({
+                  ...serviceForm,
+                  category: e.target.value,
+                })
+              }
+            >
+              <option value="PRESTATION">Prestation</option>
+              <option value="VENTE">Vente</option>
+              <option value="PRESTATION + VENTE">Prestation + vente</option>
+            </select>
       
             <button type="button" onClick={saveService}>
               {editingServiceName ? "Modifier la prestation" : "Ajouter la prestation"}
@@ -3475,16 +3534,17 @@ const goNext = () => {
       
           <div className="appointments-list">
             {appointmentTypes.map((type) => (
-              <div key={type} className="card inner-card">
-                <h3>{type}</h3>
-      
-                {type !== ACOMPTE_TYPE && (
+              <div key={type.name} className="card inner-card">
+                <h3>{type.name}</h3>
+                <p>Catégorie : {type.category || "PRESTATION"}</p>
+
+                {type.name !== ACOMPTE_TYPE && (
                   <div className="action-buttons">
-                    <button type="button" onClick={() => editService(type)}>
+                    <button onClick={() => editService(type)}>
                       Modifier
                     </button>
-      
-                    <button type="button" onClick={() => deleteService(type)}>
+
+                    <button onClick={() => deleteService(type)}>
                       Supprimer
                     </button>
                   </div>
@@ -4005,8 +4065,8 @@ const goNext = () => {
       >
         <option value="">Sélectionner un type de prestation</option>
         {appointmentTypes.map((type) => (
-          <option key={type} value={type}>
-            {type}
+          <option key={type.name} value={type.name}>
+            {type.name}
           </option>
         ))}
       </select>
