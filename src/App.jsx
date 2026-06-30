@@ -443,6 +443,7 @@ const evaluateSetup = (artistsList, servicesList) => {
 
   const [clientSearch, setClientSearch] = useState("");
   const [appointmentSearch, setAppointmentSearch] = useState("");
+  const [appointmentSearch, setAppointmentSearch] = useState("");
   const [appointmentClientSearch, setAppointmentClientSearch] = useState("");
   const [expandedClientId, setExpandedClientId] = useState(null);
 
@@ -1496,6 +1497,93 @@ const downloadAppointmentsCsvTemplate = () => {
 
   link.href = url;
   link.download = "modele-import-rendez-vous.csv";
+  link.click();
+
+  URL.revokeObjectURL(url);
+};
+
+const exportAppointmentsCsv = () => {
+  if (!exportStartDate || !exportEndDate) {
+    alert("Veuillez renseigner une date de début et une date de fin.");
+    return;
+  }
+
+  if (exportStartDate > exportEndDate) {
+    alert("La date de début ne peut pas être après la date de fin.");
+    return;
+  }
+
+  const appointmentsToExport = appointmentsWithClient
+    .filter((appointmentItem) => {
+      if (!appointmentItem.appointment) return false;
+
+      const appointmentDate = appointmentItem.appointment.slice(0, 10);
+
+      return appointmentDate >= exportStartDate && appointmentDate <= exportEndDate;
+    })
+    .sort((a, b) =>
+      String(a.appointment || "").localeCompare(String(b.appointment || ""))
+    );
+
+  if (appointmentsToExport.length === 0) {
+    alert("Aucun rendez-vous trouvé sur cette période.");
+    return;
+  }
+
+  const escapeCsv = (value) => {
+    const text = String(value ?? "");
+    return `"${text.replace(/"/g, '""')}"`;
+  };
+
+  const header = [
+    "DATE",
+    "HEURE",
+    "CLIENT",
+    "TELEPHONE",
+    "TATOUEUR",
+    "TYPE",
+    "PROJET",
+    "NOTES",
+    "PRIX",
+    "DUREE",
+    "MOYEN DE PAIEMENT",
+    "ANNULE",
+  ];
+
+  const rows = appointmentsToExport.map((appointmentItem) => [
+    formatDateOnly(appointmentItem.appointment),
+    formatTimeOnly(appointmentItem.appointment),
+    appointmentItem.clientName || "",
+    appointmentItem.clientPhone || "",
+    appointmentItem.artistName || "",
+    appointmentItem.title || "",
+    appointmentItem.project || "",
+    appointmentItem.notes || "",
+    appointmentItem.price === "" || appointmentItem.price == null
+      ? ""
+      : Number(appointmentItem.price).toString().replace(".", ","),
+    formatDuration(
+      appointmentItem.durationHours,
+      appointmentItem.durationMinutes
+    ),
+    appointmentItem.paymentMethod || "",
+    appointmentItem.cancelled ? "OUI" : "NON",
+  ]);
+
+  const csvContent = [
+    header.map(escapeCsv).join(";"),
+    ...rows.map((row) => row.map(escapeCsv).join(";")),
+  ].join("\r\n");
+
+  const blob = new Blob(["\uFEFF" + csvContent], {
+    type: "text/csv;charset=utf-8;",
+  });
+
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+
+  link.href = url;
+  link.download = `export-rendez-vous-${exportStartDate}-au-${exportEndDate}.csv`;
   link.click();
 
   URL.revokeObjectURL(url);
@@ -3193,6 +3281,39 @@ const goNext = () => {
               Téléchargez le modèle CSV puis importez vos rendez-vous.
               Les clients doivent déjà exister dans les fiches clients.
             </p>
+
+            <div className="card inner-card" style={{ marginBottom: "16px" }}>
+              <h3>Export des rendez-vous</h3>
+              <p className="muted-text">
+                Exportez les rendez-vous sur une période donnée au format CSV.
+              </p>
+
+              <div className="form-grid">
+                <label>
+                  Date de début
+                  <input
+                    type="date"
+                    value={exportStartDate}
+                    onChange={(e) => setExportStartDate(e.target.value)}
+                  />
+                </label>
+
+                <label>
+                  Date de fin
+                  <input
+                    type="date"
+                    value={exportEndDate}
+                    onChange={(e) => setExportEndDate(e.target.value)}
+                  />
+                </label>
+              </div>
+
+              <div className="action-buttons">
+                <button type="button" onClick={exportAppointmentsCsv}>
+                  Exporter les RDV CSV
+                </button>
+              </div>
+            </div>
 
             <div className="action-buttons">
               <button type="button" onClick={downloadAppointmentsCsvTemplate}>
