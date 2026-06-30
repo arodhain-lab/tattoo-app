@@ -3277,61 +3277,61 @@ const goNext = () => {
           </div>
 
                     <div className="card inner-card" style={{ marginBottom: "16px" }}>
-            <h3>Import des rendez-vous</h3>
-            <p className="muted-text">
-              Téléchargez le modèle CSV puis importez vos rendez-vous.
-              Les clients doivent déjà exister dans les fiches clients.
-            </p>
+                      <h3>Import des rendez-vous</h3>
+                      <p className="muted-text">
+                        Téléchargez le modèle CSV puis importez vos rendez-vous.
+                        Les clients doivent déjà exister dans les fiches clients.
+                      </p>
 
-            <div className="card inner-card" style={{ marginBottom: "16px" }}>
-              <h3>Export des rendez-vous</h3>
-              <p className="muted-text">
-                Exportez les rendez-vous sur une période donnée au format CSV.
-              </p>
+                      <div className="action-buttons">                      
+                        <button type="button" onClick={downloadAppointmentsCsvTemplate}>
+                          Télécharger modèle CSV RDV
+                        </button>
 
-              <div className="form-grid">
-                <label>
-                  Date de début
-                  <input
-                    type="date"
-                    value={exportStartDate}
-                    onChange={(e) => setExportStartDate(e.target.value)}
-                  />
-                </label>
+                        <label className="button-link" style={{ cursor: "pointer" }}>
+                          Importer RDV CSV
+                          <input
+                            type="file"
+                            accept=".csv"
+                            onChange={importAppointmentsFromCsv}
+                            style={{ display: "none" }}
+                          />
+                        </label>
+                      </div>
+                    </div>
 
-                <label>
-                  Date de fin
-                  <input
-                    type="date"
-                    value={exportEndDate}
-                    onChange={(e) => setExportEndDate(e.target.value)}
-                  />
-                </label>
-              </div>
+                    <div className="card inner-card" style={{ marginBottom: "16px" }}>
+                      <h3>Export des rendez-vous</h3>
+                      <p className="muted-text">
+                        Exportez les rendez-vous sur une période donnée au format CSV.
+                      </p>
+                    
+                      <div className="form-grid">
+                        <label>
+                          Date de début
+                          <input
+                            type="date"
+                            value={exportStartDate}
+                            onChange={(e) => setExportStartDate(e.target.value)}
+                          />
+                        </label>
 
-              <div className="action-buttons">
-                <button type="button" onClick={exportAppointmentsCsv}>
-                  Exporter les RDV CSV
-                </button>
-              </div>
-            </div>
+                        <label>
+                          Date de fin
+                          <input
+                            type="date"
+                            value={exportEndDate}
+                            onChange={(e) => setExportEndDate(e.target.value)}
+                          />
+                        </label>
+                      </div>
 
-            <div className="action-buttons">
-              <button type="button" onClick={downloadAppointmentsCsvTemplate}>
-                Télécharger modèle CSV RDV
-              </button>
-
-              <label className="button-link" style={{ cursor: "pointer" }}>
-                Importer RDV CSV
-                <input
-                  type="file"
-                  accept=".csv"
-                  onChange={importAppointmentsFromCsv}
-                  style={{ display: "none" }}
-                />
-              </label>
-            </div>
-          </div>
+                      <div className="action-buttons">
+                        <button type="button" onClick={exportAppointmentsCsv}>
+                          Exporter les RDV CSV
+                        </button>
+                      </div>
+                    </div>
 
           <div className="home-menu-grid">
             <button className="home-menu-button" onClick={() => navigateTo("services")}>
