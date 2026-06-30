@@ -3948,20 +3948,54 @@ const goNext = () => {
                   ` (${formatCurrency(selectedAppointmentDetails.paymentCbAmount)} en CB + ${formatCurrency(selectedAppointmentDetails.paymentCashAmount)} en espèces)`}
               </p>
       
-              <p>
-                <strong>Catégorie :</strong>{" "}
-                {getAppointmentTypeCategory(selectedAppointmentDetails.title)}
-              </p>
-      
-              <p>
-                <strong>Montant prestation :</strong>{" "}
-                {formatCurrency(selectedAppointmentDetails.serviceAmount)}
-              </p>
-      
-              <p>
-                <strong>Montant vente :</strong>{" "}
-                {formatCurrency(selectedAppointmentDetails.saleAmount)}
-              </p>
+              {(() => {
+                const category = getAppointmentTypeCategory(selectedAppointmentDetails.title);
+                const total = getDisplayedPrice(selectedAppointmentDetails, appointments);
+
+                const saleAmount =
+                  category === "VENTE"
+                    ? total
+                    : Number(selectedAppointmentDetails.saleAmount) || 0;
+
+                const serviceAmount =
+                  category === "PRESTATION"
+                    ? total
+                    : category === "PRESTATION + VENTE"
+                    ? Math.max(0, total - saleAmount)
+                    : 0;
+
+                return (
+                  <>
+                    <p>
+                      <strong>Catégorie :</strong> {category}
+                    </p>
+              
+                    {category === "PRESTATION" && (
+                      <p>
+                        <strong>Montant prestation :</strong> {formatCurrency(serviceAmount)}
+                      </p>
+                    )}
+              
+                    {category === "VENTE" && (
+                      <p>
+                        <strong>Montant vente :</strong> {formatCurrency(saleAmount)}
+                      </p>
+                    )}
+              
+                    {category === "PRESTATION + VENTE" && (
+                      <>
+                        <p>
+                          <strong>Montant prestation :</strong> {formatCurrency(serviceAmount)}
+                        </p>
+              
+                        <p>
+                          <strong>Montant vente :</strong> {formatCurrency(saleAmount)}
+                        </p>
+                      </>
+                    )}
+                  </>
+                );
+              })()}
             </div>
       
             <div style={{ marginTop: "22px", paddingTop: "16px", borderTop: "1px solid rgba(245, 190, 65, 0.35)" }}>
