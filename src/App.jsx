@@ -443,7 +443,6 @@ const evaluateSetup = (artistsList, servicesList) => {
 
   const [clientSearch, setClientSearch] = useState("");
   const [appointmentSearch, setAppointmentSearch] = useState("");
-  const [appointmentSearch, setAppointmentSearch] = useState("");
   const [appointmentClientSearch, setAppointmentClientSearch] = useState("");
   const [expandedClientId, setExpandedClientId] = useState(null);
 
