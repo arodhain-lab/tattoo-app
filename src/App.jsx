@@ -3827,6 +3827,19 @@ const goNext = () => {
                 ? formatCurrency(getDisplayedPrice(selectedAppointmentDetails, appointments))
                 : "Non renseigné"}
             </p>
+
+            <p>
+              <strong>Mode de paiement :</strong>{" "}
+              {selectedAppointmentDetails.paymentMethod || "Non renseigné"}
+            </p>
+
+            <p>
+              <strong>Mode de paiement :</strong>{" "}
+              {selectedAppointmentDetails.paymentMethod || "Non renseigné"}
+
+              {selectedAppointmentDetails.paymentMethod === "CB + ESPÈCES" &&
+                ` (${formatCurrency(selectedAppointmentDetails.paymentCbAmount)} en CB + ${formatCurrency(selectedAppointmentDetails.paymentCashAmount)} en espèces)`}
+            </p>
       
             <p>
               <strong>Notes :</strong>{" "}
