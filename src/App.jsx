@@ -2096,10 +2096,7 @@ if (
       appointmentForm.title === ACOMPTE_TYPE
         ? Number(appointmentForm.linkedAppointmentId)
         : null,
-    payment_method:
-      appointmentForm.title === ACOMPTE_TYPE
-        ? appointmentForm.paymentMethod.trim()
-        : null,
+    payment_method: appointmentForm.paymentMethod.trim() || null,
     payment_date:
       appointmentForm.title === ACOMPTE_TYPE
         ? appointmentForm.appointment
@@ -2536,18 +2533,6 @@ const goNext = () => {
                 : undefined
             }
           >
-            <button
-              className="home-menu-button home-menu-primary home-menu-logo-button"
-              onClick={() => navigateTo("appointments")}
-            >
-              <div className="home-menu-logo-wrap">
-                <img
-                  src="/icons/add-rdv.png"
-                  alt="Ajouter un rendez-vous"
-                  className="home-menu-full-logo"
-                />
-              </div>
-            </button>
 
             <button
               className="home-menu-button home-menu-primary home-menu-logo-button"
@@ -3933,6 +3918,21 @@ const goNext = () => {
           <span className="input-suffix">min</span>
         </div>
       </div>
+
+      <select
+        value={appointmentForm.paymentMethod}
+        onChange={(e) =>
+          setAppointmentForm({
+            ...appointmentForm,
+            paymentMethod: e.target.value,
+          })
+        }
+      >
+        <option value="">Moyen de paiement non renseigné</option>
+        <option value="CB">CB</option>
+        <option value="ESPÈCES">Espèces</option>
+        <option value="VIREMENT">Virement</option>
+      </select>
 
       <textarea
         placeholder="Notes du rendez-vous"
