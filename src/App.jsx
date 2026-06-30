@@ -128,6 +128,13 @@ function formatTimeOnly(value) {
   }).format(date);
 }
 
+function formatDateTimeLocalInput(value) {
+  const date = toDate(value);
+  if (!date) return "";
+
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
+}
+
 function formatClientName(client) {
   if (!client) return "Client supprimé";
   return `${client.firstName || ""} ${client.lastName || ""}`.trim() || "Sans nom";
