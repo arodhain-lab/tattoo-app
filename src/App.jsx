@@ -1570,7 +1570,6 @@ const exportAppointmentsCsv = () => {
     .filter((appointmentItem) => {
       if (!appointmentItem.appointment) return false;
       if (appointmentItem.cancelled) return false;
-      if (isAcompteAppointment(appointmentItem)) return false;
 
       const appointmentDate = appointmentItem.appointment.slice(0, 10);
 
@@ -1622,8 +1621,21 @@ const exportAppointmentsCsv = () => {
         ? Math.max(0, total - saleAmount)
         : 0;
 
-    const cbAmount = Number(appointmentItem.paymentCbAmount) || 0;
-    const cashAmount = Number(appointmentItem.paymentCashAmount) || 0;
+    let cbAmount = Number(appointmentItem.paymentCbAmount) || 0;
+    let cashAmount = Number(appointmentItem.paymentCashAmount) || 0;
+
+    if (appointmentItem.paymentMethod === "CB" && cbAmount === 0) {
+      cbAmount = total;
+    }
+
+    if (appointmentItem.paymentMethod === "ESPÈCES" && cashAmount === 0) {
+      cashAmount = total;
+    }
+    
+    if (appointmentItem.paymentMethod === "VIREMENT") {
+      cbAmount = 0;
+      cashAmount = 0;
+    }
 
     return [
       formatDateOnly(appointmentItem.appointment),
