@@ -1670,6 +1670,44 @@ const exportAppointmentsCsv = () => {
     ];
   });
 
+  const totals = rows.reduce(
+    (acc, row) => {
+      acc.total += Number(String(row[7]).replace(",", ".")) || 0;
+      acc.acompte += Number(String(row[8]).replace(",", ".")) || 0;
+      acc.prestation += Number(String(row[9]).replace(",", ".")) || 0;
+      acc.vente += Number(String(row[10]).replace(",", ".")) || 0;
+      acc.cb += Number(String(row[11]).replace(",", ".")) || 0;
+      acc.especes += Number(String(row[12]).replace(",", ".")) || 0;
+
+      return acc;
+    },
+    {
+      total: 0,
+      acompte: 0,
+      prestation: 0,
+      vente: 0,
+      cb: 0,
+      especes: 0,
+    }
+  );
+
+  rows.push([
+    "",
+   "",
+    "",
+    "",
+    "",
+    "",
+    "TOTAL",
+    totals.total.toString().replace(".", ","),
+    totals.acompte.toString().replace(".", ","),
+    totals.prestation.toString().replace(".", ","),
+    totals.vente.toString().replace(".", ","),
+    totals.cb.toString().replace(".", ","),
+    totals.especes.toString().replace(".", ","),
+    "",
+  ]);
+
   const csvContent = [
     header.map(escapeCsv).join(";"),
     ...rows.map((row) => row.map(escapeCsv).join(";")),
