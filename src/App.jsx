@@ -1589,6 +1589,15 @@ const exportAppointmentsCsv = () => {
     return `"${text.replace(/"/g, '""')}"`;
   };
 
+  const formatPhoneForCsv = (phone) => {
+    const cleaned = String(phone || "").trim();
+
+   if (!cleaned) return "";
+
+    // Force Excel à garder le 0 au début
+    return `="${cleaned}"`;
+  };
+
   const header = [
     "DATE",
     "HEURE",
@@ -1598,6 +1607,7 @@ const exportAppointmentsCsv = () => {
     "TYPE",
     "PROJET",
     "PRIX TOTAL",
+    "ACOMPTE",
     "PRESTATION",
     "VENTE",
     "MONTANT CB",
@@ -1607,7 +1617,10 @@ const exportAppointmentsCsv = () => {
 
   const rows = appointmentsToExport.map((appointmentItem) => {
     const total = getDisplayedPrice(appointmentItem, appointments);
-    const category = getAppointmentTypeCategory(appointmentItem.title);
+    const acompte =
+      appointmentItem.title === ACOMPTE_TYPE
+        ? Number(appointmentItem.price) || 0
+        : 0;
 
     const saleAmount =
       category === "VENTE"
@@ -1641,11 +1654,14 @@ const exportAppointmentsCsv = () => {
       formatDateOnly(appointmentItem.appointment),
       formatTimeOnly(appointmentItem.appointment),
       appointmentItem.clientName || "",
-      appointmentItem.clientPhone || "",
+      formatPhoneForCsv(appointmentItem.clientPhone),
       appointmentItem.artistName || "",
       appointmentItem.title || "",
       appointmentItem.project || "",
       total.toString().replace(".", ","),
+
+      acompte.toString().replace(".", ","),
+
       serviceAmount.toString().replace(".", ","),
       saleAmount.toString().replace(".", ","),
       cbAmount.toString().replace(".", ","),
