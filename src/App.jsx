@@ -1617,10 +1617,13 @@ const exportAppointmentsCsv = () => {
 
   const rows = appointmentsToExport.map((appointmentItem) => {
     const total = getDisplayedPrice(appointmentItem, appointments);
+
     const acompte =
       appointmentItem.title === ACOMPTE_TYPE
         ? Number(appointmentItem.price) || 0
         : 0;
+
+    const category = getAppointmentTypeCategory(appointmentItem.title);
 
     const saleAmount =
       category === "VENTE"
