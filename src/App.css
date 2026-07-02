@@ -2589,3 +2589,40 @@ body,
   content: none !important;
   display: none !important;
 }
+
+/* VERSION ORDINATEUR - accueil 6 boutons en 3 colonnes x 2 lignes */
+@media (min-width: 769px) {
+  .container {
+    max-width: 1250px;
+  }
+
+  .home-menu-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 22px;
+    width: 100%;
+  }
+
+  .home-menu-button {
+    min-height: 260px;
+    max-height: 300px;
+    border-radius: 34px;
+  }
+
+  .home-menu-icon-image,
+  .home-menu-logo-wrap {
+    height: 100%;
+  }
+
+  .home-menu-icon-image img,
+  .home-menu-full-logo {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+
+  .home-screen-card,
+  .home-card {
+    padding: 28px;
+  }
+}
