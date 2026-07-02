@@ -2628,3 +2628,90 @@ body,
     padding: 28px;
   }
 }
+
+/* CORRECTION RDV - JOUR / SEMAINE / MOIS */
+
+/* Vue semaine */
+.week-appointment-block {
+  position: absolute !important;
+  padding: 10px 12px !important;
+}
+
+.week-chip-mobile-content {
+  position: relative !important;
+  width: 100% !important;
+  padding-right: 78px !important;
+}
+
+.week-chip-price {
+  position: absolute !important;
+  top: 0 !important;
+  right: 0 !important;
+  width: auto !important;
+  text-align: right !important;
+  white-space: nowrap !important;
+  font-weight: 900 !important;
+}
+
+.week-chip-title {
+  width: 100% !important;
+  max-width: none !important;
+  white-space: normal !important;
+  overflow: visible !important;
+  text-overflow: unset !important;
+  word-break: normal !important;
+  overflow-wrap: break-word !important;
+}
+
+/* Vue jour */
+.agenda-item {
+  position: relative !important;
+  display: block !important;
+  padding: 16px 120px 16px 18px !important;
+}
+
+.agenda-item-time {
+  width: auto !important;
+  margin-bottom: 8px !important;
+}
+
+.agenda-item strong:first-of-type {
+  position: absolute !important;
+  top: 16px !important;
+  right: 18px !important;
+  width: auto !important;
+  white-space: nowrap !important;
+  text-align: right !important;
+}
+
+/* Vue mois : liste des RDV du jour sélectionné */
+.month-day-appointment-card {
+  position: relative !important;
+  padding: 16px 120px 16px 18px !important;
+}
+
+.month-rdv-card-content {
+  width: 100% !important;
+}
+
+.month-rdv-topline,
+.month-rdv-bottomline {
+  display: block !important;
+}
+
+.month-rdv-price {
+  position: absolute !important;
+  top: 16px !important;
+  right: 18px !important;
+  width: auto !important;
+  white-space: nowrap !important;
+  text-align: right !important;
+  font-weight: 900 !important;
+}
+
+.month-rdv-description {
+  width: 100% !important;
+  max-width: none !important;
+  white-space: normal !important;
+  overflow-wrap: break-word !important;
+}
