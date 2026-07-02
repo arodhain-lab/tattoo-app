@@ -2463,6 +2463,8 @@ if (
 };
 
   const editAppointment = (appointmentItem) => {
+    setAppointmentClientSearch("");
+    setShowQuickClientForm(false);
     setAppointmentForm({
       clientId: String(appointmentItem.clientId || ""),
       artistId: String(appointmentItem.artistId || ""),
