@@ -2005,38 +2005,35 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   margin-bottom: 6px;
 }
 
-.month-rdv-card-content {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  width: 100%;
+.month-rdv-card-content{
+    display:flex;
+    flex-direction:column;
+    gap:8px;
 }
 
-.month-rdv-topline,
-.month-rdv-bottomline {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 12px;
-  flex-wrap: wrap;
+.month-rdv-topline{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    width:100%;
 }
 
-.month-rdv-time,
-.month-rdv-price {
-  font-size: 18px;
-  font-weight: 700;
+.month-rdv-time{
+    font-weight:700;
+    flex:1;
 }
 
-.month-rdv-description {
-  font-size: 18px;
-  font-weight: 700;
-  line-height: 1.3;
-  text-align: left;
+
+.month-rdv-description{
+    width:100%;
+    line-height:1.35;
+    padding-right:120px;
+    white-space:normal;
+    word-break:break-word;
 }
 
-.month-rdv-client {
-  font-size: 14px;
-  line-height: 1.3;
+.month-rdv-client{
+    margin-top:2px;
 }
 
 .agenda-nav-buttons {
@@ -2686,8 +2683,8 @@ body,
 
 /* Vue mois : liste des RDV du jour sélectionné */
 .month-day-appointment-card {
-  position: relative !important;
-  padding: 16px 120px 16px 18px !important;
+    position: relative !important;
+    padding: 16px 140px 16px 18px !important;
 }
 
 .month-rdv-card-content {
@@ -2700,13 +2697,12 @@ body,
 }
 
 .month-rdv-price {
-  position: absolute !important;
-  top: 16px !important;
-  right: 18px !important;
+  position: static !important;
   width: auto !important;
+  margin-left: 20px !important;
   white-space: nowrap !important;
-  text-align: right !important;
   font-weight: 900 !important;
+  text-align: right !important;
 }
 
 .month-rdv-description {
@@ -2714,4 +2710,17 @@ body,
   max-width: none !important;
   white-space: normal !important;
   overflow-wrap: break-word !important;
+}
+
+.month-rdv-topline {
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: flex-start !important;
+  width: 100% !important;
+}
+
+.month-rdv-description {
+  padding-right: 120px;
+  white-space: normal;
+  overflow-wrap: break-word;
 }
