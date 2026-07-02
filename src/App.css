@@ -2672,15 +2672,6 @@ body,
   margin-bottom: 8px !important;
 }
 
-.agenda-item strong:first-of-type {
-  position: absolute !important;
-  top: 16px !important;
-  right: 18px !important;
-  width: auto !important;
-  white-space: nowrap !important;
-  text-align: right !important;
-}
-
 /* Vue mois : liste des RDV du jour sélectionné */
 .month-day-appointment-card {
     position: relative !important;
@@ -2689,11 +2680,6 @@ body,
 
 .month-rdv-card-content {
   width: 100% !important;
-}
-
-.month-rdv-topline,
-.month-rdv-bottomline {
-  display: block !important;
 }
 
 .month-rdv-price {
