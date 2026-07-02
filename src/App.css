@@ -1000,11 +1000,11 @@ button:hover {
   margin-top: 0;
   color: #000;
   position: absolute;
-  left: 8px;
-  right: 8px;
+  left: 12px;
+  right: 12px;
   border: none;
   border-radius: 12px;
-  padding: 8px 8px 7px;
+  padding: 10px 12px;
   text-align: left;
   cursor: pointer;
   z-index: 3;
@@ -1042,21 +1042,23 @@ button:hover {
 .week-chip-title {
   font-size: 0.72rem;
   font-weight: 700;
-  line-height: 1.1;
-  width: 100%;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  line-height: 1.25;
+
+  width: calc(100% - 70px); /* laisse la place du prix */
+  white-space: normal;
+  overflow: visible;
+  word-break: break-word;
 }
 
 .week-chip-price {
+  position: absolute;
+  top: 8px;
+  right: 10px;
+  width: auto;
+  font-size: 0.78rem;
+  font-weight: 800;
   white-space: nowrap;
-  flex-shrink: 0;
-  font-size: 0.68rem;
-  font-weight: 700;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  width: 100%;
+  text-align: right;
 }
 
 .home-layout,
