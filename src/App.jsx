@@ -2827,9 +2827,30 @@ const goNext = () => {
             marginBottom: "16px",
           }}
         >
-          <button className="back-button" onClick={goBack}>
-            ← Retour
-          </button>
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "flex-end",
+              gap: "10px",
+            }}
+          >
+            {pageHistory.length > 1 && (
+              <button
+                className="back-button"
+                onClick={goHome}
+              >
+                ⌂ Accueil
+              </button>
+            )}
+          
+            <button
+              className="back-button"
+              onClick={goBack}
+            >
+              ← Retour
+            </button>
+          </div>
         </div>
       )}
 
