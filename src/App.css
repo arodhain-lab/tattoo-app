@@ -2758,3 +2758,14 @@ body,
 .month-day-appointment-card {
   padding: 16px 18px !important;
 }
+
+/* Page création / modification RDV : formulaire large sur ordinateur */
+@media (min-width: 981px) {
+  .grid {
+    grid-template-columns: minmax(720px, 900px) minmax(0, 1fr);
+  }
+
+  .form-card {
+    width: 100%;
+  }
+}
