@@ -533,6 +533,11 @@ const [quickClientForm, setQuickClientForm] = useState({
     setPage(previousPage);
   };
 
+  const goHome = () => {
+  setPage("home");
+  setPageHistory([]);
+};
+
 
 useEffect(() => {
   supabase.auth.getSession().then(({ data }) => {
