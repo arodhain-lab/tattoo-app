@@ -5,58 +5,6 @@ import Auth from "./Auth";
 import "./App.css";
 
 
-const SCHOOL_HOLIDAYS = {
-  "2025-2026": {
-    A: [
-      { label: "Vacances de la Toussaint", start: "2025-10-18", end: "2025-11-02" },
-      { label: "Vacances de Noël", start: "2025-12-20", end: "2026-01-04" },
-      { label: "Vacances d'hiver", start: "2026-02-07", end: "2026-02-22" },
-      { label: "Vacances de printemps", start: "2026-04-04", end: "2026-04-19" },
-      { label: "Pont de l'Ascension", start: "2026-05-14", end: "2026-05-17" },
-      { label: "Vacances d'été", start: "2026-07-04", end: "2026-08-31" },
-    ],
-    B: [
-      { label: "Vacances de la Toussaint", start: "2025-10-18", end: "2025-11-02" },
-      { label: "Vacances de Noël", start: "2025-12-20", end: "2026-01-04" },
-      { label: "Vacances d'hiver", start: "2026-02-14", end: "2026-03-01" },
-      { label: "Vacances de printemps", start: "2026-04-11", end: "2026-04-26" },
-      { label: "Pont de l'Ascension", start: "2026-05-14", end: "2026-05-17" },
-      { label: "Vacances d'été", start: "2026-07-04", end: "2026-08-31" },
-    ],
-    C: [
-      { label: "Vacances de la Toussaint", start: "2025-10-18", end: "2025-11-02" },
-      { label: "Vacances de Noël", start: "2025-12-20", end: "2026-01-04" },
-      { label: "Vacances d'hiver", start: "2026-02-21", end: "2026-03-08" },
-      { label: "Vacances de printemps", start: "2026-04-18", end: "2026-05-03" },
-      { label: "Pont de l'Ascension", start: "2026-05-14", end: "2026-05-17" },
-      { label: "Vacances d'été", start: "2026-07-04", end: "2026-08-31" },
-    ],
-  },
-  "2026-2027": {
-    A: [
-      { label: "Vacances de la Toussaint", start: "2026-10-17", end: "2026-11-01" },
-      { label: "Vacances de Noël", start: "2026-12-19", end: "2027-01-03" },
-      { label: "Vacances d'hiver", start: "2027-02-13", end: "2027-02-28" },
-      { label: "Vacances de printemps", start: "2027-04-10", end: "2027-04-25" },
-      { label: "Vacances d'été", start: "2027-07-03", end: "2027-08-31" },
-    ],
-    B: [
-      { label: "Vacances de la Toussaint", start: "2026-10-17", end: "2026-11-01" },
-      { label: "Vacances de Noël", start: "2026-12-19", end: "2027-01-03" },
-      { label: "Vacances d'hiver", start: "2027-02-20", end: "2027-03-07" },
-      { label: "Vacances de printemps", start: "2027-04-24", end: "2027-05-09" },
-      { label: "Vacances d'été", start: "2027-07-03", end: "2027-08-31" },
-    ],
-    C: [
-      { label: "Vacances de la Toussaint", start: "2026-10-17", end: "2026-11-01" },
-      { label: "Vacances de Noël", start: "2026-12-19", end: "2027-01-03" },
-      { label: "Vacances d'hiver", start: "2027-02-06", end: "2027-02-21" },
-      { label: "Vacances de printemps", start: "2027-04-17", end: "2027-05-02" },
-      { label: "Vacances d'été", start: "2027-07-03", end: "2027-08-31" },
-    ],
-  },
-};
-
 function pad(number) {
   return String(number).padStart(2, "0");
 }
@@ -275,20 +223,11 @@ function getFrenchPublicHolidays(year) {
   ];
 }
 
-function getSchoolHolidayRanges(zone) {
-  return Object.values(SCHOOL_HOLIDAYS)
-    .flatMap((schoolYear) => schoolYear[zone] || [])
-    .map((item) => ({
-      ...item,
-      type: "holiday",
-    }));
-}
-
 function isDateBetween(dateKey, startKey, endKey) {
   return dateKey >= startKey && dateKey <= endKey;
 }
 
-function getSpecialDayInfo(dateKey, schoolZone) {
+function getSpecialDayInfo(dateKey, schoolHolidays) {
   const year = Number(dateKey.slice(0, 4));
   const publicHolidays = [
     ...getFrenchPublicHolidays(year - 1),
@@ -304,8 +243,7 @@ function getSpecialDayInfo(dateKey, schoolZone) {
     };
   }
 
-  const schoolRanges = getSchoolHolidayRanges(schoolZone);
-  const matchedSchoolHoliday = schoolRanges.find((item) =>
+  const matchedSchoolHoliday = schoolHolidays.find((item) =>
     isDateBetween(dateKey, item.start, item.end)
   );
 
@@ -466,6 +404,7 @@ const evaluateSetup = (artistsList, servicesList) => {
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
   const [showMobileWeek, setShowMobileWeek] = useState(false);
   const [schoolZone, setSchoolZone] = useState("B");
+  const [schoolHolidays, setSchoolHolidays] = useState([]);
   const [revenueArtistFilter, setRevenueArtistFilter] = useState("all");
   const [agendaArtistFilter, setAgendaArtistFilter] = useState("all");
 
@@ -559,6 +498,63 @@ const [quickClientForm, setQuickClientForm] = useState({
   setPageHistory([]);
 };
 
+const loadSchoolHolidays = async () => {
+  try {
+    const response = await fetch(
+      "https://data.education.gouv.fr/api/explore/v2.1/catalog/datasets/fr-en-calendrier-scolaire/records?limit=100"
+    );
+
+    if (!response.ok) {
+      throw new Error("Impossible de charger les vacances scolaires.");
+    }
+
+    const result = await response.json();
+
+    const holidays = (result.results || [])
+      .filter((item) => {
+        const zones = String(item.zones || "").toUpperCase();
+
+        return (
+          zones.includes(`ZONE ${schoolZone}`) ||
+          zones === schoolZone
+        );
+      })
+      .filter((item) => {
+        const description = String(item.description || "").toLowerCase();
+
+        return (
+          description.includes("vacances") ||
+          description.includes("pont")
+        );
+      })
+      .map((item) => {
+        const startDate = item.start_date?.slice(0, 10);
+        const officialEndDate = item.end_date?.slice(0, 10);
+
+        if (!startDate || !officialEndDate) return null;
+
+        const endDate = new Date(`${officialEndDate}T12:00:00`);
+        endDate.setDate(endDate.getDate() - 1);
+
+        return {
+          label: item.description || "Vacances scolaires",
+          start: startDate,
+          end: formatDateKey(endDate),
+          type: "holiday",
+        };
+      })
+      .filter(Boolean);
+
+    setSchoolHolidays(holidays);
+  } catch (error) {
+    console.error("Erreur vacances scolaires :", error);
+    setSchoolHolidays([]);
+  }
+};
+
+useEffect(() => {
+  loadSchoolHolidays();
+}, [schoolZone]);
 
 useEffect(() => {
   supabase.auth.getSession().then(({ data }) => {
@@ -2755,7 +2751,7 @@ const goNext = () => {
 };
 
   const renderSpecialDayBadge = (dateKey) => {
-    const info = getSpecialDayInfo(dateKey, schoolZone);
+    const info = getSpecialDayInfo(dateKey, schoolHolidays);
     if (!info) return null;
 
     return (
@@ -3232,7 +3228,7 @@ const goNext = () => {
                       {weekDays.map((day) => {
                         const key = formatDateKey(day);
                         const isSelected = key === selectedDate;
-                        const specialDayInfo = getSpecialDayInfo(key, schoolZone);
+                        const specialDayInfo = getSpecialDayInfo(key, schoolHolidays);
                         const isToday = key === getTodayDateOnly();
                         const items = appointmentsByDate[key] || [];
                         const closed = isClosedDay(key);
@@ -3395,7 +3391,7 @@ const goNext = () => {
                         const key = formatDateKey(cell);
                         const items = appointmentsByDate[key] || [];
                         const isSelected = key === selectedDate;
-                        const specialDayInfo = getSpecialDayInfo(key, schoolZone);
+                        const specialDayInfo = getSpecialDayInfo(key, schoolHolidays);
                         const isToday = key === getTodayDateOnly();
                         const closed = isClosedDay(key);
 
