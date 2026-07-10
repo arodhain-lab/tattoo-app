@@ -109,6 +109,27 @@ function formatDateTime(value) {
   }).format(date);
 }
 
+function formatDateTimeWithWeekday(value) {
+  const date = toDate(value);
+  if (!date) return "Non planifié";
+
+  const dayLabels = ["dim", "lun", "mar", "mer", "jeu", "ven", "sam"];
+  const dayLabel = dayLabels[date.getDay()];
+
+  const datePart = new Intl.DateTimeFormat("fr-FR", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  }).format(date);
+
+  const timePart = new Intl.DateTimeFormat("fr-FR", {
+    hour: "2-digit",
+    minute: "2-digit",
+  }).format(date);
+
+  return `${dayLabel} ${datePart}, ${timePart}`;
+}
+
 function formatDateOnly(value) {
   const date = toDate(value);
   if (!date) return "Date non renseignée";
@@ -3806,16 +3827,7 @@ const goNext = () => {
       
                     <p style={{ margin: "4px 0" }}>
                       <strong>Date :</strong>{" "}
-                      {appointmentDate
-                        ? appointmentDate.toLocaleDateString("fr-FR")
-                        : "Non renseignée"}
-                      {" - "}
-                      {appointmentDate
-                        ? appointmentDate.toLocaleTimeString("fr-FR", {
-                            hour: "2-digit",
-                            minute: "2-digit",
-                          })
-                        : ""}
+                      {formatDateTimeWithWeekday(appointment.appointment)}
                     </p>
       
                     <p style={{ margin: "4px 0" }}>
@@ -3901,7 +3913,7 @@ const goNext = () => {
                     {appointment.project}
                   </div>
       
-                  <div>{formatDateTime(appointment.appointment)}</div>
+                  <div>{formatDateTimeWithWeekday(appointment.appointment)}</div>
       
                   <div>{appointment.artistName}</div>
       
@@ -4034,7 +4046,7 @@ const goNext = () => {
 
             <p><strong>Tatoueur :</strong> {selectedAppointmentDetails.artistName || "Non renseigné"}</p>
             <p><strong>Type :</strong> {selectedAppointmentDetails.title || "Non renseigné"}</p>
-            <p><strong>Date :</strong> {formatDateTime(selectedAppointmentDetails.appointment)}</p>
+            <p><strong>Date :</strong> {formatDateTimeWithWeekday(selectedAppointmentDetails.appointment)}</p>
             <p><strong>Durée :</strong> {formatDuration(selectedAppointmentDetails.durationHours, selectedAppointmentDetails.durationMinutes)}</p>
       
             <p>
