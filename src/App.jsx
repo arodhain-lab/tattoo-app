@@ -500,25 +500,30 @@ const [quickClientForm, setQuickClientForm] = useState({
 
 const loadSchoolHolidays = async () => {
   try {
-    const response = await fetch(
-      "https://data.education.gouv.fr/api/explore/v2.1/catalog/datasets/fr-en-calendrier-scolaire/records?limit=100"
-    );
+    const zoneValue = `Zone ${schoolZone}`;
+
+    const where = encodeURIComponent(`zones="${zoneValue}"`);
+
+    const apiUrl =
+      "https://data.education.gouv.fr/api/explore/v2.1/catalog/datasets/" +
+      "fr-en-calendrier-scolaire/records" +
+      `?where=${where}` +
+      "&order_by=start_date" +
+      "&limit=100";
+
+    const response = await fetch(apiUrl);
 
     if (!response.ok) {
-      throw new Error("Impossible de charger les vacances scolaires.");
+      throw new Error(
+        `Impossible de charger les vacances scolaires : ${response.status}`
+      );
     }
 
     const result = await response.json();
 
-    const holidays = (result.results || [])
-      .filter((item) => {
-        const zones = String(item.zones || "").toUpperCase();
+    console.log("RÉPONSE API VACANCES :", result);
 
-        return (
-          zones.includes(`ZONE ${schoolZone}`) ||
-          zones === schoolZone
-        );
-      })
+    const holidays = (result.results || [])
       .filter((item) => {
         const description = String(item.description || "").toLowerCase();
 
@@ -528,12 +533,21 @@ const loadSchoolHolidays = async () => {
         );
       })
       .map((item) => {
-        const startDate = item.start_date?.slice(0, 10);
-        const officialEndDate = item.end_date?.slice(0, 10);
+        const startDate = String(item.start_date || "").slice(0, 10);
+        const officialEndDate = String(item.end_date || "").slice(0, 10);
 
-        if (!startDate || !officialEndDate) return null;
+        if (!startDate || !officialEndDate) {
+          return null;
+        }
 
-        const endDate = new Date(`${officialEndDate}T12:00:00`);
+        // La date de fin officielle correspond au jour de la reprise.
+        // On retire donc un jour pour colorer uniquement les jours sans cours.
+        const endDate = toDate(officialEndDate);
+
+        if (!endDate) {
+          return null;
+        }
+
         endDate.setDate(endDate.getDate() - 1);
 
         return {
@@ -545,9 +559,14 @@ const loadSchoolHolidays = async () => {
       })
       .filter(Boolean);
 
+    console.log(
+      `VACANCES CHARGÉES POUR LA ZONE ${schoolZone} :`,
+      holidays
+    );
+
     setSchoolHolidays(holidays);
   } catch (error) {
-    console.error("Erreur vacances scolaires :", error);
+    console.error("ERREUR VACANCES SCOLAIRES :", error);
     setSchoolHolidays([]);
   }
 };
