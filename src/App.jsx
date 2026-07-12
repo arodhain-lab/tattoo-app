@@ -1562,18 +1562,14 @@ const findAppointmentTypeFromCsv = (typeName) => {
   const searched = normalizeImportText(typeName);
 
   if (!searched) {
-    return (
-      appointmentTypes.find(
-        (type) => getAppointmentTypeName(type) !== ACOMPTE_TYPE
-      )?.name || ""
-    );
+    return null;
   }
 
   return (
     appointmentTypes.find(
-      (type) => normalizeImportText(getAppointmentTypeName(type)) === searched
-    )?.name ||
-    typeName.trim().toUpperCase()
+      (type) =>
+        normalizeImportText(getAppointmentTypeName(type)) === searched
+    ) || null
   );
 };
 
@@ -1938,26 +1934,43 @@ const importAppointmentsFromCsv = async (event) => {
         }
 
         const price = parseCsvPrice(priceText) ?? 0;
-        const appointmentType = findAppointmentTypeFromCsv(typeName) || "TATTOO";
+        const matchedAppointmentType = findAppointmentTypeFromCsv(typeName);
 
-        validAppointments.push({
-          user_id: session.user.id,
-          client_id: matchedClient.id,
-          artist_id: defaultArtist.id,
-          title: appointmentType,
-          project: project || "Rendez-vous importé",
-          notes,
-          appointment: `${date}T${time}:00`,
-          price,
-          duration_hours: null,
-          duration_minutes: null,
-          cancelled: false,
-          linked_appointment_id: null,
-          payment_method: null,
-          payment_date: null,
-          original_total_before_deposit: null,
-        });
-      }
+        if (!matchedAppointmentType) {
+          rejectedRows.push(
+            `Ligne ${lineNumber} : type de prestation introuvable "${
+              typeName || "case vide"
+            }"`
+          );
+          continue;
+        }
+
+        const appointmentTypeName =
+          getAppointmentTypeName(matchedAppointmentType);
+
+        const appointmentCategory =
+          typeof matchedAppointmentType === "string"
+            ? "PRESTATION"
+            : matchedAppointmentType.category || "PRESTATION";
+        
+                validAppointments.push({
+                  user_id: session.user.id,
+                  client_id: matchedClient.id,
+                  artist_id: matchedArtist.id,
+                  title: appointmentTypeName,
+                  project: project || "Rendez-vous importé",
+                  notes,
+                  appointment: `${date}T${time}:00`,
+                  price,
+                  duration_hours: null,
+                  duration_minutes: null,
+                  cancelled: false,
+                  linked_appointment_id: null,
+                  payment_method: null,
+                  payment_date: null,
+                  original_total_before_deposit: null,
+                });
+              }
 
       if (validAppointments.length === 0) {
         alert("Aucun RDV valide à importer.\n\n" + rejectedRows.join("\n"));
