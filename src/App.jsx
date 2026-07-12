@@ -1806,12 +1806,25 @@ const importAppointmentsFromCsv = async (event) => {
         return;
       }
 
-      const defaultArtist = allArtists?.[0];
-
-      if (!defaultArtist) {
+      if (!allArtists || allArtists.length === 0) {
         alert("Erreur : aucun tatoueur trouvé dans Supabase.");
         return;
       }
+
+      const findArtist = (artistName) => {
+        const searchedArtist = normalizeImportText(artistName);
+
+        if (!searchedArtist) {
+          return null;
+        }
+      
+        return (
+          allArtists.find(
+            (artist) =>
+              normalizeImportText(artist.name) === searchedArtist
+          ) || null
+        );
+      };
 
       const cleanWords = (value) =>
         String(value || "")
