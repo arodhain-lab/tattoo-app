@@ -1882,6 +1882,21 @@ const importAppointmentsFromCsv = async (event) => {
           "type",
         ]);
 
+        const artistName = getCsvValue(row, [
+          "tatoueur",
+          "artiste",
+          "artist",
+        ]);
+
+        const matchedArtist = findArtist(artistName);
+
+        if (!matchedArtist) {
+          rejectedRows.push(
+            `Ligne ${lineNumber} : tatoueur introuvable "${artistName || "case vide"}"`
+          );
+          continue;
+        }
+
         if (!date || !time) {
           rejectedRows.push(`Ligne ${lineNumber} : date ou heure invalide`);
           continue;
