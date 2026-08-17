@@ -1972,6 +1972,7 @@ const importAppointmentsFromCsv = async (event) => {
                 });
               }
 
+              
       if (validAppointments.length === 0) {
         alert("Aucun RDV valide à importer.\n\n" + rejectedRows.join("\n"));
         event.target.value = "";
