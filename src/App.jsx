@@ -475,6 +475,7 @@ const [quickClientForm, setQuickClientForm] = useState({
   const DAY_COLUMN_HEIGHT = (DAY_END_HOUR - DAY_START_HOUR) * HOUR_HEIGHT;
 
   const [showSuccess, setShowSuccess] = useState(false);
+  const [isSavingAppointment, setIsSavingAppointment] = useState(false);
 
   const navigateTo = (newPage) => {
     setPageHistory((prev) => [...prev, page]);
@@ -1972,7 +1973,7 @@ const importAppointmentsFromCsv = async (event) => {
                 });
               }
 
-              
+
       if (validAppointments.length === 0) {
         alert("Aucun RDV valide à importer.\n\n" + rejectedRows.join("\n"));
         event.target.value = "";
@@ -2505,27 +2506,78 @@ if (
         : null,
   };
 
+if (isSavingAppointment) return;
+
+setIsSavingAppointment(true);
+
+try {
+  let error = null;
+
   if (editingAppointmentId !== null) {
-    const { error } = await supabase
+    const result = await supabase
       .from("appointments")
       .update(payload)
       .eq("id", editingAppointmentId)
       .eq("user_id", session.user.id);
 
-    if (error) {
-      alert(error.message);
-      return;
-    }
-  } else { 
-    const { error } = await supabase.from("appointments").insert(payload);
+    error = result.error;
+  } else {
+    let result;
 
-    if (error) {
-      alert(error.message);
-      return;
+    try {
+      result = await supabase
+        .from("appointments")
+        .insert(payload);
+    } catch (firstError) {
+      console.warn(
+        "Premier essai d'enregistrement échoué, nouvelle tentative...",
+        firstError
+      );
+
+      // petite attente avant une seconde tentative automatique
+      await new Promise((resolve) => setTimeout(resolve, 700));
+
+      result = await supabase
+        .from("appointments")
+        .insert(payload);
     }
+
+    error = result.error;
+  }
+
+  if (error) {
+    alert("Erreur lors de l'enregistrement : " + error.message);
+    return;
   }
 
   await loadSupabaseData();
+
+  const appointmentDate = appointmentForm.appointment.slice(0, 10);
+
+  setSelectedDate(appointmentDate);
+  setShowSuccess(true);
+
+  setTimeout(() => {
+    setShowSuccess(false);
+    resetAppointmentForm();
+
+    if (pageHistory.includes("agenda")) {
+      setPage("agenda");
+    } else {
+      goBack();
+    }
+  }, 1500);
+
+} catch (error) {
+  console.error("Erreur enregistrement rendez-vous :", error);
+
+  alert(
+    "Impossible d'enregistrer le rendez-vous : " +
+      (error?.message || "erreur réseau")
+  );
+} finally {
+  setIsSavingAppointment(false);
+}
 
   const appointmentDate = appointmentForm.appointment.slice(0, 10);
 
@@ -4577,11 +4629,17 @@ const goNext = () => {
         </label>
       )}
 
-      <button type="button" onClick={saveAppointment}>
-        {editingAppointmentId !== null
-          ? "Enregistrer les modifications"
-          : "Ajouter le rendez-vous"}
-      </button>
+<button
+  type="button"
+  onClick={saveAppointment}
+  disabled={isSavingAppointment}
+>
+  {isSavingAppointment
+    ? "Enregistrement..."
+    : editingAppointmentId !== null
+    ? "Enregistrer les modifications"
+    : "Ajouter le rendez-vous"}
+</button>
 
       {editingAppointmentId !== null && (
         <button
