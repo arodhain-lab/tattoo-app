@@ -442,15 +442,13 @@ const [quickClientForm, setQuickClientForm] = useState({
   project: "",
   notes: "",
   appointment: "",
-  price: "",
-  saleAmount: "",
-  serviceAmount: "",
-  durationHours: "",
-  durationMinutes: "",
-  cancelled: false,
-  saleAmount: "",
-  serviceAmount: "",
-  linkedAppointmentId: "",
+price: "",
+saleAmount: "",
+serviceAmount: "",
+durationHours: "",
+durationMinutes: "",
+cancelled: false,
+linkedAppointmentId: "",
      paymentMethod: "",
      paymentCbAmount: "",
      paymentCashAmount: "",
@@ -2300,6 +2298,9 @@ const deleteClient = async (clientId) => {
 };
 
 const saveAppointment = async () => {
+  // Empêche plusieurs clics pendant l'enregistrement
+  if (isSavingAppointment) return;
+
   if (!appointmentForm.clientId) {
     alert("Client obligatoire.");
     return;
@@ -2325,37 +2326,46 @@ const saveAppointment = async () => {
     return;
   }
 
-  if (!session?.user) return;
+  if (!session?.user) {
+    alert("Utilisateur non connecté.");
+    return;
+  }
+
   const currentEditingAppointment =
-  editingAppointmentId !== null
-    ? appointments.find(
-        (appointmentItem) => String(appointmentItem.id) === String(editingAppointmentId)
-      )
-    : null;
+    editingAppointmentId !== null
+      ? appointments.find(
+          (appointmentItem) =>
+            String(appointmentItem.id) === String(editingAppointmentId)
+        )
+      : null;
 
-if (
-  editingAppointmentId !== null &&
-  currentEditingAppointment &&
-  currentEditingAppointment.title !== ACOMPTE_TYPE &&
-  appointmentForm.title === ACOMPTE_TYPE
-) {
-  alert("Impossible de transformer un rendez-vous classique en acompte. Créez un acompte séparément.");
-  return;
-}
+  if (
+    editingAppointmentId !== null &&
+    currentEditingAppointment &&
+    currentEditingAppointment.title !== ACOMPTE_TYPE &&
+    appointmentForm.title === ACOMPTE_TYPE
+  ) {
+    alert(
+      "Impossible de transformer un rendez-vous classique en acompte. Créez un acompte séparément."
+    );
+    return;
+  }
 
-if (
-  editingAppointmentId !== null &&
-  currentEditingAppointment &&
-  currentEditingAppointment.title === ACOMPTE_TYPE &&
-  appointmentForm.title !== ACOMPTE_TYPE
-) {
-  alert("Impossible de transformer un acompte en rendez-vous classique.");
-  return;
-}
+  if (
+    editingAppointmentId !== null &&
+    currentEditingAppointment &&
+    currentEditingAppointment.title === ACOMPTE_TYPE &&
+    appointmentForm.title !== ACOMPTE_TYPE
+  ) {
+    alert("Impossible de transformer un acompte en rendez-vous classique.");
+    return;
+  }
 
   if (appointmentForm.title === ACOMPTE_TYPE) {
     if (!appointmentForm.linkedAppointmentId) {
-      alert("Vous devez obligatoirement lier l'acompte à un rendez-vous futur du même client.");
+      alert(
+        "Vous devez obligatoirement lier l'acompte à un rendez-vous futur du même client."
+      );
       return;
     }
 
@@ -2364,19 +2374,10 @@ if (
       return;
     }
 
-    if (!appointmentForm.appointment) {
-      alert("Vous devez renseigner la date et l'heure de versement de l'acompte.");
-      return;
-    }
-
-    if (!appointmentForm.appointment) {
-      alert("Vous devez renseigner la date et l'heure de versement de l'acompte.");
-      return;
-    }
-
     const linkedAppointment = appointments.find(
       (appointmentItem) =>
-        String(appointmentItem.id) === String(appointmentForm.linkedAppointmentId)
+        String(appointmentItem.id) ===
+        String(appointmentForm.linkedAppointmentId)
     );
 
     if (!linkedAppointment) {
@@ -2389,7 +2390,10 @@ if (
       return;
     }
 
-    if (String(linkedAppointment.clientId) !== String(appointmentForm.clientId)) {
+    if (
+      String(linkedAppointment.clientId) !==
+      String(appointmentForm.clientId)
+    ) {
       alert("L'acompte doit être lié à un rendez-vous du même client.");
       return;
     }
@@ -2411,7 +2415,9 @@ if (
     }
 
     if (linkedPrice > 0 && depositAmount > linkedPrice) {
-      alert("Le montant de l'acompte ne peut pas dépasser le tarif du rendez-vous lié.");
+      alert(
+        "Le montant de l'acompte ne peut pas dépasser le tarif du rendez-vous lié."
+      );
       return;
     }
   }
@@ -2420,12 +2426,15 @@ if (
     appointmentForm.title === ACOMPTE_TYPE
       ? appointments.find(
           (appointmentItem) =>
-            String(appointmentItem.id) === String(appointmentForm.linkedAppointmentId)
+            String(appointmentItem.id) ===
+            String(appointmentForm.linkedAppointmentId)
         )
       : null;
 
   const appointmentPrice =
-    appointmentForm.price === "" ? 0 : Number(appointmentForm.price);
+    appointmentForm.price === ""
+      ? 0
+      : Number(appointmentForm.price);
 
   let paymentCbAmount = 0;
   let paymentCashAmount = 0;
@@ -2447,7 +2456,7 @@ if (
       alert("Le montant vente ne peut pas dépasser le montant total.");
       return;
     }
-  
+
     serviceAmount = appointmentPrice - saleAmount;
   } else {
     saleAmount = 0;
@@ -2463,15 +2472,21 @@ if (
   }
 
   if (appointmentForm.paymentMethod === "CB + ESPÈCES") {
-    paymentCbAmount = Number(appointmentForm.paymentCbAmount) || 0;
+    paymentCbAmount =
+      Number(appointmentForm.paymentCbAmount) || 0;
 
     if (paymentCbAmount > appointmentPrice) {
-      alert("Le montant CB ne peut pas dépasser le montant total du rendez-vous.");
+      alert(
+        "Le montant CB ne peut pas dépasser le montant total du rendez-vous."
+      );
       return;
     }
 
-    paymentCashAmount = Math.max(0, appointmentPrice - paymentCbAmount);
-  }    
+    paymentCashAmount = Math.max(
+      0,
+      appointmentPrice - paymentCbAmount
+    );
+  }
 
   const payload = {
     user_id: session.user.id,
@@ -2484,117 +2499,254 @@ if (
     price: appointmentPrice,
     sale_amount: saleAmount,
     service_amount: serviceAmount,
+
     duration_hours:
-      appointmentForm.durationHours === "" ? null : Number(appointmentForm.durationHours),
+      appointmentForm.durationHours === ""
+        ? null
+        : Number(appointmentForm.durationHours),
+
     duration_minutes:
-      appointmentForm.durationMinutes === "" ? null : Number(appointmentForm.durationMinutes),
+      appointmentForm.durationMinutes === ""
+        ? null
+        : Number(appointmentForm.durationMinutes),
+
     cancelled: appointmentForm.cancelled || false,
+
     linked_appointment_id:
       appointmentForm.title === ACOMPTE_TYPE
         ? Number(appointmentForm.linkedAppointmentId)
         : null,
-    payment_method: appointmentForm.paymentMethod.trim() || null,
+
+    payment_method:
+      appointmentForm.paymentMethod.trim() || null,
+
     payment_cb_amount: paymentCbAmount,
     payment_cash_amount: paymentCashAmount,
+
     payment_date:
       appointmentForm.title === ACOMPTE_TYPE
         ? appointmentForm.appointment
         : null,
+
     original_total_before_deposit:
       appointmentForm.title === ACOMPTE_TYPE
         ? Number(linkedAppointment?.price) || 0
         : null,
   };
 
-if (isSavingAppointment) return;
+  setIsSavingAppointment(true);
 
-setIsSavingAppointment(true);
-
-try {
-  let error = null;
-
-  if (editingAppointmentId !== null) {
-    const result = await supabase
+  /*
+   * Vérifie si le RDV existe déjà.
+   *
+   * Cette vérification sert surtout sur iPhone :
+   * si l'INSERT a bien atteint Supabase mais que l'iPhone
+   * a perdu la réponse réseau, on évite de créer le RDV
+   * une deuxième fois.
+   */
+  const checkAppointmentAlreadyExists = async () => {
+    const { data: existing, error } = await supabase
       .from("appointments")
-      .update(payload)
-      .eq("id", editingAppointmentId)
-      .eq("user_id", session.user.id);
+      .select("id")
+      .eq("user_id", session.user.id)
+      .eq("client_id", payload.client_id)
+      .eq("artist_id", payload.artist_id)
+      .eq("title", payload.title)
+      .eq("project", payload.project)
+      .eq("appointment", payload.appointment)
+      .limit(1);
 
-    error = result.error;
-  } else {
-    let result;
-
-    try {
-      result = await supabase
-        .from("appointments")
-        .insert(payload);
-    } catch (firstError) {
-      console.warn(
-        "Premier essai d'enregistrement échoué, nouvelle tentative...",
-        firstError
-      );
-
-      // petite attente avant une seconde tentative automatique
-      await new Promise((resolve) => setTimeout(resolve, 700));
-
-      result = await supabase
-        .from("appointments")
-        .insert(payload);
+    if (error) {
+      throw error;
     }
 
-    error = result.error;
-  }
+    return existing && existing.length > 0;
+  };
 
-  if (error) {
-    alert("Erreur lors de l'enregistrement : " + error.message);
-    return;
-  }
+  try {
+    /*
+     * ==========================
+     * MODIFICATION D'UN RDV
+     * ==========================
+     */
 
-  await loadSupabaseData();
+    if (editingAppointmentId !== null) {
+      const { error } = await supabase
+        .from("appointments")
+        .update(payload)
+        .eq("id", editingAppointmentId)
+        .eq("user_id", session.user.id);
 
-  const appointmentDate = appointmentForm.appointment.slice(0, 10);
-
-  setSelectedDate(appointmentDate);
-  setShowSuccess(true);
-
-  setTimeout(() => {
-    setShowSuccess(false);
-    resetAppointmentForm();
-
-    if (pageHistory.includes("agenda")) {
-      setPage("agenda");
-    } else {
-      goBack();
+      if (error) {
+        throw error;
+      }
     }
-  }, 1500);
 
-} catch (error) {
-  console.error("Erreur enregistrement rendez-vous :", error);
+    /*
+     * ==========================
+     * CRÉATION D'UN RDV
+     * ==========================
+     */
+    else {
+      try {
+        const { error } = await supabase
+          .from("appointments")
+          .insert(payload);
 
-  alert(
-    "Impossible d'enregistrer le rendez-vous : " +
-      (error?.message || "erreur réseau")
+        if (error) {
+          throw error;
+        }
+      } catch (firstError) {
+        console.warn(
+          "Première tentative d'enregistrement échouée :",
+          firstError
+        );
+
+        /*
+         * On attend un peu.
+         *
+         * Si Supabase a reçu l'INSERT mais que la réponse
+         * s'est perdue, cela lui laisse le temps de terminer.
+         */
+        await new Promise((resolve) =>
+          setTimeout(resolve, 800)
+        );
+
+let verificationSucceeded = false;
+let alreadyExists = false;
+
+/*
+ * Première vérification
+ */
+try {
+  alreadyExists = await checkAppointmentAlreadyExists();
+  verificationSucceeded = true;
+} catch (verificationError) {
+  console.warn(
+    "Première vérification impossible :",
+    verificationError
   );
-} finally {
-  setIsSavingAppointment(false);
 }
 
-  const appointmentDate = appointmentForm.appointment.slice(0, 10);
+/*
+ * Si la première vérification réseau a elle-même échoué,
+ * on attend puis on tente une deuxième vérification.
+ */
+if (!verificationSucceeded) {
+  await new Promise((resolve) =>
+    setTimeout(resolve, 1000)
+  );
 
-  setSelectedDate(appointmentDate);
+  try {
+    alreadyExists = await checkAppointmentAlreadyExists();
+    verificationSucceeded = true;
+  } catch (secondVerificationError) {
+    console.warn(
+      "Deuxième vérification impossible :",
+      secondVerificationError
+    );
+  }
+}
 
-  setShowSuccess(true);
+/*
+ * Le rendez-vous existe :
+ * le premier INSERT avait donc bien été enregistré.
+ */
+if (verificationSucceeded && alreadyExists) {
+  console.log(
+    "Le rendez-vous avait bien été enregistré malgré l'erreur réseau."
+  );
+}
 
-  setTimeout(() => {
-    setShowSuccess(false);
-    resetAppointmentForm();
+/*
+ * La vérification a réellement réussi et nous confirme
+ * que le rendez-vous n'existe pas :
+ * on peut retenter l'INSERT sans risque de doublon.
+ */
+else if (verificationSucceeded && !alreadyExists) {
+  console.log(
+    "Rendez-vous absent après vérification : deuxième tentative automatique..."
+  );
 
-    if (pageHistory.includes("agenda")) {
-      setPage("agenda");
-    } else {
-      goBack();
+  await new Promise((resolve) =>
+    setTimeout(resolve, 500)
+  );
+
+  const { error: retryError } = await supabase
+    .from("appointments")
+    .insert(payload);
+
+  if (retryError) {
+    throw retryError;
+  }
+}
+
+/*
+ * Les deux vérifications ont échoué.
+ *
+ * On ne refait surtout pas l'INSERT à l'aveugle,
+ * car le premier a peut-être déjà été enregistré.
+ */
+else {
+  throw new Error(
+    "Connexion instable : impossible de vérifier si le rendez-vous a été enregistré. " +
+    "Par sécurité, aucune deuxième tentative n'a été effectuée. " +
+    "Actualisez l'agenda avant de réessayer."
+  );
+}
+      }
     }
-  }, 1500);
+
+    /*
+     * ==========================
+     * ENREGISTREMENT RÉUSSI
+     * ==========================
+     */
+
+    const appointmentDate =
+      appointmentForm.appointment.slice(0, 10);
+
+    setSelectedDate(appointmentDate);
+
+    /*
+     * Le RDV est déjà enregistré.
+     * Si le simple rechargement de l'agenda échoue,
+     * on ne doit surtout pas considérer l'INSERT comme raté.
+     */
+    try {
+      await loadSupabaseData();
+    } catch (reloadError) {
+      console.warn(
+        "RDV enregistré mais rechargement des données impossible :",
+        reloadError
+      );
+    }
+
+    setShowSuccess(true);
+
+    setTimeout(() => {
+      setShowSuccess(false);
+      resetAppointmentForm();
+
+      if (pageHistory.includes("agenda")) {
+        setPage("agenda");
+      } else {
+        goBack();
+      }
+    }, 1500);
+  } catch (error) {
+    console.error(
+      "ERREUR ENREGISTREMENT RDV :",
+      error
+    );
+
+    alert(
+      "Impossible d'enregistrer le rendez-vous.\n\n" +
+        (error?.message || "Erreur réseau inconnue.")
+    );
+  } finally {
+    setIsSavingAppointment(false);
+  }
 };
 
   const editAppointment = (appointmentItem) => {
