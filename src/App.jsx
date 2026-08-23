@@ -2369,10 +2369,6 @@ const saveAppointment = async () => {
       return;
     }
 
-    if (!appointmentForm.paymentMethod.trim()) {
-      alert("Vous devez renseigner le mode de paiement de l'acompte.");
-      return;
-    }
 
     const linkedAppointment = appointments.find(
       (appointmentItem) =>
@@ -3892,7 +3888,17 @@ const goNext = () => {
             </button>
 
             <button className="home-menu-button" onClick={() => navigateTo("artists")}>
-              <span className="home-menu-icon">🎨</span>
+              <span className="home-menu-icon">
+  <img
+    src="/icons/logo_tatoueurs.png"
+    alt="Tatoueurs"
+    style={{
+      width: "48px",
+      height: "48px",
+      objectFit: "contain",
+    }}
+  />
+</span>
               <span className="home-menu-title">Tatoueurs</span>
               <span className="home-menu-subtitle">
                 Ajouter ou modifier les tatoueurs
@@ -4572,18 +4578,6 @@ const goNext = () => {
               </option>
             ))}
           </select>
-
-          <input
-            type="text"
-            placeholder="Mode de paiement de l'acompte"
-            value={appointmentForm.paymentMethod}
-            onChange={(e) =>
-              setAppointmentForm({
-                ...appointmentForm,
-                paymentMethod: e.target.value,
-              })
-            }
-          />
         </>
       )}
 
