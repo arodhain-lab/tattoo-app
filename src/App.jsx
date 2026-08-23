@@ -3891,7 +3891,7 @@ const goNext = () => {
   className="home-menu-button settings-tattoo-button"
   onClick={() => navigateTo("artists")}
 >
-  <span className="home-menu-title">Tatoueurs</span>
+
 
   <div className="settings-tattoo-logo-wrap">
     <img
