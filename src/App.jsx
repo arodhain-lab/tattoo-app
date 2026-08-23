@@ -4163,13 +4163,17 @@ const goNext = () => {
             <p>Aucun rendez-vous trouvé.</p>
           ) : (
             <div className="client-appointments-list">
-              {selectedClientAppointments.map((appointment) => (
-                <div
-                  key={appointment.id}
-                  className="history-box client-appointment-card"
-                  onClick={() => openAppointmentDetails(appointment)}
-                  style={{ cursor: "pointer" }}
-                >
+{selectedClientAppointments.map((appointment) => (
+  <div
+    key={appointment.id}
+    className="history-box client-appointment-card"
+    onClick={() => openAppointmentDetails(appointment)}
+    style={{
+      cursor: "pointer",
+      textDecoration: appointment.cancelled ? "line-through" : "none",
+      opacity: appointment.cancelled ? 0.6 : 1,
+    }}
+  >
                   <div className="client-appointment-title">
                     {appointment.project}
                   </div>
