@@ -3887,23 +3887,20 @@ const goNext = () => {
               </span>
             </button>
 
-            <button className="home-menu-button" onClick={() => navigateTo("artists")}>
-              <span className="home-menu-icon">
-  <img
-    src="/icons/logo_tatoueurs.png"
-    alt="Tatoueurs"
-    style={{
-      width: "48px",
-      height: "48px",
-      objectFit: "contain",
-    }}
-  />
-</span>
-              <span className="home-menu-title">Tatoueurs</span>
-              <span className="home-menu-subtitle">
-                Ajouter ou modifier les tatoueurs
-              </span>
-            </button>
+<button
+  className="home-menu-button settings-tattoo-button"
+  onClick={() => navigateTo("artists")}
+>
+  <span className="home-menu-title">Tatoueurs</span>
+
+  <div className="settings-tattoo-logo-wrap">
+    <img
+      src="/icons/logo_tatoueurs.png"
+      alt="Tatoueurs"
+      className="settings-tattoo-logo"
+    />
+  </div>
+</button>
 
             <button className="home-menu-button" onClick={() => navigateTo("clients")}>
               <span className="home-menu-icon">👤</span>
