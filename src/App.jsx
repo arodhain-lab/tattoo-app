@@ -3902,6 +3902,7 @@ const goNext = () => {
   </div>
 </button>
 
+
             <button className="home-menu-button" onClick={() => navigateTo("clients")}>
               <span className="home-menu-icon">👤</span>
               <span className="home-menu-title">Fiches clients</span>
