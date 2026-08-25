@@ -3520,7 +3520,9 @@ const goNext = () => {
                                 }).format(day)}
                               </span>
 
-                              {items.length > 0 && <span className="month-day-marker"></span>}
+{items.some((appointment) => !appointment.cancelled) && (
+  <span className="month-day-marker"></span>
+)}
                             </div>
                           </button>
                         );
@@ -3675,7 +3677,9 @@ const goNext = () => {
                           >
                             <div className="month-day-number-wrap">
                               <span className="month-day-number">{cell.getDate()}</span>
-                              {items.length > 0 && <span className="month-day-marker"></span>}
+{items.some((appointment) => !appointment.cancelled) && (
+  <span className="month-day-marker"></span>
+)}
                             </div>
                           </button>
                         );
@@ -3901,6 +3905,7 @@ const goNext = () => {
     />
   </div>
 </button>
+
 
             <button className="home-menu-button" onClick={() => navigateTo("clients")}>
               <span className="home-menu-icon">👤</span>
