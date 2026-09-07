@@ -472,8 +472,19 @@ linkedAppointmentId: "",
   const TOTAL_DAY_MINUTES = (DAY_END_HOUR - DAY_START_HOUR) * 60;
   const DAY_COLUMN_HEIGHT = (DAY_END_HOUR - DAY_START_HOUR) * HOUR_HEIGHT;
 
-  const [showSuccess, setShowSuccess] = useState(false);
-  const [isSavingAppointment, setIsSavingAppointment] = useState(false);
+const [showSuccess, setShowSuccess] = useState(false);
+const [successMessage, setSuccessMessage] = useState("");
+const [isSavingAppointment, setIsSavingAppointment] = useState(false);
+
+const showMessage = (message, duration = 1800) => {
+  setSuccessMessage(message);
+  setShowSuccess(true);
+
+  setTimeout(() => {
+    setShowSuccess(false);
+    setSuccessMessage("");
+  }, duration);
+};
 
   const navigateTo = (newPage) => {
     setPageHistory((prev) => [...prev, page]);
@@ -1325,7 +1336,7 @@ const saveClient = async () => {
 
     await loadSupabaseData();
 
-    alert("Cliente modifiée.");
+    showMessage("✔ Cliente modifiée.");
     resetClientForm();
     setSelectedClientId(updatedClient.id);
     navigateTo("client-details");
@@ -1366,7 +1377,12 @@ const saveClient = async () => {
   setSelectedClientId(insertedClient.id);
   navigateTo("client-details");
 
-  alert("Cliente créée : " + insertedClient.first_name + " " + insertedClient.last_name);
+showMessage(
+  "✔ Cliente créée : " +
+  insertedClient.first_name +
+  " " +
+  insertedClient.last_name
+);
 };
 
 
@@ -1407,7 +1423,7 @@ const importClientsFromCsv = async (event) => {
       }
 
       await loadSupabaseData();
-      alert(`${clientsToInsert.length} fiche(s) client importée(s).`);
+      showMessage(`✔ ${clientsToInsert.length} fiche(s) client importée(s).`);
 
       event.target.value = "";
     },
@@ -2717,7 +2733,7 @@ else {
         reloadError
       );
     }
-
+setSuccessMessage("✔ RDV enregistré");
     setShowSuccess(true);
 
     setTimeout(() => {
@@ -3096,11 +3112,11 @@ const goNext = () => {
 
   return (
     <div className="container">
-      {showSuccess && (
-        <div className="success-overlay">
-          <div className="success-box">✔ RDV enregistré</div>
-        </div>
-      )}
+{showSuccess && (
+  <div className="success-overlay">
+    <div className="success-box">{successMessage}</div>
+  </div>
+)}
 
       {page !== "home" && setupComplete && (
         <div

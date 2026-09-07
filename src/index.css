@@ -309,8 +309,4 @@ button:hover {
   .month-grid {
     grid-template-columns: repeat(2, 1fr);
   }
-  .planning-title {
-  font-size: 36px;
-  font-weight: 700;
-}
 }
