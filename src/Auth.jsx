@@ -82,16 +82,14 @@ export default function Auth() {
 
     setLoading(true);
 
-    // Vérifie d’abord si l’adresse existe déjà dans le profil commercial.
-    // Cette vérification améliore le message affiché à l’utilisateur ;
-    // la sécurité des données reste assurée par les règles RLS côté Supabase.
-    const { data: existingProfile, error: profileCheckError } = await supabase
-      .from("profiles")
-      .select("id")
-      .eq("email", cleanEmail)
-      .maybeSingle();
+    // Vérifie côté Supabase Auth si l'adresse est déjà enregistrée.
+    const { data: emailAlreadyExists, error: emailCheckError } =
+      await supabase.rpc("email_exists", {
+        check_email: cleanEmail,
+      });
 
-    if (profileCheckError) {
+    if (emailCheckError) {
+      console.error("Erreur vérification email :", emailCheckError);
       setSignUpMessage(
         "Impossible de vérifier cette adresse email pour le moment. Veuillez réessayer."
       );
@@ -99,7 +97,7 @@ export default function Auth() {
       return;
     }
 
-    if (existingProfile) {
+    if (emailAlreadyExists === true) {
       setSignUpMessage(
         "Cette adresse email est déjà enregistrée. Connectez-vous avec votre compte existant."
       );
