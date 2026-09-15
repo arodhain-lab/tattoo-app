@@ -13,6 +13,11 @@ export default function Auth() {
   const [signUpPasswordConfirm, setSignUpPasswordConfirm] = useState("");
   const [signUpMessage, setSignUpMessage] = useState("");
 
+  // Affichage / masquage des mots de passe de création
+  const [showSignUpPassword, setShowSignUpPassword] = useState(false);
+  const [showSignUpPasswordConfirm, setShowSignUpPasswordConfirm] =
+    useState(false);
+
   // Message général
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
@@ -27,6 +32,8 @@ export default function Auth() {
     setSignUpPasswordConfirm("");
     setSignUpMessage("");
     setMessage("");
+    setShowSignUpPassword(false);
+    setShowSignUpPasswordConfirm(false);
     setShowSignUpModal(true);
   }
 
@@ -35,6 +42,8 @@ export default function Auth() {
 
     setShowSignUpModal(false);
     setSignUpMessage("");
+    setShowSignUpPassword(false);
+    setShowSignUpPasswordConfirm(false);
   }
 
   async function handleSignUp() {
@@ -98,6 +107,8 @@ export default function Auth() {
     setSignUpPassword("");
     setSignUpPasswordConfirm("");
     setSignUpMessage("");
+    setShowSignUpPassword(false);
+    setShowSignUpPasswordConfirm(false);
 
     // Affiche la grande confirmation
     setShowAccountCreatedModal(true);
@@ -154,6 +165,50 @@ export default function Auth() {
     width: "100%",
     boxSizing: "border-box",
     marginBottom: "14px",
+  };
+
+  const passwordWrapperStyle = {
+    position: "relative",
+    width: "100%",
+    marginBottom: "14px",
+  };
+
+  const passwordInputStyle = {
+    width: "100%",
+    boxSizing: "border-box",
+    marginBottom: 0,
+    paddingRight: "50px",
+  };
+
+  const eyeButtonStyle = {
+    position: "absolute",
+    right: "12px",
+    top: "50%",
+    transform: "translateY(-50%)",
+    width: "34px",
+    height: "34px",
+    padding: 0,
+    margin: 0,
+    border: "none",
+    background: "transparent",
+    boxShadow: "none",
+    color: "#333333",
+    cursor: "pointer",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    zIndex: 2,
+  };
+
+  const offerStyle = {
+    border: "1px solid #d6a514",
+    borderRadius: "16px",
+    padding: "18px",
+    marginBottom: "24px",
+    textAlign: "center",
+    background:
+      "linear-gradient(145deg, rgba(214,165,20,0.14), rgba(214,165,20,0.04))",
+    boxShadow: "0 0 14px rgba(214, 165, 20, 0.12)",
   };
 
   return (
@@ -217,6 +272,60 @@ export default function Auth() {
               Créer un compte
             </h2>
 
+            {/* OFFRE COMMERCIALE */}
+            <div style={offerStyle}>
+              <div
+                style={{
+                  color: "#f5b82e",
+                  fontSize: "23px",
+                  fontWeight: "bold",
+                  marginBottom: "8px",
+                }}
+              >
+                30 jours d&apos;essai gratuit
+              </div>
+
+              <div
+                style={{
+                  color: "#ffffff",
+                  fontSize: "15px",
+                  lineHeight: "1.5",
+                  marginBottom: "10px",
+                }}
+              >
+                Profitez de l&apos;accès complet à l&apos;application pendant
+                30 jours.
+              </div>
+
+              <div
+                style={{
+                  color: "#ffffff",
+                  fontSize: "16px",
+                  lineHeight: "1.5",
+                }}
+              >
+                Puis{" "}
+                <strong
+                  style={{
+                    color: "#f5b82e",
+                    fontSize: "21px",
+                  }}
+                >
+                  24,90 € TTC / mois
+                </strong>
+              </div>
+
+              <div
+                style={{
+                  color: "#bbbbbb",
+                  fontSize: "13px",
+                  marginTop: "5px",
+                }}
+              >
+                Sans engagement
+              </div>
+            </div>
+
             <p
               style={{
                 color: "#cccccc",
@@ -261,14 +370,61 @@ export default function Auth() {
               Mot de passe
             </label>
 
-            <input
-              type="password"
-              placeholder="Choisissez votre mot de passe"
-              value={signUpPassword}
-              onChange={(e) => setSignUpPassword(e.target.value)}
-              autoComplete="new-password"
-              style={modalInputStyle}
-            />
+            <div style={passwordWrapperStyle}>
+              <input
+                type={showSignUpPassword ? "text" : "password"}
+                placeholder="Choisissez votre mot de passe"
+                value={signUpPassword}
+                onChange={(e) => setSignUpPassword(e.target.value)}
+                autoComplete="new-password"
+                style={passwordInputStyle}
+              />
+
+              <button
+                type="button"
+                onClick={() =>
+                  setShowSignUpPassword((currentValue) => !currentValue)
+                }
+                style={eyeButtonStyle}
+                aria-label={
+                  showSignUpPassword
+                    ? "Masquer le mot de passe"
+                    : "Afficher le mot de passe"
+                }
+              >
+                {showSignUpPassword ? (
+                  <svg
+                    width="22"
+                    height="22"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M3 3l18 18" />
+                    <path d="M10.6 10.6a2 2 0 002.8 2.8" />
+                    <path d="M9.9 4.2A10.6 10.6 0 0112 4c5.5 0 9 8 9 8a17.5 17.5 0 01-2.1 3.2" />
+                    <path d="M6.6 6.6C4.4 8.1 3 12 3 12s3.5 8 9 8a9.7 9.7 0 004.1-.9" />
+                  </svg>
+                ) : (
+                  <svg
+                    width="22"
+                    height="22"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z" />
+                    <circle cx="12" cy="12" r="3" />
+                  </svg>
+                )}
+              </button>
+            </div>
 
             <label
               style={{
@@ -281,19 +437,68 @@ export default function Auth() {
               Confirmez votre mot de passe
             </label>
 
-            <input
-              type="password"
-              placeholder="Saisissez à nouveau votre mot de passe"
-              value={signUpPasswordConfirm}
-              onChange={(e) => setSignUpPasswordConfirm(e.target.value)}
-              autoComplete="new-password"
-              style={modalInputStyle}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" && !loading) {
-                  handleSignUp();
+            <div style={passwordWrapperStyle}>
+              <input
+                type={showSignUpPasswordConfirm ? "text" : "password"}
+                placeholder="Saisissez à nouveau votre mot de passe"
+                value={signUpPasswordConfirm}
+                onChange={(e) => setSignUpPasswordConfirm(e.target.value)}
+                autoComplete="new-password"
+                style={passwordInputStyle}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && !loading) {
+                    handleSignUp();
+                  }
+                }}
+              />
+
+              <button
+                type="button"
+                onClick={() =>
+                  setShowSignUpPasswordConfirm(
+                    (currentValue) => !currentValue
+                  )
                 }
-              }}
-            />
+                style={eyeButtonStyle}
+                aria-label={
+                  showSignUpPasswordConfirm
+                    ? "Masquer le mot de passe"
+                    : "Afficher le mot de passe"
+                }
+              >
+                {showSignUpPasswordConfirm ? (
+                  <svg
+                    width="22"
+                    height="22"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M3 3l18 18" />
+                    <path d="M10.6 10.6a2 2 0 002.8 2.8" />
+                    <path d="M9.9 4.2A10.6 10.6 0 0112 4c5.5 0 9 8 9 8a17.5 17.5 0 01-2.1 3.2" />
+                    <path d="M6.6 6.6C4.4 8.1 3 12 3 12s3.5 8 9 8a9.7 9.7 0 004.1-.9" />
+                  </svg>
+                ) : (
+                  <svg
+                    width="22"
+                    height="22"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z" />
+                    <circle cx="12" cy="12" r="3" />
+                  </svg>
+                )}
+              </button>
+            </div>
 
             {signUpMessage ? (
               <div
@@ -332,7 +537,9 @@ export default function Auth() {
                 boxShadow: "0 4px 12px rgba(218, 157, 8, 0.35)",
               }}
             >
-              {loading ? "Création en cours..." : "Créer mon compte"}
+              {loading
+                ? "Création en cours..."
+                : "Commencer mes 30 jours gratuits"}
             </button>
 
             <button
@@ -375,11 +582,44 @@ export default function Auth() {
               style={{
                 color: "#f5b82e",
                 fontSize: "32px",
-                margin: "0 0 22px 0",
+                margin: "0 0 15px 0",
               }}
             >
               Compte créé !
             </h2>
+
+            <div
+              style={{
+                border: "1px solid #d6a514",
+                borderRadius: "14px",
+                padding: "15px",
+                marginBottom: "22px",
+                backgroundColor: "rgba(214, 165, 20, 0.1)",
+              }}
+            >
+              <div
+                style={{
+                  color: "#f5b82e",
+                  fontSize: "21px",
+                  fontWeight: "bold",
+                  marginBottom: "5px",
+                }}
+              >
+                Votre essai gratuit de 30 jours est prêt
+              </div>
+
+              <div
+                style={{
+                  color: "#cccccc",
+                  fontSize: "14px",
+                }}
+              >
+                À l&apos;issue de la période d&apos;essai :{" "}
+                <strong style={{ color: "#ffffff" }}>
+                  24,90 € TTC / mois
+                </strong>
+              </div>
+            </div>
 
             <p
               style={{
@@ -390,7 +630,7 @@ export default function Auth() {
               }}
             >
               <strong>
-                Activez votre compte grâce à l&apos;email reçu.
+                Activez maintenant votre compte grâce à l&apos;email reçu.
               </strong>
             </p>
 
