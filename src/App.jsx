@@ -642,28 +642,32 @@ useEffect(() => {
       return;
     }
 
-    const now = new Date();
-    const trialEnd = profile?.trial_ends_at ? new Date(profile.trial_ends_at) : null;
-    const subscriptionEnd = profile?.subscription_ends_at ? new Date(profile.subscription_ends_at) : null;
+    // La base Supabase est désormais la source de vérité pour l'accès commercial.
+    // On utilise exactement la même fonction que les politiques RLS afin d'éviter
+    // qu'un compte expiré arrive par erreur sur la configuration initiale.
+    const { data: allowedByDatabase, error: accessCheckError } = await supabase
+      .rpc("has_active_access", { check_user_id: session.user.id });
 
-    const trialIsActive =
-      trialEnd &&
-      !Number.isNaN(trialEnd.getTime()) &&
-      trialEnd.getTime() > now.getTime();
+    if (cancelled) return;
 
-    const subscriptionIsActive =
-      profile?.subscription_status === "active" &&
-      (!subscriptionEnd ||
-        (!Number.isNaN(subscriptionEnd.getTime()) &&
-          subscriptionEnd.getTime() > now.getTime()));
+    if (accessCheckError) {
+      console.error("ERREUR CONTRÔLE ACCÈS BASE :", accessCheckError);
+      setAccessProfile(profile);
+      setAccessAllowed(false);
+      setAccessError(
+        "Impossible de vérifier votre période d'essai ou votre abonnement. Veuillez réessayer."
+      );
+      setCheckingAccess(false);
+      return;
+    }
 
-    const allowed =
-      profile?.is_admin === true || trialIsActive || subscriptionIsActive;
+    const allowed = allowedByDatabase === true;
 
     setAccessProfile(profile);
-    setAccessAllowed(Boolean(allowed));
+    setAccessAllowed(allowed);
     setCheckingAccess(false);
 
+    // Les données métier ne sont chargées qu'après validation de l'accès.
     if (allowed) {
       await loadSupabaseData();
     }
