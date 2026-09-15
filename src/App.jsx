@@ -623,7 +623,7 @@ useEffect(() => {
 
     const { data: profile, error } = await supabase
       .from("profiles")
-      .select("id, email, trial_ends_at, subscription_status, subscription_ends_at, is_admin")
+      .select("id, email, trial_ends_at, subscription_status, subscription_ends_at, is_admin, max_artists")
       .eq("id", session.user.id)
       .single();
 
@@ -2138,6 +2138,33 @@ const saveQuickClient = async () => {
 const saveArtist = async () => {
   if (!artistForm.name.trim()) return;
   if (!session?.user) return;
+
+  // La modification d'un tatoueur existant reste toujours autorisée.
+  // La limite d'abonnement s'applique uniquement à la création d'un nouveau tatoueur.
+  if (editingArtistId === null) {
+    const maxArtists = Math.max(1, Number(accessProfile?.max_artists) || 1);
+
+    if (artists.length >= maxArtists) {
+      const nextArtistCount = artists.length + 1;
+      const nextMonthlyPrice = 9.9 + (nextArtistCount - 1) * 8;
+
+      const wantsToUpgrade = window.confirm(
+        `Votre abonnement actuel comprend ${maxArtists} tatoueur${maxArtists > 1 ? "s" : ""}.\n\n` +
+        `Pour ajouter un ${nextArtistCount}e tatoueur, vous devez passer au forfait supérieur.\n\n` +
+        `Nouveau tarif mensuel : ${nextMonthlyPrice.toFixed(2).replace(".", ",")} € TTC / mois.\n\n` +
+        `Le paiement en ligne sera disponible prochainement.`
+      );
+
+      if (wantsToUpgrade) {
+        alert(
+          "Le bouton d'abonnement sera relié au paiement à l'étape suivante. " +
+          "Aucun tatoueur supplémentaire n'a été créé."
+        );
+      }
+
+      return;
+    }
+  }
 
   if (editingArtistId !== null) {
     const { error } = await supabase
