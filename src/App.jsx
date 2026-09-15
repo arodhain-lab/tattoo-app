@@ -2955,10 +2955,11 @@ const toggleClosedDay = async (dateKey) => {
   );
 
   if (existing) {
-    const { error } = await supabase
-      .from("closed_days")
-      .delete()
-      .eq("id", existing.id);
+const { error } = await supabase
+  .from("closed_days")
+  .delete()
+  .eq("id", existing.id)
+  .eq("user_id", session.user.id);
 
     if (error) {
       alert(error.message);
