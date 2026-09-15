@@ -479,6 +479,12 @@ linkedAppointmentId: "",
 const [showSuccess, setShowSuccess] = useState(false);
 const [successMessage, setSuccessMessage] = useState("");
 const [isSavingAppointment, setIsSavingAppointment] = useState(false);
+const [showSubscriptionModal, setShowSubscriptionModal] = useState(false);
+const [subscriptionModalData, setSubscriptionModalData] = useState({
+  currentMaxArtists: 1,
+  nextArtistCount: 2,
+  nextMonthlyPrice: 17.9,
+});
 
 const showMessage = (message, duration = 1800) => {
   setSuccessMessage(message);
@@ -2148,19 +2154,12 @@ const saveArtist = async () => {
       const nextArtistCount = artists.length + 1;
       const nextMonthlyPrice = 9.9 + (nextArtistCount - 1) * 8;
 
-      const wantsToUpgrade = window.confirm(
-        `Votre abonnement actuel comprend ${maxArtists} tatoueur${maxArtists > 1 ? "s" : ""}.\n\n` +
-        `Pour ajouter un ${nextArtistCount}e tatoueur, vous devez passer au forfait supérieur.\n\n` +
-        `Nouveau tarif mensuel : ${nextMonthlyPrice.toFixed(2).replace(".", ",")} € TTC / mois.\n\n` +
-        `Le paiement en ligne sera disponible prochainement.`
-      );
-
-      if (wantsToUpgrade) {
-        alert(
-          "Le bouton d'abonnement sera relié au paiement à l'étape suivante. " +
-          "Aucun tatoueur supplémentaire n'a été créé."
-        );
-      }
+      setSubscriptionModalData({
+        currentMaxArtists: maxArtists,
+        nextArtistCount,
+        nextMonthlyPrice,
+      });
+      setShowSubscriptionModal(true);
 
       return;
     }
@@ -3275,6 +3274,71 @@ const goNext = () => {
 {showSuccess && (
   <div className="success-overlay">
     <div className="success-box">{successMessage}</div>
+  </div>
+)}
+
+{showSubscriptionModal && (
+  <div
+    className="subscription-modal-overlay"
+    onClick={() => setShowSubscriptionModal(false)}
+  >
+    <div
+      className="subscription-modal"
+      onClick={(e) => e.stopPropagation()}
+    >
+      <h2>Passer au forfait supérieur</h2>
+
+      <p>
+        Votre abonnement actuel comprend{" "}
+        <strong>
+          {subscriptionModalData.currentMaxArtists} tatoueur
+          {subscriptionModalData.currentMaxArtists > 1 ? "s" : ""}
+        </strong>.
+      </p>
+
+      <p>
+        Pour ajouter un{" "}
+        <strong>{subscriptionModalData.nextArtistCount}e tatoueur</strong>,
+        vous devez passer au forfait supérieur.
+      </p>
+
+      <div className="subscription-modal-price">
+        <span>Nouveau tarif mensuel</span>
+        <strong>
+          {subscriptionModalData.nextMonthlyPrice
+            .toFixed(2)
+            .replace(".", ",")}{" "}
+          € TTC / mois
+        </strong>
+      </div>
+
+      <p>
+        Le paiement en ligne sera disponible prochainement.
+      </p>
+
+      <div className="subscription-modal-actions">
+        <button
+          type="button"
+          onClick={() => {
+            setShowSubscriptionModal(false);
+            alert(
+              "Le bouton d'abonnement sera relié au paiement à l'étape suivante. " +
+              "Aucun tatoueur supplémentaire n'a été créé."
+            );
+          }}
+        >
+          Passer au forfait {subscriptionModalData.nextArtistCount} tatoueurs
+        </button>
+
+        <button
+          type="button"
+          className="subscription-modal-cancel"
+          onClick={() => setShowSubscriptionModal(false)}
+        >
+          Annuler
+        </button>
+      </div>
+    </div>
   </div>
 )}
 

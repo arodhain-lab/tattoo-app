@@ -2788,3 +2788,129 @@ body,
   object-fit: contain;
   display: block;
 }
+
+/* =========================================================
+   MODALE CHANGEMENT DE FORFAIT / AJOUT TATOUEUR
+   ========================================================= */
+
+.subscription-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: rgba(0, 0, 0, 0.82);
+  backdrop-filter: blur(5px);
+}
+
+.subscription-modal {
+  position: relative;
+  width: 100%;
+  max-width: 560px;
+  padding: 34px;
+  border-radius: 32px;
+
+  background:
+    radial-gradient(
+      circle at top center,
+      rgba(255, 196, 64, 0.08),
+      transparent 30%
+    ),
+    linear-gradient(180deg, #111111 0%, #050505 100%);
+
+  border: 2px solid rgba(240, 180, 55, 0.9);
+
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 227, 160, 0.08),
+    0 20px 55px rgba(0, 0, 0, 0.75),
+    0 0 28px rgba(255, 190, 70, 0.16);
+
+  text-align: center;
+  color: #f3d486;
+
+  animation: subscriptionModalIn 0.25s ease;
+}
+
+.subscription-modal h2 {
+  margin: 0 0 18px;
+  font-size: 34px;
+  line-height: 1.15;
+  color: #efb23e;
+}
+
+.subscription-modal p {
+  margin: 10px 0;
+  font-size: 16px;
+  line-height: 1.55;
+  color: #f3d486;
+}
+
+.subscription-modal-price {
+  margin: 22px 0;
+  padding: 18px;
+  border-radius: 20px;
+
+  background:
+    linear-gradient(180deg, #151515 0%, #090909 100%);
+
+  border: 1px solid rgba(240, 180, 55, 0.75);
+}
+
+.subscription-modal-price span {
+  display: block;
+  margin-bottom: 6px;
+  color: #c7973c;
+  font-size: 14px;
+}
+
+.subscription-modal-price strong {
+  display: block;
+  color: #fff0cc;
+  font-size: 28px;
+}
+
+.subscription-modal-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.subscription-modal-actions button {
+  flex: 1;
+  margin-top: 0;
+}
+
+.subscription-modal-cancel {
+  background:
+    linear-gradient(180deg, #141414 0%, #090909 100%);
+  color: #f1d288;
+}
+
+@keyframes subscriptionModalIn {
+  from {
+    opacity: 0;
+    transform: scale(0.94) translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@media (max-width: 600px) {
+  .subscription-modal {
+    padding: 26px 20px;
+    border-radius: 26px;
+  }
+
+  .subscription-modal h2 {
+    font-size: 28px;
+  }
+
+  .subscription-modal-actions {
+    flex-direction: column;
+  }
+}
