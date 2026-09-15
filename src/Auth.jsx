@@ -82,7 +82,32 @@ export default function Auth() {
 
     setLoading(true);
 
-    const { error } = await supabase.auth.signUp({
+    // Vérifie d’abord si l’adresse existe déjà dans le profil commercial.
+    // Cette vérification améliore le message affiché à l’utilisateur ;
+    // la sécurité des données reste assurée par les règles RLS côté Supabase.
+    const { data: existingProfile, error: profileCheckError } = await supabase
+      .from("profiles")
+      .select("id")
+      .eq("email", cleanEmail)
+      .maybeSingle();
+
+    if (profileCheckError) {
+      setSignUpMessage(
+        "Impossible de vérifier cette adresse email pour le moment. Veuillez réessayer."
+      );
+      setLoading(false);
+      return;
+    }
+
+    if (existingProfile) {
+      setSignUpMessage(
+        "Cette adresse email est déjà enregistrée. Connectez-vous avec votre compte existant."
+      );
+      setLoading(false);
+      return;
+    }
+
+    const { data, error } = await supabase.auth.signUp({
       email: cleanEmail,
       password: signUpPassword,
     });
