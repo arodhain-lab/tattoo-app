@@ -3179,13 +3179,17 @@ const goNext = () => {
     return (
       <div className="container">
         <div className="card" style={{ maxWidth: 620, margin: "40px auto", textAlign: "center", padding: "36px 28px" }}>
-          <h1 style={{ marginBottom: "14px" }}>Votre période d'essai est terminée</h1>
+          <h1 style={{ marginBottom: "14px" }}>{accessProfile?.subscription_status === "active"
+  ? "Votre abonnement a expiré"
+  : "Votre période d'essai est terminée"}</h1>
           <p style={{ fontSize: "17px", lineHeight: 1.6 }}>
-            Vos 30 jours d'essai gratuit sont arrivés à leur terme.
+            {accessProfile?.subscription_status === "active"
+  ? "Votre abonnement est arrivé à son terme."
+  : "Vos 30 jours d'essai gratuit sont arrivés à leur terme."}
           </p>
           <p style={{ fontSize: "17px", lineHeight: 1.6 }}>
             Pour continuer à utiliser l'application et retrouver vos données,
-            activez votre abonnement à partir de{" "}
+            {accessProfile?.subscription_status === "active" ? "renouvelez votre abonnement" : "activez votre abonnement"} à partir de{" "}
             <strong>9,90 € TTC / mois</strong> pour 1 tatoueur.
           </p>
 
@@ -3202,13 +3206,17 @@ const goNext = () => {
           </p>
           {accessProfile?.trial_ends_at ? (
             <p style={{ opacity: 0.75, marginTop: "18px" }}>
-              Fin de votre période d'essai :{" "}
+              {accessProfile?.subscription_status === "active"
+  ? "Fin de votre abonnement :"
+  : "Fin de votre période d'essai :"}{" "}
               {new Intl.DateTimeFormat("fr-FR", { dateStyle: "long" }).format(new Date(accessProfile.trial_ends_at))}
             </p>
           ) : null}
           <div style={{ marginTop: "28px" }}>
             <button disabled title="Le paiement sera ajouté à l'étape suivante.">
-              Activer mon abonnement
+              {accessProfile?.subscription_status === "active"
+  ? "Renouveler mon abonnement"
+  : "Activer mon abonnement"}
             </button>
             <button className="secondary-button" onClick={() => supabase.auth.signOut()} style={{ marginLeft: "10px" }}>
               Déconnexion
