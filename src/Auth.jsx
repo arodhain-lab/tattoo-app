@@ -327,14 +327,14 @@ export default function Auth() {
                   lineHeight: "1.5",
                 }}
               >
-                Puis{" "}
+                Puis à partir de{" "}
                 <strong
                   style={{
                     color: "#f5b82e",
                     fontSize: "21px",
                   }}
                 >
-                  24,90 € TTC / mois
+                  9,90 € TTC / mois
                 </strong>
               </div>
 
@@ -345,7 +345,17 @@ export default function Auth() {
                   marginTop: "5px",
                 }}
               >
-                Sans engagement
+                Formule Solo : 1 tatoueur — 9,90 € / mois
+                <br />
+                Tatoueur supplémentaire : +8 € / mois
+                <br />
+                Abonnement annuel Solo : 99 € / an
+                <br />
+                Remise annuelle équivalente pour les formules multi-tatoueurs
+                <br />
+                <span style={{ display: "inline-block", marginTop: "7px" }}>
+                  Tarifs TTC · Sans engagement
+                </span>
               </div>
             </div>
 
@@ -637,10 +647,14 @@ export default function Auth() {
                   fontSize: "14px",
                 }}
               >
-                À l&apos;issue de la période d&apos;essai :{" "}
+                À l&apos;issue de la période d&apos;essai : à partir de{" "}
                 <strong style={{ color: "#ffffff" }}>
-                  24,90 € TTC / mois
+                  9,90 € TTC / mois en Solo
                 </strong>
+                <br />
+                +8 € / mois par tatoueur supplémentaire
+                <br />
+                ou 99 € / an pour la formule Solo
               </div>
             </div>
 

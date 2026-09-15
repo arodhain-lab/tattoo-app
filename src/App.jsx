@@ -347,6 +347,10 @@ export default function App() {
   const [loadingSession, setLoadingSession] = useState(true);
   const [checkingSetup, setCheckingSetup] = useState(true);
   const [setupComplete, setSetupComplete] = useState(false);
+  const [checkingAccess, setCheckingAccess] = useState(true);
+  const [accessAllowed, setAccessAllowed] = useState(false);
+  const [accessProfile, setAccessProfile] = useState(null);
+  const [accessError, setAccessError] = useState("");
   const [page, setPage] = useState("home");
   const [pageHistory, setPageHistory] = useState([]);
   const [selectedAppointmentId, setSelectedAppointmentId] = useState(null);
@@ -601,8 +605,69 @@ useEffect(() => {
 }, []);
 
 useEffect(() => {
-  if (!session) return;
-  loadSupabaseData();
+  let cancelled = false;
+
+  const checkCommercialAccess = async () => {
+    if (!session?.user?.id) {
+      setCheckingAccess(false);
+      setAccessAllowed(false);
+      setAccessProfile(null);
+      setAccessError("");
+      return;
+    }
+
+    setCheckingAccess(true);
+    setAccessAllowed(false);
+    setAccessProfile(null);
+    setAccessError("");
+
+    const { data: profile, error } = await supabase
+      .from("profiles")
+      .select("id, email, trial_ends_at, subscription_status, subscription_ends_at, is_admin")
+      .eq("id", session.user.id)
+      .single();
+
+    if (cancelled) return;
+
+    if (error) {
+      console.error("ERREUR VÉRIFICATION ACCÈS :", error);
+      setAccessError("Impossible de vérifier votre période d'essai ou votre abonnement. Veuillez réessayer.");
+      setCheckingAccess(false);
+      return;
+    }
+
+    const now = new Date();
+    const trialEnd = profile?.trial_ends_at ? new Date(profile.trial_ends_at) : null;
+    const subscriptionEnd = profile?.subscription_ends_at ? new Date(profile.subscription_ends_at) : null;
+
+    const trialIsActive =
+      trialEnd &&
+      !Number.isNaN(trialEnd.getTime()) &&
+      trialEnd.getTime() > now.getTime();
+
+    const subscriptionIsActive =
+      profile?.subscription_status === "active" &&
+      (!subscriptionEnd ||
+        (!Number.isNaN(subscriptionEnd.getTime()) &&
+          subscriptionEnd.getTime() > now.getTime()));
+
+    const allowed =
+      profile?.is_admin === true || trialIsActive || subscriptionIsActive;
+
+    setAccessProfile(profile);
+    setAccessAllowed(Boolean(allowed));
+    setCheckingAccess(false);
+
+    if (allowed) {
+      await loadSupabaseData();
+    }
+  };
+
+  checkCommercialAccess();
+
+  return () => {
+    cancelled = true;
+  };
 }, [session]);
 
   useEffect(() => {
@@ -3055,6 +3120,73 @@ const goNext = () => {
 
   if (!session) {
     return <Auth />;
+  }
+
+  if (checkingAccess) {
+    return (
+      <div className="container">
+        <div className="card">Vérification de votre accès...</div>
+      </div>
+    );
+  }
+
+  if (accessError) {
+    return (
+      <div className="container">
+        <div className="card" style={{ maxWidth: 620, margin: "40px auto", textAlign: "center" }}>
+          <h2>Impossible de vérifier votre accès</h2>
+          <p>{accessError}</p>
+          <button onClick={() => window.location.reload()}>Réessayer</button>
+          <button className="secondary-button" onClick={() => supabase.auth.signOut()} style={{ marginLeft: "10px" }}>
+            Déconnexion
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (!accessAllowed) {
+    return (
+      <div className="container">
+        <div className="card" style={{ maxWidth: 620, margin: "40px auto", textAlign: "center", padding: "36px 28px" }}>
+          <h1 style={{ marginBottom: "14px" }}>Votre période d'essai est terminée</h1>
+          <p style={{ fontSize: "17px", lineHeight: 1.6 }}>
+            Vos 30 jours d'essai gratuit sont arrivés à leur terme.
+          </p>
+          <p style={{ fontSize: "17px", lineHeight: 1.6 }}>
+            Pour continuer à utiliser l'application et retrouver vos données,
+            activez votre abonnement à partir de{" "}
+            <strong>9,90 € TTC / mois</strong> pour 1 tatoueur.
+          </p>
+
+          <p style={{ fontSize: "16px", lineHeight: 1.7 }}>
+            <strong>Formule Solo :</strong> 9,90 € TTC / mois
+            <br />
+            <strong>Tatoueur supplémentaire :</strong> +8 € / mois
+            <br />
+            <strong>Abonnement annuel Solo :</strong> 99 € / an
+            <br />
+            Remise annuelle équivalente pour les formules multi-tatoueurs.
+            <br />
+            <span style={{ opacity: 0.75 }}>Sans engagement</span>
+          </p>
+          {accessProfile?.trial_ends_at ? (
+            <p style={{ opacity: 0.75, marginTop: "18px" }}>
+              Fin de votre période d'essai :{" "}
+              {new Intl.DateTimeFormat("fr-FR", { dateStyle: "long" }).format(new Date(accessProfile.trial_ends_at))}
+            </p>
+          ) : null}
+          <div style={{ marginTop: "28px" }}>
+            <button disabled title="Le paiement sera ajouté à l'étape suivante.">
+              Activer mon abonnement
+            </button>
+            <button className="secondary-button" onClick={() => supabase.auth.signOut()} style={{ marginLeft: "10px" }}>
+              Déconnexion
+            </button>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   if (checkingSetup) {
