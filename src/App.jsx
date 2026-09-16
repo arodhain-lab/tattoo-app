@@ -496,6 +496,37 @@ const showMessage = (message, duration = 1800) => {
   }, duration);
 };
 
+const testStripeCheckout = async () => {
+  try {
+    const { data, error } = await supabase.functions.invoke(
+      "create-checkout-session",
+      {
+        body: {
+          billingInterval: "month",
+          maxArtists: 1,
+        },
+      }
+    );
+
+    if (error) {
+      console.error("ERREUR STRIPE CHECKOUT :", error);
+      alert("Erreur Stripe Checkout : " + error.message);
+      return;
+    }
+
+    if (!data?.url) {
+      console.error("RÉPONSE STRIPE INVALIDE :", data);
+      alert("Stripe n'a pas renvoyé d'adresse de paiement.");
+      return;
+    }
+
+    window.location.href = data.url;
+  } catch (error) {
+    console.error("ERREUR TEST STRIPE :", error);
+    alert("Erreur Stripe : " + error.message);
+  }
+};
+
   const navigateTo = (newPage) => {
     setPageHistory((prev) => [...prev, page]);
     setPage(newPage);
@@ -3213,7 +3244,7 @@ const goNext = () => {
             </p>
           ) : null}
           <div style={{ marginTop: "28px" }}>
-            <button disabled title="Le paiement sera ajouté à l'étape suivante.">
+            <button onClick={testStripeCheckout}>
               {accessProfile?.subscription_status === "active"
   ? "Renouveler mon abonnement"
   : "Activer mon abonnement"}
