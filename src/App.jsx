@@ -416,6 +416,8 @@ const evaluateSetup = (artistsList, servicesList) => {
   const [appointmentSearch, setAppointmentSearch] = useState("");
   const [exportStartDate, setExportStartDate] = useState("");
   const [exportEndDate, setExportEndDate] = useState("");
+  const [showExportArtistModal, setShowExportArtistModal] = useState(false);
+  const [selectedExportArtistIds, setSelectedExportArtistIds] = useState([]);
   const [appointmentClientSearch, setAppointmentClientSearch] = useState("");
   const [expandedClientId, setExpandedClientId] = useState(null);
 
@@ -1556,6 +1558,7 @@ const downloadClientsCsvTemplate = () => {
   link.click();
 
   URL.revokeObjectURL(url);
+  setShowExportArtistModal(false);
 };
 
 const normalizeImportText = (value) =>
@@ -1713,6 +1716,36 @@ const downloadAppointmentsCsvTemplate = () => {
   URL.revokeObjectURL(url);
 };
 
+const openExportArtistModal = () => {
+  if (!exportStartDate || !exportEndDate) {
+    alert("Veuillez renseigner une date de début et une date de fin.");
+    return;
+  }
+
+  if (exportStartDate > exportEndDate) {
+    alert("La date de début ne peut pas être après la date de fin.");
+    return;
+  }
+
+  if (artists.length === 0) {
+    alert("Aucun tatoueur disponible.");
+    return;
+  }
+
+  setSelectedExportArtistIds(artists.map((artist) => String(artist.id)));
+  setShowExportArtistModal(true);
+};
+
+const toggleExportArtist = (artistId) => {
+  const id = String(artistId);
+
+  setSelectedExportArtistIds((prev) =>
+    prev.includes(id)
+      ? prev.filter((selectedId) => selectedId !== id)
+      : [...prev, id]
+  );
+};
+
 const exportAppointmentsCsv = () => {
   if (!exportStartDate || !exportEndDate) {
     alert("Veuillez renseigner une date de début et une date de fin.");
@@ -1730,15 +1763,27 @@ const exportAppointmentsCsv = () => {
       if (appointmentItem.cancelled) return false;
 
       const appointmentDate = appointmentItem.appointment.slice(0, 10);
+      const artistSelected = selectedExportArtistIds.includes(
+        String(appointmentItem.artistId)
+      );
 
-      return appointmentDate >= exportStartDate && appointmentDate <= exportEndDate;
+      return (
+        appointmentDate >= exportStartDate &&
+        appointmentDate <= exportEndDate &&
+        artistSelected
+      );
     })
     .sort((a, b) =>
       String(a.appointment || "").localeCompare(String(b.appointment || ""))
     );
 
+  if (selectedExportArtistIds.length === 0) {
+    alert("Veuillez sélectionner au moins un tatoueur.");
+    return;
+  }
+
   if (appointmentsToExport.length === 0) {
-    alert("Aucun rendez-vous trouvé sur cette période.");
+    alert("Aucun rendez-vous trouvé sur cette période pour les tatoueurs sélectionnés.");
     return;
   }
 
@@ -4159,11 +4204,132 @@ const goNext = () => {
                       </div>
 
                       <div className="action-buttons">
-                        <button type="button" onClick={exportAppointmentsCsv}>
+                        <button type="button" onClick={openExportArtistModal}>
                           Exporter les RDV CSV
                         </button>
                       </div>
                     </div>
+
+                    {showExportArtistModal && (
+                      <div
+                        className="modal-overlay"
+                        onClick={() => setShowExportArtistModal(false)}
+                        style={{
+                          position: "fixed",
+                          inset: 0,
+                          background: "rgba(0, 0, 0, 0.65)",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          zIndex: 9999,
+                          padding: "20px",
+                        }}
+                      >
+                        <div
+                          className="card"
+                          onClick={(e) => e.stopPropagation()}
+                          style={{
+                            width: "100%",
+                            maxWidth: "520px",
+                            maxHeight: "85vh",
+                            overflowY: "auto",
+                          }}
+                        >
+                          <h3>Sélection des tatoueurs à exporter</h3>
+                          <p className="muted-text">
+                            Cochez un ou plusieurs tatoueurs à inclure dans l'export CSV.
+                          </p>
+
+                          <div
+                            className="action-buttons"
+                            style={{ marginBottom: "16px" }}
+                          >
+                            <button
+                              type="button"
+                              onClick={() =>
+                                setSelectedExportArtistIds(
+                                  artists.map((artist) => String(artist.id))
+                                )
+                              }
+                            >
+                              Tout sélectionner
+                            </button>
+
+                            <button
+                              type="button"
+                              onClick={() => setSelectedExportArtistIds([])}
+                            >
+                              Tout désélectionner
+                            </button>
+                          </div>
+
+                          <div
+                            style={{
+                              display: "flex",
+                              flexDirection: "column",
+                              gap: "10px",
+                              marginBottom: "20px",
+                            }}
+                          >
+                            {artists.map((artist) => {
+                              const artistId = String(artist.id);
+                              const checked =
+                                selectedExportArtistIds.includes(artistId);
+
+                              return (
+                                <label
+                                  key={artist.id}
+                                  style={{
+                                    display: "flex",
+                                    alignItems: "center",
+                                    gap: "10px",
+                                    cursor: "pointer",
+                                    padding: "10px 12px",
+                                    border: "1px solid rgba(255,255,255,0.15)",
+                                    borderRadius: "8px",
+                                  }}
+                                >
+                                  <input
+                                    type="checkbox"
+                                    checked={checked}
+                                    onChange={() => toggleExportArtist(artist.id)}
+                                  />
+
+                                  <span
+                                    style={{
+                                      width: "12px",
+                                      height: "12px",
+                                      borderRadius: "50%",
+                                      background: artist.color || "#111111",
+                                      flexShrink: 0,
+                                    }}
+                                  />
+
+                                  <strong>{artist.name}</strong>
+                                </label>
+                              );
+                            })}
+                          </div>
+
+                          <div className="action-buttons">
+                            <button
+                              type="button"
+                              onClick={() => setShowExportArtistModal(false)}
+                            >
+                              Annuler
+                            </button>
+
+                            <button
+                              type="button"
+                              onClick={exportAppointmentsCsv}
+                              disabled={selectedExportArtistIds.length === 0}
+                            >
+                              Exporter la sélection
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    )}
 
           <div className="home-menu-grid">
             <button className="home-menu-button" onClick={() => navigateTo("services")}>
