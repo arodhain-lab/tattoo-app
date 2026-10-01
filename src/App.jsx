@@ -287,6 +287,7 @@ function getDepositsForAppointment(appointments, appointmentId) {
   return appointments.filter(
     (appointmentItem) =>
       isAcompteAppointment(appointmentItem) &&
+      !appointmentItem.cancelled &&
       String(appointmentItem.linkedAppointmentId) === String(appointmentId)
   );
 }
@@ -418,6 +419,7 @@ const evaluateSetup = (artistsList, servicesList) => {
   const [exportEndDate, setExportEndDate] = useState("");
   const [showExportArtistModal, setShowExportArtistModal] = useState(false);
   const [selectedExportArtistIds, setSelectedExportArtistIds] = useState([]);
+  const [cancelledDepositDecision, setCancelledDepositDecision] = useState(null);
   const [appointmentClientSearch, setAppointmentClientSearch] = useState("");
   const [expandedClientId, setExpandedClientId] = useState(null);
 
@@ -1376,6 +1378,7 @@ const resetAppointmentForm = () => {
     originalTotalBeforeDeposit: "",
   });
   setEditingAppointmentId(null);
+  setCancelledDepositDecision(null);
 };
 
 const openNewAppointmentForm = () => {
@@ -1757,33 +1760,8 @@ const exportAppointmentsCsv = () => {
     return;
   }
 
-  const appointmentsToExport = appointmentsWithClient
-    .filter((appointmentItem) => {
-      if (!appointmentItem.appointment) return false;
-      if (appointmentItem.cancelled) return false;
-
-      const appointmentDate = appointmentItem.appointment.slice(0, 10);
-      const artistSelected = selectedExportArtistIds.includes(
-        String(appointmentItem.artistId)
-      );
-
-      return (
-        appointmentDate >= exportStartDate &&
-        appointmentDate <= exportEndDate &&
-        artistSelected
-      );
-    })
-    .sort((a, b) =>
-      String(a.appointment || "").localeCompare(String(b.appointment || ""))
-    );
-
   if (selectedExportArtistIds.length === 0) {
     alert("Veuillez sélectionner au moins un tatoueur.");
-    return;
-  }
-
-  if (appointmentsToExport.length === 0) {
-    alert("Aucun rendez-vous trouvé sur cette période pour les tatoueurs sélectionnés.");
     return;
   }
 
@@ -1794,10 +1772,7 @@ const exportAppointmentsCsv = () => {
 
   const formatPhoneForCsv = (phone) => {
     const cleaned = String(phone || "").trim();
-
-   if (!cleaned) return "";
-
-    // Force Excel à garder le 0 au début
+    if (!cleaned) return "";
     return `="${cleaned}"`;
   };
 
@@ -1818,65 +1793,194 @@ const exportAppointmentsCsv = () => {
     "MOYEN DE PAIEMENT",
   ];
 
-  const rows = appointmentsToExport.map((appointmentItem) => {
+  // Les lignes ACOMPTE ne sont JAMAIS exportées à leur date de versement.
+  // Elles sont recréées ci-dessous à la date du rendez-vous auquel elles sont liées.
+  const regularAppointments = appointmentsWithClient.filter((appointmentItem) => {
+    if (!appointmentItem.appointment) return false;
+    if (appointmentItem.cancelled) return false;
+    if (appointmentItem.title === ACOMPTE_TYPE) return false;
+
+    const appointmentDate = appointmentItem.appointment.slice(0, 10);
+    const artistSelected = selectedExportArtistIds.includes(
+      String(appointmentItem.artistId)
+    );
+
+    return (
+      appointmentDate >= exportStartDate &&
+      appointmentDate <= exportEndDate &&
+      artistSelected
+    );
+  });
+
+  // Acomptes actifs (= non rendus) dont le RDV lié se trouve dans la période exportée.
+  // Même si le RDV a été annulé, un acompte GARDÉ reste un encaissement et doit apparaître.
+  const shiftedDeposits = appointmentsWithClient
+    .filter((deposit) => deposit.title === ACOMPTE_TYPE && !deposit.cancelled)
+    .map((deposit) => {
+      const linkedAppointment = appointmentsWithClient.find(
+        (item) => String(item.id) === String(deposit.linkedAppointmentId)
+      );
+
+      if (!linkedAppointment?.appointment) return null;
+
+      const linkedDate = linkedAppointment.appointment.slice(0, 10);
+      const artistSelected = selectedExportArtistIds.includes(
+        String(linkedAppointment.artistId)
+      );
+
+      if (
+        linkedDate < exportStartDate ||
+        linkedDate > exportEndDate ||
+        !artistSelected
+      ) {
+        return null;
+      }
+
+      return { deposit, linkedAppointment };
+    })
+    .filter(Boolean);
+
+  if (regularAppointments.length === 0 && shiftedDeposits.length === 0) {
+    alert("Aucun rendez-vous trouvé sur cette période pour les tatoueurs sélectionnés.");
+    return;
+  }
+
+  const rowsWithSortDate = [];
+
+  regularAppointments.forEach((appointmentItem) => {
     const total = getDisplayedPrice(appointmentItem, appointments);
-
-    const acompte =
-      appointmentItem.title === ACOMPTE_TYPE
-        ? Number(appointmentItem.price) || 0
-        : 0;
-
     const category = getAppointmentTypeCategory(appointmentItem.title);
 
-    const saleAmount =
-      category === "VENTE"
-        ? total
-        : Number(appointmentItem.saleAmount) || 0;
+    // Retire de la ventilation du RDV la partie déjà portée par les acomptes actifs.
+    // Les acomptes seront ajoutés séparément, mais à la même date que ce RDV.
+    const activeDeposits = getDepositsForAppointment(
+      appointments,
+      appointmentItem.id
+    );
 
-    const serviceAmount =
-      appointmentItem.title === ACOMPTE_TYPE
-        ? Number(appointmentItem.serviceAmount) || Math.max(0, total - saleAmount)
-        : category === "PRESTATION"
-        ? total
-        : category === "PRESTATION + VENTE"
-        ? Number(appointmentItem.serviceAmount) || Math.max(0, total - saleAmount)
-        : 0;
+    const depositsSale = activeDeposits.reduce(
+      (sum, deposit) => sum + (Number(deposit.saleAmount) || 0),
+      0
+    );
+    const depositsService = activeDeposits.reduce(
+      (sum, deposit) => sum + (Number(deposit.serviceAmount) || 0),
+      0
+    );
 
-    let cbAmount = Number(appointmentItem.paymentCbAmount) || 0;
-    let cashAmount = Number(appointmentItem.paymentCashAmount) || 0;
+    let saleAmount = 0;
+    let serviceAmount = 0;
 
-    if (appointmentItem.paymentMethod === "CB" && cbAmount === 0) {
+    if (category === "VENTE") {
+      saleAmount = total;
+    } else if (category === "PRESTATION") {
+      serviceAmount = total;
+    } else if (category === "PRESTATION + VENTE") {
+      const originalSale = Number(appointmentItem.saleAmount) || 0;
+      const originalService =
+        Number(appointmentItem.serviceAmount) ||
+        Math.max(0, (Number(appointmentItem.price) || 0) - originalSale);
+
+      saleAmount = Math.max(0, originalSale - depositsSale);
+      serviceAmount = Math.max(0, originalService - depositsService);
+
+      // Sécurité contre les anciennes données dont la ventilation serait incomplète.
+      const ventilated = saleAmount + serviceAmount;
+      if (ventilated < total) {
+        serviceAmount += total - ventilated;
+      } else if (ventilated > total) {
+        const excess = ventilated - total;
+        serviceAmount = Math.max(0, serviceAmount - excess);
+      }
+    }
+
+    // Le moyen de paiement du RDV ne porte que sur le SOLDE restant après acompte.
+    let cbAmount = 0;
+    let cashAmount = 0;
+
+    if (appointmentItem.paymentMethod === "CB") {
       cbAmount = total;
+    } else if (appointmentItem.paymentMethod === "ESPÈCES") {
+      cashAmount = total;
+    } else if (appointmentItem.paymentMethod === "CB + ESPÈCES") {
+      const originalPrice = Number(appointmentItem.price) || 0;
+      const originalCb = Number(appointmentItem.paymentCbAmount) || 0;
+      const cbRatio = originalPrice > 0 ? originalCb / originalPrice : 0;
+      cbAmount = Math.min(total, Math.max(0, total * cbRatio));
+      cashAmount = Math.max(0, total - cbAmount);
     }
 
-    if (appointmentItem.paymentMethod === "ESPÈCES" && cashAmount === 0) {
+    rowsWithSortDate.push({
+      sortDate: appointmentItem.appointment,
+      row: [
+        formatDateOnly(appointmentItem.appointment),
+        formatTimeOnly(appointmentItem.appointment),
+        appointmentItem.clientName || "",
+        formatPhoneForCsv(appointmentItem.clientPhone),
+        appointmentItem.artistName || "",
+        appointmentItem.title || "",
+        appointmentItem.project || "",
+        total.toString().replace(".", ","),
+        "0",
+        serviceAmount.toString().replace(".", ","),
+        saleAmount.toString().replace(".", ","),
+        cbAmount.toString().replace(".", ","),
+        cashAmount.toString().replace(".", ","),
+        appointmentItem.paymentMethod || "",
+      ],
+    });
+  });
+
+  shiftedDeposits.forEach(({ deposit, linkedAppointment }) => {
+    const total = Number(deposit.price) || 0;
+    const saleAmount = Number(deposit.saleAmount) || 0;
+    const serviceAmount =
+      Number(deposit.serviceAmount) || Math.max(0, total - saleAmount);
+
+    let cbAmount = Number(deposit.paymentCbAmount) || 0;
+    let cashAmount = Number(deposit.paymentCashAmount) || 0;
+
+    if (deposit.paymentMethod === "CB") {
+      cbAmount = total;
+      cashAmount = 0;
+    } else if (deposit.paymentMethod === "ESPÈCES") {
+      cbAmount = 0;
       cashAmount = total;
-    }
-    
-    if (appointmentItem.paymentMethod === "VIREMENT") {
+    } else if (deposit.paymentMethod === "VIREMENT") {
       cbAmount = 0;
       cashAmount = 0;
+    } else if (deposit.paymentMethod === "CB + ESPÈCES") {
+      cbAmount = Number(deposit.paymentCbAmount) || 0;
+      cashAmount = Math.max(0, total - cbAmount);
     }
 
-    return [
-      formatDateOnly(appointmentItem.appointment),
-      formatTimeOnly(appointmentItem.appointment),
-      appointmentItem.clientName || "",
-      formatPhoneForCsv(appointmentItem.clientPhone),
-      appointmentItem.artistName || "",
-      appointmentItem.title || "",
-      appointmentItem.project || "",
-      total.toString().replace(".", ","),
-
-      acompte.toString().replace(".", ","),
-
-      serviceAmount.toString().replace(".", ","),
-      saleAmount.toString().replace(".", ","),
-      cbAmount.toString().replace(".", ","),
-      cashAmount.toString().replace(".", ","),
-      appointmentItem.paymentMethod || "",
-    ];
+    // Date/heure, tatoueur et projet = ceux du RDV lié.
+    // Client et paiement = ceux de l'acompte.
+    rowsWithSortDate.push({
+      sortDate: linkedAppointment.appointment,
+      row: [
+        formatDateOnly(linkedAppointment.appointment),
+        formatTimeOnly(linkedAppointment.appointment),
+        deposit.clientName || linkedAppointment.clientName || "",
+        formatPhoneForCsv(deposit.clientPhone || linkedAppointment.clientPhone),
+        linkedAppointment.artistName || deposit.artistName || "",
+        ACOMPTE_TYPE,
+        linkedAppointment.project || deposit.project || "",
+        total.toString().replace(".", ","),
+        total.toString().replace(".", ","),
+        serviceAmount.toString().replace(".", ","),
+        saleAmount.toString().replace(".", ","),
+        cbAmount.toString().replace(".", ","),
+        cashAmount.toString().replace(".", ","),
+        deposit.paymentMethod || "",
+      ],
+    });
   });
+
+  rowsWithSortDate.sort((a, b) =>
+    String(a.sortDate || "").localeCompare(String(b.sortDate || ""))
+  );
+
+  const rows = rowsWithSortDate.map((item) => item.row);
 
   const totals = rows.reduce(
     (acc, row) => {
@@ -1886,27 +1990,13 @@ const exportAppointmentsCsv = () => {
       acc.vente += Number(String(row[10]).replace(",", ".")) || 0;
       acc.cb += Number(String(row[11]).replace(",", ".")) || 0;
       acc.especes += Number(String(row[12]).replace(",", ".")) || 0;
-
       return acc;
     },
-    {
-      total: 0,
-      acompte: 0,
-      prestation: 0,
-      vente: 0,
-      cb: 0,
-      especes: 0,
-    }
+    { total: 0, acompte: 0, prestation: 0, vente: 0, cb: 0, especes: 0 }
   );
 
   rows.push([
-    "",
-   "",
-    "",
-    "",
-    "",
-    "",
-    "TOTAL",
+    "", "", "", "", "", "", "TOTAL",
     totals.total.toString().replace(".", ","),
     totals.acompte.toString().replace(".", ","),
     totals.prestation.toString().replace(".", ","),
@@ -1927,11 +2017,9 @@ const exportAppointmentsCsv = () => {
 
   const url = URL.createObjectURL(blob);
   const link = document.createElement("a");
-
   link.href = url;
   link.download = `export-rendez-vous-${exportStartDate}-au-${exportEndDate}.csv`;
   link.click();
-
   URL.revokeObjectURL(url);
 };
 
@@ -2528,6 +2616,39 @@ const saveAppointment = async () => {
         )
       : null;
 
+  let depositDecisionForCancellation = cancelledDepositDecision;
+
+  // Si un RDV passe de actif à annulé et possède un acompte actif,
+  // on demande si cet acompte est rendu ou gardé.
+  if (
+    editingAppointmentId !== null &&
+    currentEditingAppointment &&
+    currentEditingAppointment.title !== ACOMPTE_TYPE &&
+    !currentEditingAppointment.cancelled &&
+    appointmentForm.cancelled
+  ) {
+    const linkedActiveDeposits = getDepositsForAppointment(
+      appointments,
+      editingAppointmentId
+    );
+
+    if (linkedActiveDeposits.length > 0 && !depositDecisionForCancellation) {
+      const totalDeposits = linkedActiveDeposits.reduce(
+        (sum, deposit) => sum + (Number(deposit.price) || 0),
+        0
+      );
+
+      const keepDeposit = window.confirm(
+        `Ce rendez-vous possède ${linkedActiveDeposits.length} acompte(s) pour un total de ${formatCurrency(totalDeposits)}.\n\n` +
+        `Cliquez sur OK si l'acompte est GARDÉ.\n` +
+        `Cliquez sur Annuler si l'acompte est RENDU au client.`
+      );
+
+      depositDecisionForCancellation = keepDeposit ? "kept" : "returned";
+      setCancelledDepositDecision(depositDecisionForCancellation);
+    }
+  }
+
   if (
     editingAppointmentId !== null &&
     currentEditingAppointment &&
@@ -2775,6 +2896,34 @@ const saveAppointment = async () => {
       if (error) {
         throw error;
       }
+
+      // Mémorise le sort de l'acompte lors de l'annulation du RDV.
+      // cancelled=true sur un ACOMPTE signifie ici : acompte RENDU.
+      if (
+        appointmentForm.cancelled &&
+        currentEditingAppointment &&
+        !currentEditingAppointment.cancelled &&
+        depositDecisionForCancellation
+      ) {
+        const linkedDepositIds = getDepositsForAppointment(
+          appointments,
+          editingAppointmentId
+        ).map((deposit) => deposit.id);
+
+        if (linkedDepositIds.length > 0) {
+          const { error: depositUpdateError } = await supabase
+            .from("appointments")
+            .update({
+              cancelled: depositDecisionForCancellation === "returned",
+            })
+            .eq("user_id", session.user.id)
+            .in("id", linkedDepositIds);
+
+          if (depositUpdateError) {
+            throw depositUpdateError;
+          }
+        }
+      }
     }
 
     /*
@@ -2945,6 +3094,7 @@ setSuccessMessage("✔ RDV enregistré");
 };
 
   const editAppointment = (appointmentItem) => {
+    setCancelledDepositDecision(null);
     setAppointmentClientSearch("");
     setShowQuickClientForm(false);
     setAppointmentForm({
@@ -5245,12 +5395,13 @@ const goNext = () => {
           <input
             type="checkbox"
             checked={appointmentForm.cancelled || false}
-            onChange={(e) =>
+            onChange={(e) => {
+              setCancelledDepositDecision(null);
               setAppointmentForm({
                 ...appointmentForm,
                 cancelled: e.target.checked,
-              })
-            }
+              });
+            }}
           />
           Annulé
         </label>
@@ -5402,7 +5553,6 @@ const goNext = () => {
                     <h3 style={{ margin: 0 }}>{formatClientName(client)}</h3>
                   </button>
                 ))
-                
             )}
           </div>
         </section>
