@@ -1834,10 +1834,12 @@ const exportAppointmentsCsv = () => {
         : Number(appointmentItem.saleAmount) || 0;
 
     const serviceAmount =
-      category === "PRESTATION"
+      appointmentItem.title === ACOMPTE_TYPE
+        ? Number(appointmentItem.serviceAmount) || Math.max(0, total - saleAmount)
+        : category === "PRESTATION"
         ? total
         : category === "PRESTATION + VENTE"
-        ? Math.max(0, total - saleAmount)
+        ? Number(appointmentItem.serviceAmount) || Math.max(0, total - saleAmount)
         : 0;
 
     let cbAmount = Number(appointmentItem.paymentCbAmount) || 0;
@@ -2632,8 +2634,18 @@ const saveAppointment = async () => {
   if (appointmentCategory === "VENTE") {
     saleAmount = appointmentPrice;
     serviceAmount = 0;
-  } else if (appointmentCategory === "PRESTATION + VENTE") {
+  } else if (
+    appointmentCategory === "PRESTATION + VENTE" ||
+    appointmentForm.title === ACOMPTE_TYPE
+  ) {
+    // Pour une prestation + vente ET pour un acompte, on peut ventiler
+    // librement le montant total entre vente et prestation.
     saleAmount = Number(appointmentForm.saleAmount) || 0;
+
+    if (saleAmount < 0) {
+      alert("Le montant vente ne peut pas être négatif.");
+      return;
+    }
 
     if (saleAmount > appointmentPrice) {
       alert("Le montant vente ne peut pas dépasser le montant total.");
@@ -4796,10 +4808,12 @@ const goNext = () => {
                     : Number(selectedAppointmentDetails.saleAmount) || 0;
 
                 const serviceAmount =
-                  category === "PRESTATION"
+                  selectedAppointmentDetails.title === ACOMPTE_TYPE
+                    ? Number(selectedAppointmentDetails.serviceAmount) || Math.max(0, total - saleAmount)
+                    : category === "PRESTATION"
                     ? total
                     : category === "PRESTATION + VENTE"
-                    ? Math.max(0, total - saleAmount)
+                    ? Number(selectedAppointmentDetails.serviceAmount) || Math.max(0, total - saleAmount)
                     : 0;
 
                 return (
@@ -4807,8 +4821,19 @@ const goNext = () => {
                     <p>
                       <strong>Catégorie :</strong> {category}
                     </p>
+
+                    {selectedAppointmentDetails.title === ACOMPTE_TYPE && (
+                      <>
+                        <p>
+                          <strong>Montant prestation :</strong> {formatCurrency(serviceAmount)}
+                        </p>
+                        <p>
+                          <strong>Montant vente :</strong> {formatCurrency(saleAmount)}
+                        </p>
+                      </>
+                    )}
               
-                    {category === "PRESTATION" && (
+                    {category === "PRESTATION" && selectedAppointmentDetails.title !== ACOMPTE_TYPE && (
                       <p>
                         <strong>Montant prestation :</strong> {formatCurrency(serviceAmount)}
                       </p>
@@ -5076,7 +5101,8 @@ const goNext = () => {
         </div>
       </div>
 
-      {getAppointmentTypeCategory(appointmentForm.title) === "PRESTATION + VENTE" && (
+      {(getAppointmentTypeCategory(appointmentForm.title) === "PRESTATION + VENTE" ||
+        appointmentForm.title === ACOMPTE_TYPE) && (
         <div className="form-field">
           <label className="input-label">Montant vente</label>
 
