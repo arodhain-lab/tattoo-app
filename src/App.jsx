@@ -491,6 +491,9 @@ const [subscriptionModalData, setSubscriptionModalData] = useState({
 });
 const [selectedUpgradeArtistCount, setSelectedUpgradeArtistCount] = useState(2);
 const [isUpdatingSubscription, setIsUpdatingSubscription] = useState(false);
+const [showDeleteArtistModal, setShowDeleteArtistModal] = useState(false);
+const [artistPendingDeletion, setArtistPendingDeletion] = useState(null);
+const [isDeletingArtist, setIsDeletingArtist] = useState(false);
 
 const showMessage = (message, duration = 1800) => {
   setSuccessMessage(message);
@@ -2458,6 +2461,15 @@ const saveArtist = async () => {
 const deleteArtist = async (artistId) => {
   if (!session?.user) return;
 
+  const artist = artists.find(
+    (artistItem) => String(artistItem.id) === String(artistId)
+  );
+
+  if (!artist) {
+    alert("Erreur : tatoueur introuvable.");
+    return;
+  }
+
   const hasAppointments = appointments.some(
     (appointmentItem) => String(appointmentItem.artistId) === String(artistId)
   );
@@ -2467,31 +2479,137 @@ const deleteArtist = async (artistId) => {
     return;
   }
 
-  const confirmDelete = window.confirm(
-    "Confirmez-vous la suppression de ce tatoueur ?"
+  setArtistPendingDeletion(artist);
+  setShowDeleteArtistModal(true);
+};
+
+const confirmDeleteArtist = async () => {
+  if (!session?.user?.id || !artistPendingDeletion || isDeletingArtist) return;
+
+  const artistId = artistPendingDeletion.id;
+  const currentMaxArtists = Math.max(
+    1,
+    Number(accessProfile?.max_artists) || artists.length || 1
   );
+  const remainingArtistCount = Math.max(0, artists.length - 1);
+  const targetMaxArtists = Math.max(1, remainingArtistCount);
+  const mustUpdateSubscription = targetMaxArtists < currentMaxArtists;
 
-  if (!confirmDelete) return;
+  setIsDeletingArtist(true);
 
-  const { error } = await supabase
-    .from("artists")
-    .delete()
-    .eq("id", artistId)
-    .eq("user_id", session.user.id);
+  try {
+    // On baisse d'abord le forfait Stripe. Ainsi, si Stripe refuse la modification,
+    // le tatoueur reste intact dans l'application.
+    if (mustUpdateSubscription) {
+      const { data: subscriptionData, error: subscriptionError } =
+        await supabase.functions.invoke("update-subscription", {
+          body: {
+            maxArtists: targetMaxArtists,
+          },
+        });
 
-  if (error) {
-    alert(error.message);
-    return;
-  }
+      if (subscriptionError) {
+        console.error("ERREUR BAISSE FORFAIT :", subscriptionError);
+        alert(
+          "La suppression a été annulée car le forfait Stripe n'a pas pu être modifié : " +
+            (subscriptionError.message || "erreur inconnue")
+        );
+        return;
+      }
 
-  await loadSupabaseData();
+      if (!subscriptionData?.success) {
+        console.error("RÉPONSE BAISSE FORFAIT INVALIDE :", subscriptionData);
+        alert(
+          subscriptionData?.error ||
+            "La suppression a été annulée car Stripe n'a pas confirmé le nouveau forfait."
+        );
+        return;
+      }
+    }
 
-  if (editingArtistId === artistId) {
-    resetArtistForm();
-  }
+    const { error: deleteError } = await supabase
+      .from("artists")
+      .delete()
+      .eq("id", artistId)
+      .eq("user_id", session.user.id);
 
-  if (revenueArtistFilter === String(artistId)) {
-    setRevenueArtistFilter("all");
+    if (deleteError) {
+      console.error("ERREUR SUPPRESSION TATOUEUR :", deleteError);
+
+      // Si Stripe avait déjà été baissé mais que la suppression échoue,
+      // on tente de remettre immédiatement le forfait précédent.
+      if (mustUpdateSubscription) {
+        const { error: rollbackError } = await supabase.functions.invoke(
+          "update-subscription",
+          {
+            body: {
+              maxArtists: currentMaxArtists,
+            },
+          }
+        );
+
+        if (rollbackError) {
+          console.error("ERREUR RESTAURATION FORFAIT :", rollbackError);
+          alert(
+            "Le tatoueur n'a pas été supprimé. Le forfait avait déjà été modifié et sa restauration automatique a échoué. Vérifiez l'abonnement Stripe avant de réessayer."
+          );
+          return;
+        }
+      }
+
+      alert("Le tatoueur n'a pas été supprimé : " + deleteError.message);
+      return;
+    }
+
+    const { data: refreshedProfile, error: profileError } = await supabase
+      .from("profiles")
+      .select(
+        "id, email, trial_ends_at, subscription_status, subscription_ends_at, is_admin, max_artists"
+      )
+      .eq("id", session.user.id)
+      .single();
+
+    if (profileError) {
+      console.error("ERREUR RECHARGEMENT PROFIL :", profileError);
+    } else if (refreshedProfile) {
+      setAccessProfile(refreshedProfile);
+    }
+
+    await loadSupabaseData();
+
+    if (editingArtistId === artistId) {
+      resetArtistForm();
+    }
+
+    if (revenueArtistFilter === String(artistId)) {
+      setRevenueArtistFilter("all");
+    }
+
+    if (agendaArtistFilter === String(artistId)) {
+      setAgendaArtistFilter("all");
+    }
+
+    setShowDeleteArtistModal(false);
+    setArtistPendingDeletion(null);
+
+    const newMonthlyPrice = 9.9 + (targetMaxArtists - 1) * 8;
+
+    showMessage(
+      mustUpdateSubscription
+        ? `✔ Tatoueur supprimé. Nouveau forfait : ${targetMaxArtists} tatoueur${
+            targetMaxArtists > 1 ? "s" : ""
+          } — ${newMonthlyPrice.toFixed(2).replace(".", ",")} € TTC / mois.`
+        : "✔ Tatoueur supprimé.",
+      3200
+    );
+  } catch (error) {
+    console.error("ERREUR SUPPRESSION TATOUEUR / FORFAIT :", error);
+    alert(
+      "Erreur : " +
+        (error instanceof Error ? error.message : "erreur inconnue")
+    );
+  } finally {
+    setIsDeletingArtist(false);
   }
 };
 
@@ -3647,6 +3765,120 @@ const goNext = () => {
     <div className="success-box">{successMessage}</div>
   </div>
 )}
+
+{showDeleteArtistModal && artistPendingDeletion && (() => {
+  const currentMaxArtists = Math.max(
+    1,
+    Number(accessProfile?.max_artists) || artists.length || 1
+  );
+  const remainingArtistCount = Math.max(0, artists.length - 1);
+  const targetMaxArtists = Math.max(1, remainingArtistCount);
+  const currentMonthlyPrice = 9.9 + (currentMaxArtists - 1) * 8;
+  const newMonthlyPrice = 9.9 + (targetMaxArtists - 1) * 8;
+  const priceChanges = targetMaxArtists < currentMaxArtists;
+
+  return (
+    <div
+      className="subscription-modal-overlay"
+      onClick={() => {
+        if (!isDeletingArtist) {
+          setShowDeleteArtistModal(false);
+          setArtistPendingDeletion(null);
+        }
+      }}
+    >
+      <div
+        className="subscription-modal"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <h2>Supprimer ce tatoueur ?</h2>
+
+        <p>
+          Vous êtes sur le point de supprimer <strong>{artistPendingDeletion.name}</strong>.
+        </p>
+
+        {priceChanges ? (
+          <>
+            <p>
+              Cette suppression entraînera également une baisse automatique de votre
+              abonnement.
+            </p>
+
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "1fr 1fr",
+                gap: "12px",
+                margin: "20px 0",
+              }}
+            >
+              <div className="subscription-modal-price" style={{ margin: 0 }}>
+                <span>Forfait actuel</span>
+                <strong>
+                  {currentMaxArtists} tatoueur{currentMaxArtists > 1 ? "s" : ""}
+                </strong>
+                <span>
+                  {currentMonthlyPrice.toFixed(2).replace(".", ",")} € TTC / mois
+                </span>
+              </div>
+
+              <div className="subscription-modal-price" style={{ margin: 0 }}>
+                <span>Nouveau forfait</span>
+                <strong>
+                  {targetMaxArtists} tatoueur{targetMaxArtists > 1 ? "s" : ""}
+                </strong>
+                <span>
+                  {newMonthlyPrice.toFixed(2).replace(".", ",")} € TTC / mois
+                </span>
+              </div>
+            </div>
+
+            <p>
+              Votre abonnement Stripe sera automatiquement ajusté si vous confirmez.
+            </p>
+          </>
+        ) : (
+          <p>
+            Votre formule Solo reste à <strong>9,90 € TTC / mois</strong>, car le
+            forfait minimum comprend 1 tatoueur.
+          </p>
+        )}
+
+        <p style={{ fontWeight: 700 }}>
+          Cette suppression est définitive.
+        </p>
+
+        <div className="subscription-modal-actions">
+          <button
+            type="button"
+            disabled={isDeletingArtist}
+            onClick={confirmDeleteArtist}
+          >
+            {isDeletingArtist
+              ? "Modification en cours..."
+              : priceChanges
+              ? `Supprimer et passer au forfait ${targetMaxArtists} tatoueur${
+                  targetMaxArtists > 1 ? "s" : ""
+                }`
+              : "Supprimer le tatoueur"}
+          </button>
+
+          <button
+            type="button"
+            className="subscription-modal-cancel"
+            disabled={isDeletingArtist}
+            onClick={() => {
+              setShowDeleteArtistModal(false);
+              setArtistPendingDeletion(null);
+            }}
+          >
+            Annuler
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+})()}
 
 {showSubscriptionModal && (
   <div
