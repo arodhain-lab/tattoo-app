@@ -489,6 +489,8 @@ const [subscriptionModalData, setSubscriptionModalData] = useState({
   nextArtistCount: 2,
   nextMonthlyPrice: 17.9,
 });
+const [selectedUpgradeArtistCount, setSelectedUpgradeArtistCount] = useState(2);
+const [isUpdatingSubscription, setIsUpdatingSubscription] = useState(false);
 
 const showMessage = (message, duration = 1800) => {
   setSuccessMessage(message);
@@ -528,6 +530,83 @@ const testStripeCheckout = async () => {
   } catch (error) {
     console.error("ERREUR TEST STRIPE :", error);
     alert("Erreur Stripe : " + error.message);
+  }
+};
+
+const updateStripeArtistPlan = async () => {
+  if (!session?.user?.id) {
+    alert("Erreur : utilisateur non connecté.");
+    return;
+  }
+
+  const currentMaxArtists = Math.max(
+    1,
+    Number(subscriptionModalData.currentMaxArtists) || 1
+  );
+  const targetMaxArtists = Math.max(
+    currentMaxArtists + 1,
+    Number(selectedUpgradeArtistCount) || currentMaxArtists + 1
+  );
+
+  setIsUpdatingSubscription(true);
+
+  try {
+    const { data, error } = await supabase.functions.invoke(
+      "update-subscription",
+      {
+        body: {
+          maxArtists: targetMaxArtists,
+        },
+      }
+    );
+
+    if (error) {
+      console.error("ERREUR MODIFICATION ABONNEMENT :", error);
+      alert(
+        "Impossible de modifier l'abonnement : " +
+          (error.message || "erreur inconnue")
+      );
+      return;
+    }
+
+    if (!data?.success) {
+      console.error("RÉPONSE MODIFICATION ABONNEMENT INVALIDE :", data);
+      alert(
+        data?.error ||
+          "Stripe n'a pas confirmé la modification de l'abonnement."
+      );
+      return;
+    }
+
+    // On relit le profil depuis Supabase : le serveur/webhook reste la source de vérité.
+    const { data: refreshedProfile, error: profileError } = await supabase
+      .from("profiles")
+      .select(
+        "id, email, trial_ends_at, subscription_status, subscription_ends_at, is_admin, max_artists"
+      )
+      .eq("id", session.user.id)
+      .single();
+
+    if (profileError) {
+      console.error("ERREUR RECHARGEMENT PROFIL :", profileError);
+    } else if (refreshedProfile) {
+      setAccessProfile(refreshedProfile);
+    }
+
+    setShowSubscriptionModal(false);
+
+    showMessage(
+      `✔ Forfait mis à jour pour ${targetMaxArtists} tatoueurs.`,
+      2600
+    );
+  } catch (error) {
+    console.error("ERREUR MODIFICATION STRIPE :", error);
+    alert(
+      "Erreur Stripe : " +
+        (error instanceof Error ? error.message : "erreur inconnue")
+    );
+  } finally {
+    setIsUpdatingSubscription(false);
   }
 };
 
@@ -2329,6 +2408,7 @@ const saveArtist = async () => {
         nextArtistCount,
         nextMonthlyPrice,
       });
+      setSelectedUpgradeArtistCount(nextArtistCount);
       setShowSubscriptionModal(true);
 
       return;
@@ -3571,7 +3651,11 @@ const goNext = () => {
 {showSubscriptionModal && (
   <div
     className="subscription-modal-overlay"
-    onClick={() => setShowSubscriptionModal(false)}
+    onClick={() => {
+      if (!isUpdatingSubscription) {
+        setShowSubscriptionModal(false);
+      }
+    }}
   >
     <div
       className="subscription-modal"
@@ -3588,42 +3672,84 @@ const goNext = () => {
       </p>
 
       <p>
-        Pour ajouter un{" "}
-        <strong>{subscriptionModalData.nextArtistCount}e tatoueur</strong>,
-        vous devez passer au forfait supérieur.
+        Choisissez le nombre total de tatoueurs que vous souhaitez autoriser
+        dans l'application.
       </p>
+
+      <div
+        style={{
+          display: "grid",
+          gap: "8px",
+          margin: "18px 0",
+          textAlign: "left",
+        }}
+      >
+        <label htmlFor="upgrade-artist-count">
+          <strong>Nombre de tatoueurs</strong>
+        </label>
+
+        <select
+          id="upgrade-artist-count"
+          value={selectedUpgradeArtistCount}
+          disabled={isUpdatingSubscription}
+          onChange={(e) =>
+            setSelectedUpgradeArtistCount(Number(e.target.value))
+          }
+          style={{
+            width: "100%",
+            padding: "12px",
+            borderRadius: "10px",
+            fontSize: "16px",
+          }}
+        >
+          {Array.from(
+            {
+              length:
+                Math.max(
+                  10,
+                  subscriptionModalData.currentMaxArtists + 5
+                ) - subscriptionModalData.currentMaxArtists,
+            },
+            (_, index) =>
+              subscriptionModalData.currentMaxArtists + index + 1
+          ).map((artistCount) => (
+            <option key={artistCount} value={artistCount}>
+              {artistCount} tatoueurs
+            </option>
+          ))}
+        </select>
+      </div>
 
       <div className="subscription-modal-price">
         <span>Nouveau tarif mensuel</span>
         <strong>
-          {subscriptionModalData.nextMonthlyPrice
+          {(9.9 + (selectedUpgradeArtistCount - 1) * 8)
             .toFixed(2)
             .replace(".", ",")}{" "}
           € TTC / mois
         </strong>
       </div>
 
-      <p>
-        Le paiement en ligne sera disponible prochainement.
+      <p style={{ marginTop: "14px" }}>
+        Formule Solo : 9,90 € / mois + 8 € / mois par tatoueur
+        supplémentaire.
       </p>
 
       <div className="subscription-modal-actions">
         <button
           type="button"
-          onClick={() => {
-            setShowSubscriptionModal(false);
-            alert(
-              "Le bouton d'abonnement sera relié au paiement à l'étape suivante. " +
-              "Aucun tatoueur supplémentaire n'a été créé."
-            );
-          }}
+          disabled={isUpdatingSubscription}
+          onClick={updateStripeArtistPlan}
         >
-          Passer au forfait {subscriptionModalData.nextArtistCount} tatoueurs
+          {isUpdatingSubscription
+            ? "Mise à jour en cours..."
+            : `Passer au forfait ${selectedUpgradeArtistCount} tatoueurs`}
         </button>
 
         <button
           type="button"
           className="subscription-modal-cancel"
+          disabled={isUpdatingSubscription}
           onClick={() => setShowSubscriptionModal(false)}
         >
           Annuler
