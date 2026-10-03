@@ -3414,20 +3414,56 @@ const goNext = () => {
   }
 
   if (!accessAllowed) {
+    const subscriptionStatus = accessProfile?.subscription_status;
+    const isCanceledSubscription = subscriptionStatus === "canceled";
+    const isExpiredSubscription = subscriptionStatus === "active";
+
+    const accessTitle = isCanceledSubscription
+      ? "Votre abonnement est terminé"
+      : isExpiredSubscription
+        ? "Votre abonnement a expiré"
+        : "Votre période d'essai est terminée";
+
+    const accessIntro = isCanceledSubscription
+      ? "Votre abonnement a été résilié."
+      : isExpiredSubscription
+        ? "Votre abonnement est arrivé à son terme."
+        : "Vos 30 jours d'essai gratuit sont arrivés à leur terme.";
+
+    const accessActionText = isCanceledSubscription
+      ? "réactivez votre abonnement"
+      : isExpiredSubscription
+        ? "renouvelez votre abonnement"
+        : "activez votre abonnement";
+
+    const accessButtonText = isCanceledSubscription
+      ? "Réactiver mon abonnement"
+      : isExpiredSubscription
+        ? "Renouveler mon abonnement"
+        : "Activer mon abonnement";
+
+    const accessEndDate = isCanceledSubscription || isExpiredSubscription
+      ? accessProfile?.subscription_ends_at
+      : accessProfile?.trial_ends_at;
+
+    const accessEndDateLabel = isCanceledSubscription
+      ? "Abonnement terminé le :"
+      : isExpiredSubscription
+        ? "Fin de votre abonnement :"
+        : "Fin de votre période d'essai :";
+
     return (
       <div className="container">
         <div className="card" style={{ maxWidth: 620, margin: "40px auto", textAlign: "center", padding: "36px 28px" }}>
-          <h1 style={{ marginBottom: "14px" }}>{accessProfile?.subscription_status === "active"
-  ? "Votre abonnement a expiré"
-  : "Votre période d'essai est terminée"}</h1>
+          <h1 style={{ marginBottom: "14px" }}>{accessTitle}</h1>
+
           <p style={{ fontSize: "17px", lineHeight: 1.6 }}>
-            {accessProfile?.subscription_status === "active"
-  ? "Votre abonnement est arrivé à son terme."
-  : "Vos 30 jours d'essai gratuit sont arrivés à leur terme."}
+            {accessIntro}
           </p>
+
           <p style={{ fontSize: "17px", lineHeight: 1.6 }}>
-            Pour continuer à utiliser l'application et retrouver vos données,
-            {accessProfile?.subscription_status === "active" ? "renouvelez votre abonnement" : "activez votre abonnement"} à partir de{" "}
+            Pour continuer à utiliser l'application et retrouver vos données,{" "}
+            {accessActionText} à partir de{" "}
             <strong>9,90 € TTC / mois</strong> pour 1 tatoueur.
           </p>
 
@@ -3442,21 +3478,26 @@ const goNext = () => {
             <br />
             <span style={{ opacity: 0.75 }}>Sans engagement</span>
           </p>
-          {accessProfile?.trial_ends_at ? (
+
+          {accessEndDate ? (
             <p style={{ opacity: 0.75, marginTop: "18px" }}>
-              {accessProfile?.subscription_status === "active"
-  ? "Fin de votre abonnement :"
-  : "Fin de votre période d'essai :"}{" "}
-              {new Intl.DateTimeFormat("fr-FR", { dateStyle: "long" }).format(new Date(accessProfile.trial_ends_at))}
+              {accessEndDateLabel}{" "}
+              {new Intl.DateTimeFormat("fr-FR", { dateStyle: "long" }).format(
+                new Date(accessEndDate)
+              )}
             </p>
           ) : null}
+
           <div style={{ marginTop: "28px" }}>
             <button onClick={testStripeCheckout}>
-              {accessProfile?.subscription_status === "active"
-  ? "Renouveler mon abonnement"
-  : "Activer mon abonnement"}
+              {accessButtonText}
             </button>
-            <button className="secondary-button" onClick={() => supabase.auth.signOut()} style={{ marginLeft: "10px" }}>
+
+            <button
+              className="secondary-button"
+              onClick={() => supabase.auth.signOut()}
+              style={{ marginLeft: "10px" }}
+            >
               Déconnexion
             </button>
           </div>
