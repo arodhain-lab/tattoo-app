@@ -4776,54 +4776,60 @@ const goNext = () => {
       {page === "artists" && (
         <section className="card">
           <h2>Tatoueurs</h2>
-      
-          <div className="form-grid">
-            <input
-              type="text"
-              placeholder="Nom du tatoueur"
-              value={artistForm.name}
-              onChange={(e) =>
-                setArtistForm({ ...artistForm, name: e.target.value })
-              }
-            />
-      
-            <label
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: "12px",
-                cursor: "pointer",
-              }}
-            >
+
+          <div className="card inner-card" style={{ marginBottom: "18px" }}>
+            <h3 style={{ marginTop: 0 }}>
+              {editingArtistId ? "Modifier le tatoueur" : "Créer un nouveau tatoueur"}
+            </h3>
+
+            <div className="form-grid">
               <input
-                type="color"
-                value={artistForm.color}
+                type="text"
+                placeholder="Nom du tatoueur"
+                value={artistForm.name}
                 onChange={(e) =>
-                  setArtistForm({ ...artistForm, color: e.target.value })
+                  setArtistForm({ ...artistForm, name: e.target.value })
                 }
-                aria-label="Couleur du tatoueur"
-                title="Couleur du tatoueur"
-                style={{
-                  width: "48px",
-                  height: "48px",
-                  padding: "3px",
-                  borderRadius: "6px",
-                  cursor: "pointer",
-                  flexShrink: 0,
-                }}
               />
-              <span>Couleur du tatoueur</span>
-            </label>
-      
-            <button type="button" onClick={saveArtist}>
-              {editingArtistId ? "Modifier le tatoueur" : "Ajouter le tatoueur"}
-            </button>
-      
-            {editingArtistId && (
-              <button type="button" onClick={resetArtistForm}>
-                Annuler
+
+              <label
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "12px",
+                  cursor: "pointer",
+                }}
+              >
+                <input
+                  type="color"
+                  value={artistForm.color}
+                  onChange={(e) =>
+                    setArtistForm({ ...artistForm, color: e.target.value })
+                  }
+                  aria-label="Couleur du tatoueur"
+                  title="Couleur du tatoueur"
+                  style={{
+                    width: "48px",
+                    height: "48px",
+                    padding: "3px",
+                    borderRadius: "6px",
+                    cursor: "pointer",
+                    flexShrink: 0,
+                  }}
+                />
+                <span>Couleur du tatoueur</span>
+              </label>
+
+              <button type="button" onClick={saveArtist}>
+                {editingArtistId ? "Enregistrer les modifications" : "Créer le tatoueur"}
               </button>
-            )}
+
+              {editingArtistId && (
+                <button type="button" onClick={resetArtistForm}>
+                  Annuler
+                </button>
+              )}
+            </div>
           </div>
 
           <div className="appointments-list">
@@ -4831,11 +4837,36 @@ const goNext = () => {
               <div key={artist.id} className="card inner-card">
                 <h3>{artist.name}</h3>
 
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "10px",
+                    margin: "8px 0 16px",
+                  }}
+                >
+                  <span
+                    aria-label={`Couleur de ${artist.name}`}
+                    title={artist.color || "#111111"}
+                    style={{
+                      display: "inline-block",
+                      width: "32px",
+                      height: "32px",
+                      borderRadius: "5px",
+                      border: "1px solid rgba(255, 190, 40, 0.9)",
+                      backgroundColor: artist.color || "#111111",
+                      boxShadow: "0 0 8px rgba(255, 190, 40, 0.18)",
+                      flexShrink: 0,
+                    }}
+                  />
+                  <span>Couleur du tatoueur</span>
+                </div>
+
                 <div className="action-buttons">
                   <button type="button" onClick={() => editArtist(artist)}>
                     Modifier
                   </button>
-      
+
                   <button type="button" onClick={() => deleteArtist(artist.id)}>
                     Supprimer
                   </button>
