@@ -4787,13 +4787,33 @@ const goNext = () => {
               }
             />
       
-            <input
-              type="color"
-              value={artistForm.color}
-              onChange={(e) =>
-                setArtistForm({ ...artistForm, name: e.target.value })
-              }
-            />
+            <label
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "12px",
+                cursor: "pointer",
+              }}
+            >
+              <input
+                type="color"
+                value={artistForm.color}
+                onChange={(e) =>
+                  setArtistForm({ ...artistForm, color: e.target.value })
+                }
+                aria-label="Couleur du tatoueur"
+                title="Couleur du tatoueur"
+                style={{
+                  width: "48px",
+                  height: "48px",
+                  padding: "3px",
+                  borderRadius: "6px",
+                  cursor: "pointer",
+                  flexShrink: 0,
+                }}
+              />
+              <span>Couleur du tatoueur</span>
+            </label>
       
             <button type="button" onClick={saveArtist}>
               {editingArtistId ? "Modifier le tatoueur" : "Ajouter le tatoueur"}
