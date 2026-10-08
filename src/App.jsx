@@ -492,6 +492,10 @@ const [subscriptionModalData, setSubscriptionModalData] = useState({
 const [selectedUpgradeArtistCount, setSelectedUpgradeArtistCount] = useState(2);
 const [isUpdatingSubscription, setIsUpdatingSubscription] = useState(false);
 const [showDeleteArtistModal, setShowDeleteArtistModal] = useState(false);
+const [showCheckoutPlanModal, setShowCheckoutPlanModal] = useState(false);
+const [checkoutBillingInterval, setCheckoutBillingInterval] = useState("month");
+const [checkoutArtistCount, setCheckoutArtistCount] = useState(1);
+const [isCreatingCheckout, setIsCreatingCheckout] = useState(false);
 const [artistPendingDeletion, setArtistPendingDeletion] = useState(null);
 const [isDeletingArtist, setIsDeletingArtist] = useState(false);
 
@@ -506,13 +510,15 @@ const showMessage = (message, duration = 1800) => {
 };
 
 const testStripeCheckout = async () => {
+  if (isCreatingCheckout) return;
+  setIsCreatingCheckout(true);
   try {
     const { data, error } = await supabase.functions.invoke(
       "create-checkout-session",
       {
         body: {
-          billingInterval: "month",
-          maxArtists: 1,
+          billingInterval: checkoutBillingInterval,
+          maxArtists: checkoutArtistCount,
         },
       }
     );
@@ -525,14 +531,16 @@ const testStripeCheckout = async () => {
 
     if (!data?.url) {
       console.error("RÉPONSE STRIPE INVALIDE :", data);
-      alert("Stripe n'a pas renvoyé d'adresse de paiement.");
+      alert(data?.error || "Stripe n'a pas renvoyé d'adresse de paiement.");
       return;
     }
 
     window.location.href = data.url;
   } catch (error) {
-    console.error("ERREUR TEST STRIPE :", error);
+    console.error("ERREUR STRIPE :", error);
     alert("Erreur Stripe : " + error.message);
+  } finally {
+    setIsCreatingCheckout(false);
   }
 };
 
@@ -3727,7 +3735,11 @@ const goNext = () => {
           ) : null}
 
           <div style={{ marginTop: "28px" }}>
-            <button onClick={testStripeCheckout}>
+            <button onClick={() => {
+              setCheckoutBillingInterval("month");
+              setCheckoutArtistCount(Math.max(1, Number(accessProfile?.max_artists) || 1));
+              setShowCheckoutPlanModal(true);
+            }}>
               {accessButtonText}
             </button>
 
@@ -3740,6 +3752,74 @@ const goNext = () => {
             </button>
           </div>
         </div>
+        {showCheckoutPlanModal && (
+          <div style={{
+            position: "fixed", inset: 0, zIndex: 9999,
+            background: "rgba(0,0,0,0.86)", display: "flex",
+            alignItems: "center", justifyContent: "center", padding: 16,
+            overflowY: "auto"
+          }}>
+            <div role="dialog" aria-modal="true" aria-label="Choisir mon abonnement"
+              style={{
+                background: "linear-gradient(145deg,#171717,#080808)",
+                color: "#f1c15b", border: "1px solid #d6a529", borderRadius: 24,
+                padding: "28px 24px", maxWidth: 510, width: "100%",
+                boxShadow: "0 10px 45px rgba(0,0,0,.8)", textAlign: "center"
+              }}>
+              <h2 style={{ marginTop: 0, color: "#f5b938" }}>Choisir mon abonnement</h2>
+              <p>Choisissez votre durée et le nombre de tatoueurs.</p>
+              <div style={{ display: "flex", gap: 10, margin: "22px 0" }}>
+                {[
+                  { value: "month", label: "Mensuel" },
+                  { value: "year", label: "Annuel" },
+                ].map((option) => (
+                  <button key={option.value} type="button"
+                    onClick={() => setCheckoutBillingInterval(option.value)}
+                    style={{
+                      flex: 1, padding: "14px 8px", borderRadius: 12,
+                      border: "1px solid #d6a529",
+                      background: checkoutBillingInterval === option.value ? "#e2ad36" : "#111",
+                      color: checkoutBillingInterval === option.value ? "#080808" : "#f1c15b",
+                      fontWeight: 700, cursor: "pointer"
+                    }}>{option.label}</button>
+                ))}
+              </div>
+              <label htmlFor="checkout-artist-count" style={{ display: "block", marginBottom: 10 }}>
+                Nombre de tatoueurs
+              </label>
+              <select id="checkout-artist-count" value={checkoutArtistCount}
+                onChange={(event) => setCheckoutArtistCount(Number(event.target.value))}
+                style={{ width: "100%", padding: 12, borderRadius: 10,
+                  background: "#111", color: "#f1c15b", border: "1px solid #d6a529" }}>
+                {Array.from({ length: Math.max(20, checkoutArtistCount) }, (_, index) => index + 1)
+                  .map((count) => <option key={count} value={count}>{count} tatoueur{count > 1 ? "s" : ""}</option>)}
+              </select>
+              <p style={{ marginTop: 24, fontSize: 16 }}>Montant de votre forfait</p>
+              <p style={{ fontSize: 31, fontWeight: 800, margin: "8px 0", color: "#f5b938" }}>
+                {formatCurrency(
+                  checkoutBillingInterval === "year"
+                    ? 99 + (checkoutArtistCount - 1) * 80
+                    : 9.9 + (checkoutArtistCount - 1) * 8
+                )} TTC / {checkoutBillingInterval === "year" ? "an" : "mois"}
+              </p>
+              <p style={{ fontSize: 13, opacity: 0.8 }}>
+                {checkoutBillingInterval === "year"
+                  ? "99 € / an pour 1 tatoueur + 80 € / an par tatoueur supplémentaire."
+                  : "9,90 € / mois pour 1 tatoueur + 8 € / mois par tatoueur supplémentaire."}
+              </p>
+              <div style={{ display: "flex", gap: 10, marginTop: 24, flexWrap: "wrap" }}>
+                <button type="button" disabled={isCreatingCheckout}
+                  onClick={testStripeCheckout} style={{ flex: "2 1 220px" }}>
+                  {isCreatingCheckout ? "Redirection vers Stripe..." : "Continuer vers le paiement"}
+                </button>
+                <button type="button" className="secondary-button"
+                  disabled={isCreatingCheckout}
+                  onClick={() => setShowCheckoutPlanModal(false)}
+                  style={{ flex: "1 1 120px" }}>Annuler</button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     );
   }
