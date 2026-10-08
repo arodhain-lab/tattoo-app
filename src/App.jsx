@@ -1662,14 +1662,31 @@ const getCsvValue = (row, possibleNames) => {
 };
 
 const parseCsvDate = (value) => {
-  const cleaned = String(value || "").trim();
-
+  const cleaned = String(value || "").trim().toLowerCase();
   if (/^\d{4}-\d{2}-\d{2}$/.test(cleaned)) return cleaned;
 
-  const match = cleaned.match(/^(\d{1,2})[\/.-](\d{1,2})[\/.-](\d{4})$/);
-  if (!match) return "";
+  const numeric = cleaned.match(/^(\d{1,2})[\/.-](\d{1,2})[\/.-](\d{4})$/);
+  if (numeric) {
+    const [, day, month, year] = numeric;
+    return `${year}-${pad(month)}-${pad(day)}`;
+  }
 
-  const [, day, month, year] = match;
+  // Dates françaises produites par l'export : « 1 oct. 2026 », « 8 févr. 2027 ».
+  const french = cleaned.normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+    .match(/^(\d{1,2})\s+([a-z]+)\.?\s+(\d{4})$/);
+  if (!french) return "";
+  const months = {
+    janv: 1, janvier: 1, fevr: 2, fevrier: 2, mars: 3,
+    avr: 4, avril: 4, mai: 5, juin: 6, juil: 7, juillet: 7,
+    aout: 8, sept: 9, septembre: 9, oct: 10, octobre: 10,
+    nov: 11, novembre: 11, dec: 12, decembre: 12,
+  };
+  const [, day, monthName, year] = french;
+  const month = months[monthName];
+  if (!month) return "";
+  const date = new Date(Number(year), month - 1, Number(day));
+  if (date.getFullYear() !== Number(year) || date.getMonth() !== month - 1 ||
+      date.getDate() !== Number(day)) return "";
   return `${year}-${pad(month)}-${pad(day)}`;
 };
 
@@ -2121,7 +2138,6 @@ const importAppointmentsFromCsv = async (event) => {
     header: true,
     delimiter: ";",
     skipEmptyLines: true,
-    encoding: "ISO-8859-1",
 
     complete: async (results) => {
       const rows = results.data;
