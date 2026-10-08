@@ -498,6 +498,13 @@ const [checkoutArtistCount, setCheckoutArtistCount] = useState(1);
 const [isCreatingCheckout, setIsCreatingCheckout] = useState(false);
 const [artistPendingDeletion, setArtistPendingDeletion] = useState(null);
 const [isDeletingArtist, setIsDeletingArtist] = useState(false);
+const [subscriptionBillingInterval, setSubscriptionBillingInterval] = useState(null);
+const [subscriptionPlanError, setSubscriptionPlanError] = useState("");
+const isAnnualSubscription = subscriptionBillingInterval === "year";
+const getSubscriptionPrice = (count) =>
+  isAnnualSubscription ? 99 + (count - 1) * 80 : 9.9 + (count - 1) * 8;
+const subscriptionPeriodLabel = isAnnualSubscription ? "an" : "mois";
+
 
 const showMessage = (message, duration = 1800) => {
   setSuccessMessage(message);
@@ -544,7 +551,28 @@ const testStripeCheckout = async () => {
   }
 };
 
+const refreshSubscriptionPlan = async () => {
+  setSubscriptionBillingInterval(null);
+  setSubscriptionPlanError("");
+  const { data, error } = await supabase.functions.invoke("get-subscription-plan");
+  if (error || !["month", "year"].includes(data?.billingInterval)) {
+    setSubscriptionPlanError("Impossible de vérifier la périodicité de votre abonnement Stripe.");
+    return;
+  }
+  setSubscriptionBillingInterval(data.billingInterval);
+};
+
+useEffect(() => {
+  if (session?.user?.id && accessProfile?.stripe_subscription_id) {
+    refreshSubscriptionPlan();
+  }
+}, [session?.user?.id, accessProfile?.stripe_subscription_id]);
+
 const updateStripeArtistPlan = async () => {
+  if (!subscriptionBillingInterval) {
+    alert("Impossible de vérifier le forfait. Réessayez après rechargement.");
+    return;
+  }
   if (!session?.user?.id) {
     alert("Erreur : utilisateur non connecté.");
     return;
@@ -593,7 +621,7 @@ const updateStripeArtistPlan = async () => {
     const { data: refreshedProfile, error: profileError } = await supabase
       .from("profiles")
       .select(
-        "id, email, trial_ends_at, subscription_status, subscription_ends_at, is_admin, max_artists"
+        "id, email, trial_ends_at, subscription_status, subscription_ends_at, is_admin, max_artists, stripe_subscription_id"
       )
       .eq("id", session.user.id)
       .single();
@@ -605,6 +633,7 @@ const updateStripeArtistPlan = async () => {
     }
 
     setShowSubscriptionModal(false);
+    await refreshSubscriptionPlan();
 
     showMessage(
       `✔ Forfait mis à jour pour ${targetMaxArtists} tatoueurs.`,
@@ -754,7 +783,7 @@ useEffect(() => {
 
     const { data: profile, error } = await supabase
       .from("profiles")
-      .select("id, email, trial_ends_at, subscription_status, subscription_ends_at, is_admin, max_artists")
+      .select("id, email, trial_ends_at, subscription_status, subscription_ends_at, is_admin, max_artists, stripe_subscription_id")
       .eq("id", session.user.id)
       .single();
 
@@ -2452,7 +2481,7 @@ const saveArtist = async () => {
 
     if (artists.length >= maxArtists) {
       const nextArtistCount = artists.length + 1;
-      const nextMonthlyPrice = 9.9 + (nextArtistCount - 1) * 8;
+      const nextMonthlyPrice = getSubscriptionPrice(nextArtistCount);
 
       setSubscriptionModalData({
         currentMaxArtists: maxArtists,
@@ -2461,6 +2490,7 @@ const saveArtist = async () => {
       });
       setSelectedUpgradeArtistCount(nextArtistCount);
       setShowSubscriptionModal(true);
+      refreshSubscriptionPlan();
 
       return;
     }
@@ -2529,6 +2559,7 @@ const deleteArtist = async (artistId) => {
 
   setArtistPendingDeletion(artist);
   setShowDeleteArtistModal(true);
+  refreshSubscriptionPlan();
 };
 
 const confirmDeleteArtist = async () => {
@@ -2542,6 +2573,10 @@ const confirmDeleteArtist = async () => {
   const remainingArtistCount = Math.max(0, artists.length - 1);
   const targetMaxArtists = Math.max(1, remainingArtistCount);
   const mustUpdateSubscription = targetMaxArtists < currentMaxArtists;
+  if (mustUpdateSubscription && !subscriptionBillingInterval) {
+    alert("Impossible de vérifier la périodicité de votre abonnement. Rechargez la page.");
+    return;
+  }
 
   setIsDeletingArtist(true);
 
@@ -2612,7 +2647,7 @@ const confirmDeleteArtist = async () => {
     const { data: refreshedProfile, error: profileError } = await supabase
       .from("profiles")
       .select(
-        "id, email, trial_ends_at, subscription_status, subscription_ends_at, is_admin, max_artists"
+        "id, email, trial_ends_at, subscription_status, subscription_ends_at, is_admin, max_artists, stripe_subscription_id"
       )
       .eq("id", session.user.id)
       .single();
@@ -2640,13 +2675,13 @@ const confirmDeleteArtist = async () => {
     setShowDeleteArtistModal(false);
     setArtistPendingDeletion(null);
 
-    const newMonthlyPrice = 9.9 + (targetMaxArtists - 1) * 8;
+    const newMonthlyPrice = getSubscriptionPrice(targetMaxArtists);
 
     showMessage(
       mustUpdateSubscription
         ? `✔ Tatoueur supprimé. Nouveau forfait : ${targetMaxArtists} tatoueur${
             targetMaxArtists > 1 ? "s" : ""
-          } — ${newMonthlyPrice.toFixed(2).replace(".", ",")} € TTC / mois.`
+          } — ${newMonthlyPrice.toFixed(2).replace(".", ",")} € TTC / ${subscriptionPeriodLabel}.`
         : "✔ Tatoueur supprimé.",
       3200
     );
@@ -3893,8 +3928,8 @@ const goNext = () => {
   );
   const remainingArtistCount = Math.max(0, artists.length - 1);
   const targetMaxArtists = Math.max(1, remainingArtistCount);
-  const currentMonthlyPrice = 9.9 + (currentMaxArtists - 1) * 8;
-  const newMonthlyPrice = 9.9 + (targetMaxArtists - 1) * 8;
+  const currentMonthlyPrice = getSubscriptionPrice(currentMaxArtists);
+  const newMonthlyPrice = getSubscriptionPrice(targetMaxArtists);
   const priceChanges = targetMaxArtists < currentMaxArtists;
 
   return (
@@ -3938,7 +3973,7 @@ const goNext = () => {
                   {currentMaxArtists} tatoueur{currentMaxArtists > 1 ? "s" : ""}
                 </strong>
                 <span>
-                  {currentMonthlyPrice.toFixed(2).replace(".", ",")} € TTC / mois
+                  {subscriptionBillingInterval ? `${currentMonthlyPrice.toFixed(2).replace(".", ",")} € TTC / ${subscriptionPeriodLabel}` : "Vérification du forfait..."}
                 </span>
               </div>
 
@@ -3948,7 +3983,7 @@ const goNext = () => {
                   {targetMaxArtists} tatoueur{targetMaxArtists > 1 ? "s" : ""}
                 </strong>
                 <span>
-                  {newMonthlyPrice.toFixed(2).replace(".", ",")} € TTC / mois
+                  {subscriptionBillingInterval ? `${newMonthlyPrice.toFixed(2).replace(".", ",")} € TTC / ${subscriptionPeriodLabel}` : "Vérification du forfait..."}
                 </span>
               </div>
             </div>
@@ -3959,7 +3994,7 @@ const goNext = () => {
           </>
         ) : (
           <p>
-            Votre formule Solo reste à <strong>9,90 € TTC / mois</strong>, car le
+            Votre formule Solo reste à <strong>{subscriptionBillingInterval ? `${getSubscriptionPrice(1).toFixed(2).replace(".", ",")} € TTC / ${subscriptionPeriodLabel}` : "votre tarif actuel"}</strong>, car le
             forfait minimum comprend 1 tatoueur.
           </p>
         )}
@@ -3971,7 +4006,7 @@ const goNext = () => {
         <div className="subscription-modal-actions">
           <button
             type="button"
-            disabled={isDeletingArtist}
+            disabled={isDeletingArtist || (priceChanges && !subscriptionBillingInterval)}
             onClick={confirmDeleteArtist}
           >
             {isDeletingArtist
@@ -4073,24 +4108,25 @@ const goNext = () => {
       </div>
 
       <div className="subscription-modal-price">
-        <span>Nouveau tarif mensuel</span>
+        <span>Nouveau tarif {isAnnualSubscription ? 'annuel' : 'mensuel'}</span>
         <strong>
-          {(9.9 + (selectedUpgradeArtistCount - 1) * 8)
-            .toFixed(2)
-            .replace(".", ",")}{" "}
-          € TTC / mois
+          {subscriptionBillingInterval
+            ? `${getSubscriptionPrice(selectedUpgradeArtistCount).toFixed(2).replace(".", ",")} € TTC / ${subscriptionPeriodLabel}`
+            : "Vérification du forfait..."}
         </strong>
       </div>
 
       <p style={{ marginTop: "14px" }}>
-        Formule Solo : 9,90 € / mois + 8 € / mois par tatoueur
-        supplémentaire.
+        {isAnnualSubscription
+          ? "Formule Solo : 99 € / an + 80 € / an par tatoueur supplémentaire."
+          : "Formule Solo : 9,90 € / mois + 8 € / mois par tatoueur supplémentaire."}
+        {subscriptionPlanError && <span style={{ display: "block", color: "#ff7777" }}>{subscriptionPlanError}</span>}
       </p>
 
       <div className="subscription-modal-actions">
         <button
           type="button"
-          disabled={isUpdatingSubscription}
+          disabled={isUpdatingSubscription || !subscriptionBillingInterval}
           onClick={updateStripeArtistPlan}
         >
           {isUpdatingSubscription
