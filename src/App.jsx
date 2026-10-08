@@ -1783,21 +1783,29 @@ const findAppointmentTypeFromCsv = (typeName) => {
 };
 
 const downloadAppointmentsCsvTemplate = () => {
-  const csvContent =
-    "DATE;HEURE;NOM DU PROJET;CLIENT;DUREE;PRIX;NOTES DU RENDEZ VOUS;TATOUEUR;TYPE DE PRESTATION\r\n" +
-    "25/06/2026;14:30;Tatouage floral;Marie Dupont;2h30;180;Avant-bras intérieur;Angel;TATTOO\r\n";
+  // Même structure et même ordre de colonnes que l'export RDV.
+  const header = [
+    "DATE", "HEURE", "CLIENT", "TELEPHONE", "TATOUEUR", "TYPE",
+    "PROJET", "PRIX TOTAL", "ACOMPTE", "PRESTATION", "VENTE",
+    "MONTANT CB", "MONTANT ESPECES", "MOYEN DE PAIEMENT",
+  ];
+  const example = [
+    "25/06/2026", "14:30", "Marie Dupont", "0612345678", "Angel",
+    "TATTOO", "Tatouage floral", "180", "0", "180", "0", "180", "0", "CB",
+  ];
+  const escapeCsv = (value) => `"${String(value ?? "").replace(/"/g, '""')}"`;
+  const csvContent = [header, example]
+    .map((row) => row.map(escapeCsv).join(";"))
+    .join("\r\n") + "\r\n";
 
   const blob = new Blob(["\uFEFF" + csvContent], {
     type: "text/csv;charset=utf-8;",
   });
-
   const url = URL.createObjectURL(blob);
   const link = document.createElement("a");
-
   link.href = url;
   link.download = "modele-import-rendez-vous.csv";
   link.click();
-
   URL.revokeObjectURL(url);
 };
 
@@ -2185,13 +2193,14 @@ const importAppointmentsFromCsv = async (event) => {
 
       for (const [index, row] of rows.entries()) {
         const lineNumber = index + 2;
+        if (normalizeImportText(getCsvValue(row, ["projet"])) === "total") continue;
 
         const date = parseCsvDate(getCsvValue(row, ["date"]));
         const time = parseCsvTime(getCsvValue(row, ["heure"]));
 
         const project = getCsvValue(row, [
-          "nom du projet",
           "projet",
+          "nom du projet",
           "project",
         ]);
 
@@ -2202,7 +2211,14 @@ const importAppointmentsFromCsv = async (event) => {
           "nom prenom",
         ]);
 
-        const priceText = getCsvValue(row, ["prix", "tarif", "price"]);
+        const priceText = getCsvValue(row, ["prix total", "prix", "tarif", "price"]);
+        const phone = getCsvValue(row, ["telephone", "téléphone", "phone"]);
+        const depositText = getCsvValue(row, ["acompte"]);
+        const serviceText = getCsvValue(row, ["prestation"]);
+        const saleText = getCsvValue(row, ["vente"]);
+        const cbText = getCsvValue(row, ["montant cb"]);
+        const cashText = getCsvValue(row, ["montant especes", "montant espèces"]);
+        const paymentMethod = getCsvValue(row, ["moyen de paiement"]);
 
         const notes = getCsvValue(row, [
           "notes du rendez vous",
@@ -2211,9 +2227,8 @@ const importAppointmentsFromCsv = async (event) => {
         ]);
 
         const typeName = getCsvValue(row, [
-          "type de prestation",
-          "prestation",
           "type",
+          "type de prestation",
         ]);
 
         const artistName = getCsvValue(row, [
@@ -2254,7 +2269,7 @@ const importAppointmentsFromCsv = async (event) => {
               user_id: session.user.id,
               first_name: firstName,
               last_name: lastName,
-              phone: "",
+              phone: phone.replace(/[^\d+]/g, ""),
               notes: "Créé automatiquement lors de l'import RDV",
             })
             .select()
@@ -2272,6 +2287,11 @@ const importAppointmentsFromCsv = async (event) => {
         }
 
         const price = parseCsvPrice(priceText) ?? 0;
+        const depositAmount = parseCsvPrice(depositText) ?? 0;
+        const serviceAmount = parseCsvPrice(serviceText);
+        const saleAmount = parseCsvPrice(saleText);
+        const cbAmount = parseCsvPrice(cbText);
+        const cashAmount = parseCsvPrice(cashText);
         const matchedAppointmentType = findAppointmentTypeFromCsv(typeName);
 
         if (!matchedAppointmentType) {
@@ -2300,13 +2320,17 @@ const importAppointmentsFromCsv = async (event) => {
                   notes,
                   appointment: `${date}T${time}:00`,
                   price,
+                  sale_amount: saleAmount,
+                  service_amount: serviceAmount,
+                  payment_cb_amount: cbAmount,
+                  payment_cash_amount: cashAmount,
                   duration_hours: null,
                   duration_minutes: null,
                   cancelled: false,
                   linked_appointment_id: null,
-                  payment_method: null,
+                  payment_method: paymentMethod || null,
                   payment_date: null,
-                  original_total_before_deposit: null,
+                  original_total_before_deposit: depositAmount || null,
                 });
               }
 
@@ -2342,7 +2366,7 @@ const importAppointmentsFromCsv = async (event) => {
       await loadSupabaseData();
 
       setAgendaArtistFilter("all");
-      setSelectedDate("2026-06-01");
+      setSelectedDate(validAppointments[0].appointment.slice(0, 10));
       setAgendaView("month");
       navigateTo("agenda");
 
