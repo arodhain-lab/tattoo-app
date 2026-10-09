@@ -352,6 +352,19 @@ export default function App() {
   const [accessAllowed, setAccessAllowed] = useState(false);
   const [accessProfile, setAccessProfile] = useState(null);
   const [accessError, setAccessError] = useState("");
+  const [graceNoticeDismissed, setGraceNoticeDismissed] = useState(false);
+  const [graceClock, setGraceClock] = useState(Date.now());
+  const graceDeadline = accessProfile?.payment_grace_ends_at || accessProfile?.payment_grace_until || accessProfile?.grace_period_ends_at || null;
+  const graceRemaining = graceDeadline ? Math.max(0, new Date(graceDeadline).getTime() - graceClock) : 0;
+  const isGracePeriod = accessProfile?.subscription_status === "past_due" && graceRemaining > 0;
+  const graceDays = Math.floor(graceRemaining / 86400000);
+  const graceHours = Math.floor((graceRemaining % 86400000) / 3600000);
+  const graceMinutes = Math.floor((graceRemaining % 3600000) / 60000);
+  useEffect(() => {
+    const timer = window.setInterval(() => setGraceClock(Date.now()), 30000);
+    return () => window.clearInterval(timer);
+  }, []);
+  useEffect(() => { setGraceNoticeDismissed(false); }, [session?.user?.id, graceDeadline]);
   const [page, setPage] = useState("home");
   const [pageHistory, setPageHistory] = useState([]);
   const [selectedAppointmentId, setSelectedAppointmentId] = useState(null);
@@ -621,7 +634,7 @@ const updateStripeArtistPlan = async () => {
     const { data: refreshedProfile, error: profileError } = await supabase
       .from("profiles")
       .select(
-        "id, email, trial_ends_at, subscription_status, subscription_ends_at, is_admin, max_artists, stripe_subscription_id"
+        "*"
       )
       .eq("id", session.user.id)
       .single();
@@ -783,7 +796,7 @@ useEffect(() => {
 
     const { data: profile, error } = await supabase
       .from("profiles")
-      .select("id, email, trial_ends_at, subscription_status, subscription_ends_at, is_admin, max_artists, stripe_subscription_id")
+      .select("*")
       .eq("id", session.user.id)
       .single();
 
@@ -2647,7 +2660,7 @@ const confirmDeleteArtist = async () => {
     const { data: refreshedProfile, error: profileError } = await supabase
       .from("profiles")
       .select(
-        "id, email, trial_ends_at, subscription_status, subscription_ends_at, is_admin, max_artists, stripe_subscription_id"
+        "*"
       )
       .eq("id", session.user.id)
       .single();
@@ -3915,6 +3928,22 @@ const goNext = () => {
 
   return (
     <div className="container">
+{isGracePeriod && !graceNoticeDismissed && (
+  <div role="dialog" aria-modal="true" aria-label="Paiement en attente" style={{position:"fixed",inset:0,zIndex:10000,background:"rgba(0,0,0,.88)",display:"flex",alignItems:"center",justifyContent:"center",padding:18}}>
+    <div style={{width:"100%",maxWidth:560,background:"linear-gradient(145deg,#181818,#070707)",border:"1px solid #d6a529",borderRadius:24,padding:"32px 24px",textAlign:"center",color:"#f1c15b",boxShadow:"0 15px 55px #000"}}>
+      <h1 style={{color:"#f5b938",fontSize:"clamp(25px,5vw,38px)",margin:"0 0 20px"}}>Paiement de votre abonnement en attente</h1>
+      <p>Le renouvellement de votre abonnement n'a pas pu être réglé.</p>
+      <p>Vous conservez provisoirement l'accès à votre application et à toutes vos données.</p>
+      <p style={{marginTop:24}}>Temps restant avant suspension de l'accès :</p>
+      <div aria-live="polite" style={{fontSize:"clamp(26px,6vw,40px)",fontWeight:800,color:"#f5b938",margin:"14px 0 20px"}}>{graceDays} j {String(graceHours).padStart(2,"0")} h {String(graceMinutes).padStart(2,"0")} min</div>
+      <p style={{fontSize:14}}>Après ce délai, l'accès sera suspendu jusqu'à la régularisation. Vos données seront conservées.</p>
+      <div style={{display:"flex",gap:12,justifyContent:"center",flexWrap:"wrap",marginTop:25}}>
+        
+        <button type="button" className="secondary-button" onClick={() => setGraceNoticeDismissed(true)}>Continuer vers l'application</button>
+      </div>
+    </div>
+  </div>
+)}
 {showSuccess && (
   <div className="success-overlay">
     <div className="success-box">{successMessage}</div>
