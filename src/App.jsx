@@ -3709,38 +3709,51 @@ const goNext = () => {
 
   if (!accessAllowed) {
     const subscriptionStatus = accessProfile?.subscription_status;
+    const isPaymentOverdue = subscriptionStatus === "past_due";
     const isCanceledSubscription = subscriptionStatus === "canceled";
     const isExpiredSubscription = subscriptionStatus === "active";
 
-    const accessTitle = isCanceledSubscription
+    const accessTitle = isPaymentOverdue
+      ? "Paiement en retard : accès suspendu"
+      : isCanceledSubscription
       ? "Votre abonnement est terminé"
       : isExpiredSubscription
         ? "Votre abonnement a expiré"
         : "Votre période d'essai est terminée";
 
-    const accessIntro = isCanceledSubscription
+    const accessIntro = isPaymentOverdue
+      ? "Votre paiement de renouvellement n’a pas été réglé. Votre accès est suspendu jusqu’à régularisation."
+      : isCanceledSubscription
       ? "Votre abonnement a été résilié."
       : isExpiredSubscription
         ? "Votre abonnement est arrivé à son terme."
         : "Vos 30 jours d'essai gratuit sont arrivés à leur terme.";
 
-    const accessActionText = isCanceledSubscription
+    const accessActionText = isPaymentOverdue
+      ? "régularisez votre paiement ou contactez l’assistance. Vous pouvez également réactiver un abonnement"
+      : isCanceledSubscription
       ? "réactivez votre abonnement"
       : isExpiredSubscription
         ? "renouvelez votre abonnement"
         : "activez votre abonnement";
 
-    const accessButtonText = isCanceledSubscription
+    const accessButtonText = isPaymentOverdue
+      ? "Gérer mon abonnement"
+      : isCanceledSubscription
       ? "Réactiver mon abonnement"
       : isExpiredSubscription
         ? "Renouveler mon abonnement"
         : "Activer mon abonnement";
 
-    const accessEndDate = isCanceledSubscription || isExpiredSubscription
+    const accessEndDate = isPaymentOverdue
+      ? graceDeadline
+      : isCanceledSubscription || isExpiredSubscription
       ? accessProfile?.subscription_ends_at
       : accessProfile?.trial_ends_at;
 
-    const accessEndDateLabel = isCanceledSubscription
+    const accessEndDateLabel = isPaymentOverdue
+      ? "Fin du délai de régularisation :"
+      : isCanceledSubscription
       ? "Abonnement terminé le :"
       : isExpiredSubscription
         ? "Fin de votre abonnement :"
