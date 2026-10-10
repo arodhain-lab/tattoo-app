@@ -509,6 +509,25 @@ const [showCheckoutPlanModal, setShowCheckoutPlanModal] = useState(false);
 const [checkoutBillingInterval, setCheckoutBillingInterval] = useState("month");
 const [checkoutArtistCount, setCheckoutArtistCount] = useState(1);
 const [isCreatingCheckout, setIsCreatingCheckout] = useState(false);
+const [isOpeningBillingPortal, setIsOpeningBillingPortal] = useState(false);
+const openBillingPortal = async () => {
+  if (isOpeningBillingPortal) return;
+  setIsOpeningBillingPortal(true);
+  try {
+    const { data, error } = await supabase.functions.invoke("create-billing-portal");
+    if (error) throw error;
+    if (!data?.url || !data.url.startsWith("https://billing.stripe.com/")) {
+      throw new Error(data?.error || "Lien de gestion de facturation indisponible.");
+    }
+    window.location.assign(data.url);
+  } catch (error) {
+    console.error("PORTAIL DE FACTURATION :", error);
+    alert("Impossible d’ouvrir l’espace de facturation. Vérifiez votre abonnement ou contactez LOGILYA.");
+  } finally {
+    setIsOpeningBillingPortal(false);
+  }
+};
+
 const [artistPendingDeletion, setArtistPendingDeletion] = useState(null);
 const [isDeletingArtist, setIsDeletingArtist] = useState(false);
 const [subscriptionBillingInterval, setSubscriptionBillingInterval] = useState(null);
@@ -4894,6 +4913,29 @@ const goNext = () => {
         <section className="card">
           <h2>Paramètres</h2>
           <p className="muted-text">Gérez les données principales de l’application</p>
+
+          <div className="card inner-card" style={{ marginBottom: "16px" }}>
+            <h3>Abonnement</h3>
+            <p className="muted-text">
+              Consultez vos factures, vos paiements et vos moyens de paiement,
+              ou gérez votre abonnement depuis l’espace sécurisé Stripe.
+            </p>
+            <p><strong>Statut :</strong> {accessProfile?.subscription_status === "active" ? "Actif" : accessProfile?.subscription_status === "past_due" ? "Paiement en attente" : accessProfile?.subscription_status || "Non renseigné"}</p>
+            <p><strong>Tatoueurs inclus :</strong> {accessProfile?.max_artists || 1}</p>
+            {accessProfile?.subscription_ends_at && (
+              <p><strong>Échéance indiquée :</strong> {formatDateOnly(accessProfile.subscription_ends_at)}</p>
+            )}
+            <button
+              type="button"
+              disabled={isOpeningBillingPortal || !accessProfile?.stripe_customer_id}
+              onClick={openBillingPortal}
+            >
+              {isOpeningBillingPortal ? "Ouverture…" : "Gérer mon abonnement"}
+            </button>
+            {!accessProfile?.stripe_customer_id && (
+              <p className="muted-text">Aucun compte de facturation Stripe associé pour le moment.</p>
+            )}
+          </div>
 
           <div className="card inner-card" style={{ marginBottom: "16px" }}>
             <h3>Vacances scolaires</h3>
