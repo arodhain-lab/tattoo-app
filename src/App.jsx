@@ -5274,63 +5274,6 @@ const goNext = () => {
         </section>
       )}
 
-> navigateTo("services")}
-            >
-              <div className="settings-tattoo-logo-wrap">
-                <img
-                  src="/icons/prestations.png"
-                  alt="Prestations"
-                  className="settings-tattoo-logo"
-                />
-              </div>
-            </button>
-
-<button
-  className="home-menu-button settings-tattoo-button"
-  onClick={() => navigateTo("artists")}
->
-
-
-  <div className="settings-tattoo-logo-wrap">
-    <img
-      src="/icons/logo_tatoueurs.png"
-      alt="Membres de l’équipe"
-      className="settings-tattoo-logo"
-    />
-  </div>
-</button>
-            <button
-              className="home-menu-button settings-tattoo-button"
-              type="button"
-              onClick={() => navigateTo("absences")}
-            >
-              <div className="settings-tattoo-logo-wrap">
-                <img
-                  src="/icons/conges.png"
-                  alt="Congés"
-                  className="settings-tattoo-logo"
-                />
-              </div>
-            </button>
-          </div>
-
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "flex-end",
-              marginTop: "24px",
-            }}
-          >
-            <button
-              className="logout-button"
-              onClick={() => supabase.auth.signOut()}
-            >
-              Déconnexion
-            </button>
-          </div>
-        </section>
-      )}
-
       {page === "absences" && setupComplete && (
         <section className="card">
           <h2>Congés et fermetures du shop</h2>
