@@ -342,6 +342,30 @@ export default function App() {
     return () => window.clearInterval(timer);
   }, []);
   useEffect(() => { setGraceNoticeDismissed(false); }, [session?.user?.id, graceDeadline]);
+  const [settingsLanguage, setSettingsLanguage] = useState(() => localStorage.getItem("logilya_language") || "fr");
+  const [settingsCurrency, setSettingsCurrency] = useState(() => localStorage.getItem("logilya_currency") || "EUR");
+  const [settingsNewPassword, setSettingsNewPassword] = useState("");
+  const [settingsConfirmPassword, setSettingsConfirmPassword] = useState("");
+  const [settingsPasswordSaving, setSettingsPasswordSaving] = useState(false);
+  const [settingsLegalPanel, setSettingsLegalPanel] = useState(null);
+  const saveSettingsPreference = (key, value) => {
+    localStorage.setItem(`logilya_${key}`, value);
+    if (key === "language") setSettingsLanguage(value);
+    if (key === "currency") setSettingsCurrency(value);
+  };
+  const changeAccountPassword = async () => {
+    if (settingsNewPassword.length < 8) { alert("Le mot de passe doit comporter au moins 8 caractères."); return; }
+    if (settingsNewPassword !== settingsConfirmPassword) { alert("Les mots de passe ne correspondent pas."); return; }
+    setSettingsPasswordSaving(true);
+    try {
+      const { error } = await supabase.auth.updateUser({ password: settingsNewPassword });
+      if (error) throw error;
+      setSettingsNewPassword("");
+      setSettingsConfirmPassword("");
+      alert("Votre mot de passe a été modifié.");
+    } catch (error) { alert("Impossible de modifier le mot de passe : " + error.message); }
+    finally { setSettingsPasswordSaving(false); }
+  };
   const [page, setPage] = useState("home");
   const [pageHistory, setPageHistory] = useState([]);
   const [selectedAppointmentId, setSelectedAppointmentId] = useState(null);
@@ -4942,54 +4966,48 @@ const goNext = () => {
           <h2>Paramètres</h2>
           <p className="muted-text">Gérez les données principales de l’application</p>
 
-          <div className="card inner-card" style={{ marginBottom: "16px" }}>
-            <h3>Abonnement</h3>
-            <p className="muted-text">
-              Consultez vos factures, vos paiements et vos moyens de paiement,
-              ou gérez votre abonnement depuis l’espace sécurisé Stripe.
-            </p>
-            <p><strong>Statut :</strong> {accessProfile?.subscription_status === "active" ? "Actif" : accessProfile?.subscription_status === "past_due" ? "Paiement en attente" : accessProfile?.subscription_status || "Non renseigné"}</p>
-            <p><strong>Membres de l’équipe inclus :</strong> {accessProfile?.max_artists || 1}</p>
-            {accessProfile?.subscription_ends_at && (
-              <p><strong>Échéance indiquée :</strong> {formatDateOnly(accessProfile.subscription_ends_at)}</p>
-            )}
+          <div className="home-menu-grid">
             <button
-              type="button"
-              disabled={isOpeningBillingPortal || !accessProfile?.stripe_customer_id}
-              onClick={openBillingPortal}
+              className="home-menu-button settings-tattoo-button"
+              onClick={() => navigateTo("services")}
             >
-              {isOpeningBillingPortal ? "Ouverture…" : "Gérer mon abonnement"}
+              <div className="settings-tattoo-logo-wrap">
+                <img
+                  src="/icons/prestations.png"
+                  alt="Prestations"
+                  className="settings-tattoo-logo"
+                />
+              </div>
             </button>
-            {!accessProfile?.stripe_customer_id && (
-              <p className="muted-text">Aucun compte de facturation Stripe associé pour le moment.</p>
-            )}
+
+<button
+  className="home-menu-button settings-tattoo-button"
+  onClick={() => navigateTo("artists")}
+>
+
+
+  <div className="settings-tattoo-logo-wrap">
+    <img
+      src="/icons/logo_tatoueurs.png"
+      alt="Membres de l’équipe"
+      className="settings-tattoo-logo"
+    />
+  </div>
+</button>
+            <button
+              className="home-menu-button settings-tattoo-button"
+              type="button"
+              onClick={() => navigateTo("absences")}
+            >
+              <div className="settings-tattoo-logo-wrap">
+                <img
+                  src="/icons/conges.png"
+                  alt="Congés"
+                  className="settings-tattoo-logo"
+                />
+              </div>
+            </button>
           </div>
-
-
-
-                    <div className="card inner-card" style={{ marginBottom: "16px" }}>
-                      <h3>Import des rendez-vous</h3>
-                      <p className="muted-text">
-                        Téléchargez le modèle CSV puis importez vos rendez-vous.
-                        Les clients doivent déjà exister dans les fiches clients.
-                      </p>
-
-                      <div className="action-buttons">                      
-                        <button type="button" onClick={downloadAppointmentsCsvTemplate}>
-                          Télécharger modèle CSV RDV
-                        </button>
-
-                        <label className="button-link" style={{ cursor: "pointer" }}>
-                          Importer RDV CSV
-                          <input
-                            type="file"
-                            accept=".csv"
-                            onChange={importAppointmentsFromCsv}
-                            style={{ display: "none" }}
-                          />
-                        </label>
-                      </div>
-                    </div>
 
                     <div className="card inner-card" style={{ marginBottom: "16px" }}>
                       <h3>Export des rendez-vous</h3>
@@ -5023,6 +5041,55 @@ const goNext = () => {
                         </button>
                       </div>
                     </div>
+
+                    <div className="card inner-card" style={{ marginBottom: "16px" }}>
+                      <h3>Import des rendez-vous</h3>
+                      <p className="muted-text">
+                        Téléchargez le modèle CSV puis importez vos rendez-vous.
+                        Les clients doivent déjà exister dans les fiches clients.
+                      </p>
+
+                      <div className="action-buttons">                      
+                        <button type="button" onClick={downloadAppointmentsCsvTemplate}>
+                          Télécharger modèle CSV RDV
+                        </button>
+
+                        <label className="button-link" style={{ cursor: "pointer" }}>
+                          Importer RDV CSV
+                          <input
+                            type="file"
+                            accept=".csv"
+                            onChange={importAppointmentsFromCsv}
+                            style={{ display: "none" }}
+                          />
+                        </label>
+                      </div>
+                    </div>
+
+          <div className="card inner-card" style={{ marginBottom: "16px" }}>
+            <h3>Abonnement</h3>
+            <p className="muted-text">
+              Consultez vos factures, vos paiements et vos moyens de paiement,
+              ou gérez votre abonnement depuis l’espace sécurisé Stripe.
+            </p>
+            <p><strong>Statut :</strong> {accessProfile?.subscription_status === "active" ? "Actif" : accessProfile?.subscription_status === "past_due" ? "Paiement en attente" : accessProfile?.subscription_status || "Non renseigné"}</p>
+            <p><strong>Membres de l’équipe inclus :</strong> {accessProfile?.max_artists || 1}</p>
+            {accessProfile?.subscription_ends_at && (
+              <p><strong>Échéance indiquée :</strong> {formatDateOnly(accessProfile.subscription_ends_at)}</p>
+            )}
+            <button
+              type="button"
+              disabled={isOpeningBillingPortal || !accessProfile?.stripe_customer_id}
+              onClick={openBillingPortal}
+            >
+              {isOpeningBillingPortal ? "Ouverture…" : "Gérer mon abonnement"}
+            </button>
+            {!accessProfile?.stripe_customer_id && (
+              <p className="muted-text">Aucun compte de facturation Stripe associé pour le moment.</p>
+            )}
+          </div>
+
+
 
                     {showExportArtistModal && (
                       <div
@@ -5145,10 +5212,69 @@ const goNext = () => {
                       </div>
                     )}
 
-          <div className="home-menu-grid">
+
+          <div className="card inner-card" style={{ marginBottom: "16px" }}>
+            <h3>Préférences et informations</h3>
+            <div className="form-grid">
+              <label>Changer de mot de passe
+                <input type="password" autoComplete="new-password" placeholder="Nouveau mot de passe (8 caractères minimum)" value={settingsNewPassword} onChange={(e) => setSettingsNewPassword(e.target.value)} />
+              </label>
+              <label>Confirmer le mot de passe
+                <input type="password" autoComplete="new-password" placeholder="Confirmer le nouveau mot de passe" value={settingsConfirmPassword} onChange={(e) => setSettingsConfirmPassword(e.target.value)} />
+              </label>
+            </div>
+            <div className="action-buttons" style={{ marginBottom: "18px" }}>
+              <button type="button" disabled={settingsPasswordSaving || !settingsNewPassword || !settingsConfirmPassword} onClick={changeAccountPassword}>
+                {settingsPasswordSaving ? "Modification…" : "Enregistrer le nouveau mot de passe"}
+              </button>
+            </div>
+            <div className="form-grid">
+              <label>Langue
+                <select value={settingsLanguage} onChange={(e) => saveSettingsPreference("language", e.target.value)}>
+                  <option value="fr">Français</option>
+                </select>
+              </label>
+              <label>Devise
+                <select value={settingsCurrency} onChange={(e) => saveSettingsPreference("currency", e.target.value)}>
+                  <option value="EUR">Euro (€)</option>
+                </select>
+              </label>
+            </div>
+            <p className="muted-text">La traduction de l'interface et la conversion des montants ne sont pas encore disponibles : français et euro uniquement.</p>
+            <div className="action-buttons" style={{ flexWrap: "wrap", marginTop: "16px" }}>
+              <a className="button-link" href="mailto:contact@logilya.fr?subject=Support%20application%20LOGILYA">Contacter le support</a>
+              <button type="button" onClick={() => setSettingsLegalPanel("Mentions légales")}>Mentions légales</button>
+              <button type="button" onClick={() => setSettingsLegalPanel("Conditions générales")}>Conditions générales</button>
+            </div>
+          </div>
+          {settingsLegalPanel && (
+            <div className="modal-overlay" onClick={() => setSettingsLegalPanel(null)} style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.7)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 9999, padding: "20px" }}>
+              <div className="card" onClick={(e) => e.stopPropagation()} style={{ width: "100%", maxWidth: "520px" }}>
+                <h3>{settingsLegalPanel}</h3>
+                <p>Le contenu officiel de cette rubrique doit être renseigné par LOGILYA avant sa publication.</p>
+                <p className="muted-text">Pour obtenir ces documents, contactez contact@logilya.fr.</p>
+                <button type="button" onClick={() => setSettingsLegalPanel(null)}>Fermer</button>
+              </div>
+            </div>
+          )}
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "flex-end",
+              marginTop: "24px",
+            }}
+          >
             <button
-              className="home-menu-button settings-tattoo-button"
-              onClick={() => navigateTo("services")}
+              className="logout-button"
+              onClick={() => supabase.auth.signOut()}
+            >
+              Déconnexion
+            </button>
+          </div>
+        </section>
+      )}
+
+> navigateTo("services")}
             >
               <div className="settings-tattoo-logo-wrap">
                 <img
