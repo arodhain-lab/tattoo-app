@@ -677,7 +677,7 @@ const updateStripeArtistPlan = async () => {
     await refreshSubscriptionPlan();
 
     showMessage(
-      `✔ Forfait mis à jour pour ${targetMaxArtists} tatoueurs.`,
+      `✔ Forfait mis à jour pour ${targetMaxArtists} membres de l’équipe.`,
       2600
     );
   } catch (error) {
@@ -1141,7 +1141,7 @@ console.log("ERREUR RDV =", appointmentsError);
     });
   };
 
-  // Noms des tatoueurs réellement absents à la date sélectionnée.
+  // Noms des membres de l’équipe réellement absents à la date sélectionnée.
   const absentArtistsForDate = (dateKey) => artists.filter((artist) =>
     dateHasAbsence(dateKey, artist.id)
   );
@@ -1221,7 +1221,7 @@ console.log("ERREUR RDV =", appointmentsError);
           artist,
           clientName: formatClientName(client),
           clientPhone: client?.phone || "",
-          artistName: artist?.name || "Tatoueur non attribué",
+          artistName: artist?.name || "Membre de l’équipe non attribué",
           artistColor: artist?.color || "#111111",
           title: appointmentItem.title || appointmentItem.project || "",
         };
@@ -1970,7 +1970,7 @@ const findAppointmentTypeFromCsv = (typeName) => {
 const downloadAppointmentsCsvTemplate = () => {
   // Même structure et même ordre de colonnes que l'export RDV.
   const header = [
-    "DATE", "HEURE", "CLIENT", "TELEPHONE", "TATOUEUR", "TYPE",
+    "DATE", "HEURE", "CLIENT", "TELEPHONE", "MEMBRE DE L’ÉQUIPE", "TYPE",
     "PROJET", "PRIX TOTAL", "ACOMPTE", "PRESTATION", "VENTE",
     "MONTANT CB", "MONTANT ESPECES", "MOYEN DE PAIEMENT",
   ];
@@ -2006,7 +2006,7 @@ const openExportArtistModal = () => {
   }
 
   if (artists.length === 0) {
-    alert("Aucun tatoueur disponible.");
+    alert("Aucun membre de l’équipe disponible.");
     return;
   }
 
@@ -2036,7 +2036,7 @@ const exportAppointmentsCsv = () => {
   }
 
   if (selectedExportArtistIds.length === 0) {
-    alert("Veuillez sélectionner au moins un tatoueur.");
+    alert("Veuillez sélectionner au moins un membre de l’équipe.");
     return;
   }
 
@@ -2056,7 +2056,7 @@ const exportAppointmentsCsv = () => {
     "HEURE",
     "CLIENT",
     "TELEPHONE",
-    "TATOUEUR",
+    "MEMBRE DE L’ÉQUIPE",
     "TYPE",
     "PROJET",
     "PRIX TOTAL",
@@ -2116,7 +2116,7 @@ const exportAppointmentsCsv = () => {
     .filter(Boolean);
 
   if (regularAppointments.length === 0 && shiftedDeposits.length === 0) {
-    alert("Aucun rendez-vous trouvé sur cette période pour les tatoueurs sélectionnés.");
+    alert("Aucun rendez-vous trouvé sur cette période pour les membres de l’équipe sélectionnés.");
     return;
   }
 
@@ -2228,7 +2228,7 @@ const exportAppointmentsCsv = () => {
       cashAmount = Math.max(0, total - cbAmount);
     }
 
-    // Date/heure, tatoueur et projet = ceux du RDV lié.
+    // Date/heure, membre de l’équipe et projet = ceux du RDV lié.
     // Client et paiement = ceux de l'acompte.
     rowsWithSortDate.push({
       sortDate: linkedAppointment.appointment,
@@ -2328,12 +2328,12 @@ const importAppointmentsFromCsv = async (event) => {
         .eq("user_id", session.user.id);
 
       if (artistsFetchError) {
-        alert("Erreur lecture tatoueurs : " + artistsFetchError.message);
+        alert("Erreur lecture membres de l’équipe : " + artistsFetchError.message);
         return;
       }
 
       if (!allArtists || allArtists.length === 0) {
-        alert("Erreur : aucun tatoueur trouvé dans Supabase.");
+        alert("Erreur : aucun membre de l’équipe trouvé dans Supabase.");
         return;
       }
 
@@ -2416,7 +2416,9 @@ const importAppointmentsFromCsv = async (event) => {
         ]);
 
         const artistName = getCsvValue(row, [
-          "tatoueur",
+          "membre de l’équipe",
+          "membre de l'equipe",
+          "tatoueur", // Ancien intitulé CSV conservé pour compatibilité.
           "artiste",
           "artist",
         ]);
@@ -2425,7 +2427,7 @@ const importAppointmentsFromCsv = async (event) => {
 
         if (!matchedArtist) {
           rejectedRows.push(
-            `Ligne ${lineNumber} : tatoueur introuvable "${artistName || "case vide"}"`
+            `Ligne ${lineNumber} : membre de l’équipe introuvable "${artistName || "case vide"}"`
           );
           continue;
         }
@@ -2605,8 +2607,8 @@ const saveArtist = async () => {
   if (!artistForm.name.trim()) return;
   if (!session?.user) return;
 
-  // La modification d'un tatoueur existant reste toujours autorisée.
-  // La limite d'abonnement s'applique uniquement à la création d'un nouveau tatoueur.
+  // La modification d'un membre de l’équipe existant reste toujours autorisée.
+  // La limite d'abonnement s'applique uniquement à la création d'un nouveau membre de l’équipe.
   if (editingArtistId === null) {
     const maxArtists = Math.max(1, Number(accessProfile?.max_artists) || 1);
 
@@ -2675,7 +2677,7 @@ const deleteArtist = async (artistId) => {
   );
 
   if (!artist) {
-    alert("Erreur : tatoueur introuvable.");
+    alert("Erreur : membre de l’équipe introuvable.");
     return;
   }
 
@@ -2684,7 +2686,7 @@ const deleteArtist = async (artistId) => {
   );
 
   if (hasAppointments) {
-    alert("Suppression impossible : ce tatoueur possède encore un ou plusieurs rendez-vous.");
+    alert("Suppression impossible : ce membre de l’équipe possède encore un ou plusieurs rendez-vous.");
     return;
   }
 
@@ -2713,7 +2715,7 @@ const confirmDeleteArtist = async () => {
 
   try {
     // On baisse d'abord le forfait Stripe. Ainsi, si Stripe refuse la modification,
-    // le tatoueur reste intact dans l'application.
+    // le membre de l’équipe reste intact dans l'application.
     if (mustUpdateSubscription) {
       const { data: subscriptionData, error: subscriptionError } =
         await supabase.functions.invoke("update-subscription", {
@@ -2748,7 +2750,7 @@ const confirmDeleteArtist = async () => {
       .eq("user_id", session.user.id);
 
     if (deleteError) {
-      console.error("ERREUR SUPPRESSION TATOUEUR :", deleteError);
+      console.error("ERREUR SUPPRESSION MEMBRE DE L’ÉQUIPE :", deleteError);
 
       // Si Stripe avait déjà été baissé mais que la suppression échoue,
       // on tente de remettre immédiatement le forfait précédent.
@@ -2765,13 +2767,13 @@ const confirmDeleteArtist = async () => {
         if (rollbackError) {
           console.error("ERREUR RESTAURATION FORFAIT :", rollbackError);
           alert(
-            "Le tatoueur n'a pas été supprimé. Le forfait avait déjà été modifié et sa restauration automatique a échoué. Vérifiez l'abonnement Stripe avant de réessayer."
+            "Le membre de l’équipe n'a pas été supprimé. Le forfait avait déjà été modifié et sa restauration automatique a échoué. Vérifiez l'abonnement Stripe avant de réessayer."
           );
           return;
         }
       }
 
-      alert("Le tatoueur n'a pas été supprimé : " + deleteError.message);
+      alert("Le membre de l’équipe n'a pas été supprimé : " + deleteError.message);
       return;
     }
 
@@ -2810,14 +2812,12 @@ const confirmDeleteArtist = async () => {
 
     showMessage(
       mustUpdateSubscription
-        ? `✔ Tatoueur supprimé. Nouveau forfait : ${targetMaxArtists} tatoueur${
-            targetMaxArtists > 1 ? "s" : ""
-          } — ${newMonthlyPrice.toFixed(2).replace(".", ",")} € TTC / ${subscriptionPeriodLabel}.`
-        : "✔ Tatoueur supprimé.",
+        ? `✔ Membre de l’équipe supprimé. Nouveau forfait : ${targetMaxArtists} membre${targetMaxArtists > 1 ? "s" : ""} de l’équipe — ${newMonthlyPrice.toFixed(2).replace(".", ",")} € TTC / ${subscriptionPeriodLabel}.`
+        : "✔ Membre de l’équipe supprimé.",
       3200
     );
   } catch (error) {
-    console.error("ERREUR SUPPRESSION TATOUEUR / FORFAIT :", error);
+    console.error("ERREUR SUPPRESSION MEMBRE DE L’ÉQUIPE / FORFAIT :", error);
     alert(
       "Erreur : " +
         (error instanceof Error ? error.message : "erreur inconnue")
@@ -2996,7 +2996,7 @@ const saveAppointment = async () => {
   }
 
   if (!appointmentForm.artistId) {
-    alert("Tatoueur obligatoire.");
+    alert("Membre de l’équipe obligatoire.");
     return;
   }
 
@@ -3051,7 +3051,7 @@ const saveAppointment = async () => {
     );
     const manuallyClosed = closedDays.some((item) => item.day === newAppointmentDate);
     if (conflicts.length || manuallyClosed) {
-      const artistName = artists.find((a) => String(a.id) === String(appointmentForm.artistId))?.name || "Ce tatoueur";
+      const artistName = artists.find((a) => String(a.id) === String(appointmentForm.artistId))?.name || "Ce membre de l’équipe";
       const reason = conflicts.some((rule) => rule.rule_type === "leave") ? "en congés" : "indisponible (fermeture du shop)";
       const confirmed = window.confirm(
         `⚠️ ${artistName} est ${reason} le ${formatDateOnly(newAppointmentDate)}.\n\n` +
@@ -3923,17 +3923,17 @@ const goNext = () => {
           <p style={{ fontSize: "17px", lineHeight: 1.6 }}>
             Pour continuer à utiliser l'application et retrouver vos données,{" "}
             {accessActionText} à partir de{" "}
-            <strong>9,90 € TTC / mois</strong> pour 1 tatoueur.
+            <strong>9,90 € TTC / mois</strong> pour 1 membre de l’équipe.
           </p>
 
           <p style={{ fontSize: "16px", lineHeight: 1.7 }}>
             <strong>Formule Solo :</strong> 9,90 € TTC / mois
             <br />
-            <strong>Tatoueur supplémentaire :</strong> +8 € / mois
+            <strong>Membre de l’équipe supplémentaire :</strong> +8 € / mois
             <br />
             <strong>Abonnement annuel Solo :</strong> 99 € / an
             <br />
-            Remise annuelle équivalente pour les formules multi-tatoueurs.
+            Remise annuelle équivalente pour les formules plusieurs membres de l’équipe.
             <br />
             <span style={{ opacity: 0.75 }}>Sans engagement</span>
           </p>
@@ -3980,7 +3980,7 @@ const goNext = () => {
                 boxShadow: "0 10px 45px rgba(0,0,0,.8)", textAlign: "center"
               }}>
               <h2 style={{ marginTop: 0, color: "#f5b938" }}>Choisir mon abonnement</h2>
-              <p>Choisissez votre durée et le nombre de tatoueurs.</p>
+              <p>Choisissez votre durée et le nombre de membres de l’équipe.</p>
               <div style={{ display: "flex", gap: 10, margin: "22px 0" }}>
                 {[
                   { value: "month", label: "Mensuel" },
@@ -3998,14 +3998,14 @@ const goNext = () => {
                 ))}
               </div>
               <label htmlFor="checkout-artist-count" style={{ display: "block", marginBottom: 10 }}>
-                Nombre de tatoueurs
+                Nombre de membres de l’équipe
               </label>
               <select id="checkout-artist-count" value={checkoutArtistCount}
                 onChange={(event) => setCheckoutArtistCount(Number(event.target.value))}
                 style={{ width: "100%", padding: 12, borderRadius: 10,
                   background: "#111", color: "#f1c15b", border: "1px solid #d6a529" }}>
                 {Array.from({ length: Math.max(20, checkoutArtistCount) }, (_, index) => index + 1)
-                  .map((count) => <option key={count} value={count}>{count} tatoueur{count > 1 ? "s" : ""}</option>)}
+                  .map((count) => <option key={count} value={count}>{count} membre{count > 1 ? "s" : ""} de l’équipe</option>)}
               </select>
               <p style={{ marginTop: 24, fontSize: 16 }}>Montant de votre forfait</p>
               <p style={{ fontSize: 31, fontWeight: 800, margin: "8px 0", color: "#f5b938" }}>
@@ -4017,8 +4017,8 @@ const goNext = () => {
               </p>
               <p style={{ fontSize: 13, opacity: 0.8 }}>
                 {checkoutBillingInterval === "year"
-                  ? "99 € / an pour 1 tatoueur + 80 € / an par tatoueur supplémentaire."
-                  : "9,90 € / mois pour 1 tatoueur + 8 € / mois par tatoueur supplémentaire."}
+                  ? "99 € / an pour 1 membre de l’équipe + 80 € / an par membre supplémentaire de l’équipe."
+                  : "9,90 € / mois pour 1 membre de l’équipe + 8 € / mois par membre supplémentaire de l’équipe."}
               </p>
               <div style={{ display: "flex", gap: 10, marginTop: 24, flexWrap: "wrap" }}>
                 <button type="button" disabled={isCreatingCheckout}
@@ -4051,13 +4051,13 @@ const goNext = () => {
         <div className="card">
           <h1>Configuration initiale</h1>
           <p>
-            Avant d’utiliser l’application, vous devez ajouter au moins un tatoueur
+            Avant d’utiliser l’application, vous devez ajouter au moins un membre de l’équipe
             et au moins une prestation.
           </p>
 
           <div className="setup-status">
             <p>
-              <strong>Tatoueurs :</strong> {artists.length > 0 ? "OK" : "À compléter"}
+              <strong>Membres de l’équipe :</strong> {artists.length > 0 ? "OK" : "À compléter"}
             </p>
             <p>
               <strong>Prestations :</strong> {canFinishSetup ? "OK" : "À compléter"}
@@ -4066,7 +4066,7 @@ const goNext = () => {
 
           <div className="action-buttons" style={{ marginBottom: "16px" }}>
             <button onClick={() => navigateTo("artists")}>
-              Configurer les tatoueurs
+              Configurer les membres de l’équipe
             </button>
             <button onClick={() => navigateTo("services")}>
               Configurer les prestations
@@ -4076,7 +4076,7 @@ const goNext = () => {
           <button
             onClick={() => {
               if (!canFinishSetup) {
-                alert("Ajoute au moins un tatoueur et une prestation.");
+                alert("Ajoute au moins un membre de l’équipe et une prestation.");
                 return;
               }
               setSetupComplete(true);
@@ -4140,7 +4140,7 @@ const goNext = () => {
         className="subscription-modal"
         onClick={(e) => e.stopPropagation()}
       >
-        <h2>Supprimer ce tatoueur ?</h2>
+        <h2>Supprimer ce membre de l’équipe ?</h2>
 
         <p>
           Vous êtes sur le point de supprimer <strong>{artistPendingDeletion.name}</strong>.
@@ -4164,7 +4164,7 @@ const goNext = () => {
               <div className="subscription-modal-price" style={{ margin: 0 }}>
                 <span>Forfait actuel</span>
                 <strong>
-                  {currentMaxArtists} tatoueur{currentMaxArtists > 1 ? "s" : ""}
+                  {currentMaxArtists} membre{currentMaxArtists > 1 ? "s" : ""} de l’équipe
                 </strong>
                 <span>
                   {subscriptionBillingInterval ? `${currentMonthlyPrice.toFixed(2).replace(".", ",")} € TTC / ${subscriptionPeriodLabel}` : "Vérification du forfait..."}
@@ -4174,7 +4174,7 @@ const goNext = () => {
               <div className="subscription-modal-price" style={{ margin: 0 }}>
                 <span>Nouveau forfait</span>
                 <strong>
-                  {targetMaxArtists} tatoueur{targetMaxArtists > 1 ? "s" : ""}
+                  {targetMaxArtists} membre{targetMaxArtists > 1 ? "s" : ""} de l’équipe
                 </strong>
                 <span>
                   {subscriptionBillingInterval ? `${newMonthlyPrice.toFixed(2).replace(".", ",")} € TTC / ${subscriptionPeriodLabel}` : "Vérification du forfait..."}
@@ -4189,7 +4189,7 @@ const goNext = () => {
         ) : (
           <p>
             Votre formule Solo reste à <strong>{subscriptionBillingInterval ? `${getSubscriptionPrice(1).toFixed(2).replace(".", ",")} € TTC / ${subscriptionPeriodLabel}` : "votre tarif actuel"}</strong>, car le
-            forfait minimum comprend 1 tatoueur.
+            forfait minimum comprend 1 membre de l’équipe.
           </p>
         )}
 
@@ -4206,10 +4206,8 @@ const goNext = () => {
             {isDeletingArtist
               ? "Modification en cours..."
               : priceChanges
-              ? `Supprimer et passer au forfait ${targetMaxArtists} tatoueur${
-                  targetMaxArtists > 1 ? "s" : ""
-                }`
-              : "Supprimer le tatoueur"}
+              ? `Supprimer et passer au forfait ${targetMaxArtists} membre${targetMaxArtists > 1 ? "s" : ""} de l’équipe`
+              : "Supprimer le membre de l’équipe"}
           </button>
 
           <button
@@ -4247,13 +4245,13 @@ const goNext = () => {
       <p>
         Votre abonnement actuel comprend{" "}
         <strong>
-          {subscriptionModalData.currentMaxArtists} tatoueur
+          {subscriptionModalData.currentMaxArtists} membre de l’équipe
           {subscriptionModalData.currentMaxArtists > 1 ? "s" : ""}
         </strong>.
       </p>
 
       <p>
-        Choisissez le nombre total de tatoueurs que vous souhaitez autoriser
+        Choisissez le nombre total de membres de l’équipe que vous souhaitez autoriser
         dans l'application.
       </p>
 
@@ -4266,7 +4264,7 @@ const goNext = () => {
         }}
       >
         <label htmlFor="upgrade-artist-count">
-          <strong>Nombre de tatoueurs</strong>
+          <strong>Nombre de membres de l’équipe</strong>
         </label>
 
         <select
@@ -4295,7 +4293,7 @@ const goNext = () => {
               subscriptionModalData.currentMaxArtists + index + 1
           ).map((artistCount) => (
             <option key={artistCount} value={artistCount}>
-              {artistCount} tatoueurs
+              {artistCount} membres de l’équipe
             </option>
           ))}
         </select>
@@ -4312,8 +4310,8 @@ const goNext = () => {
 
       <p style={{ marginTop: "14px" }}>
         {isAnnualSubscription
-          ? "Formule Solo : 99 € / an + 80 € / an par tatoueur supplémentaire."
-          : "Formule Solo : 9,90 € / mois + 8 € / mois par tatoueur supplémentaire."}
+          ? "Formule Solo : 99 € / an + 80 € / an par membre supplémentaire de l’équipe."
+          : "Formule Solo : 9,90 € / mois + 8 € / mois par membre supplémentaire de l’équipe."}
         {subscriptionPlanError && <span style={{ display: "block", color: "#ff7777" }}>{subscriptionPlanError}</span>}
       </p>
 
@@ -4325,7 +4323,7 @@ const goNext = () => {
         >
           {isUpdatingSubscription
             ? "Mise à jour en cours..."
-            : `Passer au forfait ${selectedUpgradeArtistCount} tatoueurs`}
+            : `Passer au forfait ${selectedUpgradeArtistCount} membres de l’équipe`}
         </button>
 
         <button
@@ -4380,12 +4378,12 @@ const goNext = () => {
         <div className="card" style={{ marginBottom: "16px" }}>
           <h2>Configuration requise</h2>
           <p>
-            Vous devez d’abord créer au moins un tatoueur et une prestation avant
+            Vous devez d’abord créer au moins un membre de l’équipe et une prestation avant
             d’utiliser le reste de l’application.
           </p>
 
           <div className="action-buttons">
-            <button onClick={() => navigateTo("artists")}>Tatoueurs</button>
+            <button onClick={() => navigateTo("artists")}>Membres de l’équipe</button>
             <button onClick={() => navigateTo("services")}>Prestations</button>
           </div>
         </div>
@@ -4600,7 +4598,7 @@ const goNext = () => {
                           value={agendaArtistFilter}
                           onChange={(e) => setAgendaArtistFilter(e.target.value)}
                         >
-                          <option value="all">Tous les tatoueurs</option>
+                          <option value="all">Tous les membres de l’équipe</option>
                           {artists
                             .slice()
                             .sort((a, b) => a.name.localeCompare(b.name))
@@ -4627,7 +4625,7 @@ const goNext = () => {
                         value={agendaArtistFilter}
                         onChange={(e) => setAgendaArtistFilter(e.target.value)}
                       >
-                        <option value="all">Tous les tatoueurs</option>
+                        <option value="all">Tous les membres de l’équipe</option>
                         {artists
                           .slice()
                           .sort((a, b) => a.name.localeCompare(b.name))
@@ -4860,7 +4858,7 @@ const goNext = () => {
                           value={agendaArtistFilter}
                           onChange={(e) => setAgendaArtistFilter(e.target.value)}
                         >
-                          <option value="all">Tous les tatoueurs</option>
+                          <option value="all">Tous les membres de l’équipe</option>
                           {artists
                             .slice()
                             .sort((a, b) => a.name.localeCompare(b.name))
@@ -5002,7 +5000,7 @@ const goNext = () => {
             <div>
               <h2>Chiffre d’affaires</h2>
               <p className="muted-text">
-                Calculé selon la date affichée et le tatoueur sélectionné
+                Calculé selon la date affichée et le membre de l’équipe sélectionné
               </p>
             </div>
 
@@ -5011,7 +5009,7 @@ const goNext = () => {
               onChange={(e) => setRevenueArtistFilter(e.target.value)}
               className="compact-select"
             >
-              <option value="all">Tous les tatoueurs</option>
+              <option value="all">Tous les membres de l’équipe</option>
               {artists.map((artist) => (
                 <option key={artist.id} value={artist.id}>
                   {artist.name}
@@ -5057,7 +5055,7 @@ const goNext = () => {
               ou gérez votre abonnement depuis l’espace sécurisé Stripe.
             </p>
             <p><strong>Statut :</strong> {accessProfile?.subscription_status === "active" ? "Actif" : accessProfile?.subscription_status === "past_due" ? "Paiement en attente" : accessProfile?.subscription_status || "Non renseigné"}</p>
-            <p><strong>Tatoueurs inclus :</strong> {accessProfile?.max_artists || 1}</p>
+            <p><strong>Membres de l’équipe inclus :</strong> {accessProfile?.max_artists || 1}</p>
             {accessProfile?.subscription_ends_at && (
               <p><strong>Échéance indiquée :</strong> {formatDateOnly(accessProfile.subscription_ends_at)}</p>
             )}
@@ -5172,9 +5170,9 @@ const goNext = () => {
                             overflowY: "auto",
                           }}
                         >
-                          <h3>Sélection des tatoueurs à exporter</h3>
+                          <h3>Sélection des membres de l’équipe à exporter</h3>
                           <p className="muted-text">
-                            Cochez un ou plusieurs tatoueurs à inclure dans l'export CSV.
+                            Cochez un ou plusieurs membres de l’équipe à inclure dans l'export CSV.
                           </p>
 
                           <div
@@ -5291,7 +5289,7 @@ const goNext = () => {
   <div className="settings-tattoo-logo-wrap">
     <img
       src="/icons/logo_tatoueurs.png"
-      alt="Tatoueurs"
+      alt="Membres de l’équipe"
       className="settings-tattoo-logo"
     />
   </div>
@@ -5323,7 +5321,7 @@ const goNext = () => {
       {page === "absences" && setupComplete && (
         <section className="card">
           <h2>Congés et fermetures du shop</h2>
-          <p className="muted-text">Configurez les jours de fermeture habituels et les absences des tatoueurs. Les dates sont conservées dans votre compte.</p>
+          <p className="muted-text">Configurez les jours de fermeture habituels et les absences des membres de l’équipe. Les dates sont conservées dans votre compte.</p>
           <div className="card inner-card" style={{ marginBottom: 20 }}>
             <h3>Fermeture hebdomadaire du shop</h3>
             <p className="muted-text">Cochez les jours où le shop est systématiquement fermé, chaque semaine.</p>
@@ -5343,9 +5341,9 @@ const goNext = () => {
             <div className="form-grid">
               <label>Date de début<input type="date" value={leaveStart} onChange={(e) => setLeaveStart(e.target.value)}/></label>
               <label>Date de fin<input type="date" min={leaveStart} value={leaveEnd} onChange={(e) => setLeaveEnd(e.target.value)}/></label>
-              <label>Tatoueur concerné
+              <label>Membre de l’équipe concerné
                 <select value={leaveArtist} onChange={(e) => setLeaveArtist(e.target.value)}>
-                  <option value="all">Tous les tatoueurs (shop fermé)</option>
+                  <option value="all">Tous les membres de l’équipe (shop fermé)</option>
                   {artists.map((artist) => <option key={artist.id} value={artist.id}>{artist.name}</option>)}
                 </select>
               </label>
@@ -5359,13 +5357,13 @@ const goNext = () => {
               absenceRules.filter((r) => r.rule_type === "leave").map((rule) => (
                 <div key={rule.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 12, padding: "12px 0", borderBottom: "1px solid #8c7b60" }}>
                   <span><strong>{rule.label || "Congés"}</strong> — {formatDateOnly(rule.start_date)} au {formatDateOnly(rule.end_date)}<br/>
-                    {rule.artist_id == null ? "Tous les tatoueurs" : artists.find((a) => String(a.id) === String(rule.artist_id))?.name || "Tatoueur supprimé"}
+                    {rule.artist_id == null ? "Tous les membres de l’équipe" : artists.find((a) => String(a.id) === String(rule.artist_id))?.name || "Membre de l’équipe supprimé"}
                   </span>
                   <button type="button" onClick={() => deleteLeave(rule.id)}>Supprimer</button>
                 </div>
               ))}
           </div>
-          <p className="muted-text">Les fermetures sont visibles dans l'agenda. Les congés individuels s'affichent lors du filtrage par tatoueur. Les rendez-vous existants ne sont pas supprimés.</p>
+          <p className="muted-text">Les fermetures sont visibles dans l'agenda. Les congés individuels s'affichent lors du filtrage par membre de l’équipe. Les rendez-vous existants ne sont pas supprimés.</p>
           <button type="button" onClick={() => navigateTo("settings")}>Retour aux paramètres</button>
         </section>
       )}
@@ -5434,17 +5432,17 @@ const goNext = () => {
 
       {page === "artists" && (
         <section className="card">
-          <h2>Tatoueurs</h2>
+          <h2>Membres de l’équipe</h2>
 
           <div className="card inner-card" style={{ marginBottom: "18px" }}>
             <h3 style={{ marginTop: 0 }}>
-              {editingArtistId ? "Modifier le tatoueur" : "Créer un nouveau tatoueur"}
+              {editingArtistId ? "Modifier le membre de l’équipe" : "Créer un nouveau membre de l’équipe"}
             </h3>
 
             <div className="form-grid">
               <input
                 type="text"
-                placeholder="Nom du tatoueur"
+                placeholder="Nom du membre de l’équipe"
                 value={artistForm.name}
                 onChange={(e) =>
                   setArtistForm({ ...artistForm, name: e.target.value })
@@ -5465,8 +5463,8 @@ const goNext = () => {
                   onChange={(e) =>
                     setArtistForm({ ...artistForm, color: e.target.value })
                   }
-                  aria-label="Couleur du tatoueur"
-                  title="Couleur du tatoueur"
+                  aria-label="Couleur du membre de l’équipe"
+                  title="Couleur du membre de l’équipe"
                   style={{
                     width: "48px",
                     height: "48px",
@@ -5476,11 +5474,11 @@ const goNext = () => {
                     flexShrink: 0,
                   }}
                 />
-                <span>Couleur du tatoueur</span>
+                <span>Couleur du membre de l’équipe</span>
               </label>
 
               <button type="button" onClick={saveArtist}>
-                {editingArtistId ? "Enregistrer les modifications" : "Créer le tatoueur"}
+                {editingArtistId ? "Enregistrer les modifications" : "Créer le membre de l’équipe"}
               </button>
 
               {editingArtistId && (
@@ -5518,7 +5516,7 @@ const goNext = () => {
                       flexShrink: 0,
                     }}
                   />
-                  <span>Couleur du tatoueur</span>
+                  <span>Couleur du membre de l’équipe</span>
                 </div>
 
                 <div className="action-buttons">
@@ -5540,7 +5538,7 @@ const goNext = () => {
         <section className="card">
           <h2>Rechercher un rendez-vous</h2>
           <p className="muted-text">
-            Recherchez par nom, prénom, descriptif, date, heure, tatoueur, notes, etc.
+            Recherchez par nom, prénom, descriptif, date, heure, membre de l’équipe, notes, etc.
           </p>
 
           <input
@@ -5588,7 +5586,7 @@ const goNext = () => {
                     </p>
       
                     <p style={{ margin: "4px 0" }}>
-                      <strong>Tatoueur :</strong> {artist?.name || "Non renseigné"}
+                      <strong>Membre de l’équipe :</strong> {artist?.name || "Non renseigné"}
                     </p>
       
                     {appointment.project && (
@@ -5622,7 +5620,7 @@ const goNext = () => {
             </div>
 
             <div className="stats-box">
-              <span>Tatoueurs</span>
+              <span>Membres de l’équipe</span>
               <strong>{globalStats.artistsCount}</strong>
             </div>
 
@@ -5805,7 +5803,7 @@ const goNext = () => {
               </div>
             )}
 
-            <p><strong>Tatoueur :</strong> {selectedAppointmentDetails.artistName || "Non renseigné"}</p>
+            <p><strong>Membre de l’équipe :</strong> {selectedAppointmentDetails.artistName || "Non renseigné"}</p>
             <p><strong>Type :</strong> {selectedAppointmentDetails.title || "Non renseigné"}</p>
             <p><strong>Date :</strong> {formatDateTimeWithWeekday(selectedAppointmentDetails.appointment)}</p>
             <p><strong>Durée :</strong> {formatDuration(selectedAppointmentDetails.durationHours, selectedAppointmentDetails.durationMinutes)}</p>
@@ -6032,7 +6030,7 @@ const goNext = () => {
           })
         }
       >
-        <option value="">Sélectionner un tatoueur</option>
+        <option value="">Sélectionner un membre de l’équipe</option>
         {artists
           .slice()
           .sort((a, b) => a.name.localeCompare(b.name))
