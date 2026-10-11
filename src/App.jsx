@@ -5133,12 +5133,17 @@ const goNext = () => {
                     )}
 
           <div className="home-menu-grid">
-            <button className="home-menu-button" onClick={() => navigateTo("services")}>
-              <span className="home-menu-icon">🧾</span>
-              <span className="home-menu-title">Prestations</span>
-              <span className="home-menu-subtitle">
-                Ajouter ou modifier les types de prestations
-              </span>
+            <button
+              className="home-menu-button settings-tattoo-button"
+              onClick={() => navigateTo("services")}
+            >
+              <div className="settings-tattoo-logo-wrap">
+                <img
+                  src="/icons/prestations.png"
+                  alt="Prestations"
+                  className="settings-tattoo-logo"
+                />
+              </div>
             </button>
 
 <button
