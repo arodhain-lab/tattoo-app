@@ -1141,6 +1141,26 @@ console.log("ERREUR RDV =", appointmentsError);
     });
   };
 
+  // Noms des tatoueurs réellement absents à la date sélectionnée.
+  const absentArtistsForDate = (dateKey) => artists.filter((artist) =>
+    dateHasAbsence(dateKey, artist.id)
+  );
+
+  const renderLeaveNotice = (dateKey) => {
+    if (agendaArtistFilter !== "all") return null;
+    const absent = absentArtistsForDate(dateKey);
+    if (!absent.length) return null;
+    const names = absent.map((artist) => artist.name);
+    const formattedNames = names.length === 1
+      ? names[0]
+      : `${names.slice(0, -1).join(", ")} & ${names[names.length - 1]}`;
+    return (
+      <div role="status" style={{ textAlign: "center", padding: "9px 12px", margin: "10px 0", border: "1px solid #c4aa80", borderRadius: 8, background: "rgba(196,170,128,0.10)", color: "inherit", fontSize: "0.92rem" }}>
+        {formattedNames} {names.length === 1 ? "est en congés" : "sont en congés"}
+      </div>
+    );
+  };
+
   const saveWeeklyClosures = async () => {
     if (!session?.user?.id || savingAbsences) return;
     setSavingAbsences(true);
@@ -3008,6 +3028,40 @@ const saveAppointment = async () => {
         )
       : null;
 
+  // Contrôle au moment de l'enregistrement, y compris lors d'un déplacement de RDV.
+  // Un rendez-vous déjà existant et inchangé ne redemande pas de dérogation.
+  const newAppointmentDate = appointmentForm.appointment.slice(0, 10);
+  const isNewOrRescheduled = !currentEditingAppointment ||
+    currentEditingAppointment.appointment !== appointmentForm.appointment ||
+    String(currentEditingAppointment.artistId) !== String(appointmentForm.artistId);
+  if (appointmentForm.title !== ACOMPTE_TYPE && !appointmentForm.cancelled && isNewOrRescheduled) {
+    // Relire les règles pour éviter d'utiliser un état local périmé.
+    const { data: currentRules, error: absenceError } = await supabase
+      .from("absence_rules").select("*").eq("user_id", session.user.id);
+    if (absenceError) {
+      alert("Impossible de vérifier les congés : " + absenceError.message);
+      return;
+    }
+    const weekday = toDate(newAppointmentDate)?.getDay();
+    const conflicts = (currentRules || []).filter((rule) =>
+      (rule.rule_type === "weekly" && Number(rule.weekday) === weekday) ||
+      (rule.rule_type === "leave" && newAppointmentDate >= rule.start_date &&
+        newAppointmentDate <= rule.end_date &&
+        (rule.artist_id == null || String(rule.artist_id) === String(appointmentForm.artistId)))
+    );
+    const manuallyClosed = closedDays.some((item) => item.day === newAppointmentDate);
+    if (conflicts.length || manuallyClosed) {
+      const artistName = artists.find((a) => String(a.id) === String(appointmentForm.artistId))?.name || "Ce tatoueur";
+      const reason = conflicts.some((rule) => rule.rule_type === "leave") ? "en congés" : "indisponible (fermeture du shop)";
+      const confirmed = window.confirm(
+        `⚠️ ${artistName} est ${reason} le ${formatDateOnly(newAppointmentDate)}.\n\n` +
+        "Ce créneau est normalement bloqué.\n\n" +
+        "Cliquez sur OK pour autoriser EXCEPTIONNELLEMENT ce rendez-vous, ou Annuler pour revenir au formulaire."
+      );
+      if (!confirmed) return;
+    }
+  }
+
   let depositDecisionForCancellation = cancelledDepositDecision;
 
   // Si un RDV passe de actif à annulé et possède un acompte actif,
@@ -4602,6 +4656,7 @@ const goNext = () => {
                </div>
               </div>
 
+              {agendaView === "day" && renderLeaveNotice(selectedDate)}
               {agendaView === "day" && (
                 <div
                   className={`agenda-panel ${
@@ -4721,6 +4776,7 @@ const goNext = () => {
                       {renderSpecialDayBadge(selectedDate)}
                     </div>
 
+                    {renderLeaveNotice(selectedDate)}
                     <div className="month-day-appointments-list">
                       {selectedDayAppointments.length === 0 ? (
                         <>
@@ -4878,6 +4934,7 @@ const goNext = () => {
                       {renderSpecialDayBadge(selectedDate)}
                     </div>
 
+                    {renderLeaveNotice(selectedDate)}
                     <div className="month-day-appointments-list">
                       {selectedDayAppointments.length === 0 ? (
                         <>
