@@ -5,6 +5,91 @@ import Auth from "./Auth";
 import "./App.css";
 
 
+
+// LOGILYA — fenêtres de dialogue personnalisées, communes à tous les métiers.
+// Elles remplacent les boîtes natives du navigateur sans changer les règles métier.
+function logilyaDialog(message, options = {}) {
+  return new Promise((resolve) => {
+    const confirmMode = options.confirm === true;
+    const overlay = document.createElement("div");
+    overlay.className = "logilya-dialog-overlay";
+    const dialog = document.createElement("section");
+    dialog.className = "logilya-dialog";
+    dialog.setAttribute("role", confirmMode ? "alertdialog" : "dialog");
+    dialog.setAttribute("aria-modal", "true");
+
+    const top = document.createElement("div");
+    top.className = "logilya-dialog-top";
+    const badge = document.createElement("span");
+    badge.className = "logilya-dialog-badge";
+    badge.textContent = options.danger ? "!" : confirmMode ? "?" : "i";
+    const title = document.createElement("h3");
+    title.className = "logilya-dialog-title";
+    title.textContent = options.title || (confirmMode ? "Confirmation" : "Information");
+    title.id = `logilya-dialog-title-${Date.now()}`;
+    dialog.setAttribute("aria-labelledby", title.id);
+    top.append(badge, title);
+
+    const body = document.createElement("p");
+    body.className = "logilya-dialog-message";
+    body.textContent = String(message ?? ""); // textContent évite toute injection HTML.
+
+    const actions = document.createElement("div");
+    actions.className = "logilya-dialog-actions";
+    const previousFocus = document.activeElement;
+    const previousOverflow = document.body.style.overflow;
+    const close = (result) => {
+      document.removeEventListener("keydown", onKeyDown, true);
+      overlay.remove();
+      document.body.style.overflow = previousOverflow;
+      if (previousFocus instanceof HTMLElement && previousFocus.isConnected) previousFocus.focus();
+      resolve(result);
+    };
+    const makeButton = (label, secondary, action) => {
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = secondary ? "logilya-dialog-button logilya-dialog-secondary" : "logilya-dialog-button logilya-dialog-primary";
+      button.textContent = label;
+      button.addEventListener("click", action);
+      return button;
+    };
+    let cancelButton = null;
+    if (confirmMode) {
+      cancelButton = makeButton(options.cancelLabel || "Annuler", true, () => close(false));
+      actions.append(cancelButton);
+    }
+    const acceptButton = makeButton(options.confirmLabel || (confirmMode ? "Confirmer" : "Compris"), false, () => close(true));
+    actions.append(acceptButton);
+    dialog.append(top, body, actions);
+    overlay.append(dialog);
+    overlay.addEventListener("click", (event) => {
+      if (event.target === overlay && !options.preventBackdropClose) close(false);
+    });
+    const onKeyDown = (event) => {
+      if (event.key === "Escape" && !options.preventEscapeClose) { event.preventDefault(); close(false); }
+      if (event.key === "Tab") {
+        const first = cancelButton || acceptButton;
+        const last = acceptButton;
+        if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
+        else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
+      }
+    };
+    document.body.append(overlay);
+    document.body.style.overflow = "hidden";
+    document.addEventListener("keydown", onKeyDown, true);
+    (cancelButton || acceptButton).focus();
+  });
+}
+
+function showLogilyaAlert(message) {
+  // Même signature que showLogilyaAlert(), mais affichage non bloquant et stylisé.
+  return logilyaDialog(message, { title: "LOGILYA", confirmLabel: "Fermer" });
+}
+
+function showLogilyaConfirm(message, options = {}) {
+  return logilyaDialog(message, { confirm: true, preventBackdropClose: true, ...options });
+}
+
 function pad(number) {
   return String(number).padStart(2, "0");
 }
@@ -558,13 +643,13 @@ export default function App() {
   };
   const changeAccountPassword = async () => {
     if (settingsPasswordSaving) return;
-    if (!settingsCurrentPassword) { alert("Saisissez votre mot de passe actuel."); return; }
+    if (!settingsCurrentPassword) { showLogilyaAlert("Saisissez votre mot de passe actuel."); return; }
     if (settingsNewPassword.length < 8 || !/[A-Za-z]/.test(settingsNewPassword) || !/[0-9]/.test(settingsNewPassword)) {
-      alert("Le nouveau mot de passe doit comporter au moins 8 caractères, dont des lettres et des chiffres.");
+      showLogilyaAlert("Le nouveau mot de passe doit comporter au moins 8 caractères, dont des lettres et des chiffres.");
       return;
     }
-    if (settingsNewPassword !== settingsConfirmPassword) { alert("Les nouveaux mots de passe ne correspondent pas."); return; }
-    if (settingsCurrentPassword === settingsNewPassword) { alert("Le nouveau mot de passe doit être différent de l'ancien."); return; }
+    if (settingsNewPassword !== settingsConfirmPassword) { showLogilyaAlert("Les nouveaux mots de passe ne correspondent pas."); return; }
+    if (settingsCurrentPassword === settingsNewPassword) { showLogilyaAlert("Le nouveau mot de passe doit être différent de l'ancien."); return; }
     setSettingsPasswordSaving(true);
     try {
       // Supabase vérifie le mot de passe actuel côté serveur quand
@@ -577,9 +662,9 @@ export default function App() {
       setSettingsCurrentPassword("");
       setSettingsNewPassword("");
       setSettingsConfirmPassword("");
-      alert("Votre mot de passe a été modifié avec succès.");
+      showLogilyaAlert("Votre mot de passe a été modifié avec succès.");
     } catch (error) {
-      alert("Impossible de modifier le mot de passe : " + (error?.message || "erreur inconnue"));
+      showLogilyaAlert("Impossible de modifier le mot de passe : " + (error?.message || "erreur inconnue"));
     } finally {
       setSettingsPasswordSaving(false);
     }
@@ -748,7 +833,7 @@ const openBillingPortal = async () => {
     window.location.assign(data.url);
   } catch (error) {
     console.error("PORTAIL DE FACTURATION :", error);
-    alert("Impossible d’ouvrir l’espace de facturation. Vérifiez votre abonnement ou contactez LOGILYA.");
+    showLogilyaAlert("Impossible d’ouvrir l’espace de facturation. Vérifiez votre abonnement ou contactez LOGILYA.");
   } finally {
     setIsOpeningBillingPortal(false);
   }
@@ -790,20 +875,20 @@ const testStripeCheckout = async () => {
 
     if (error) {
       console.error("ERREUR STRIPE CHECKOUT :", error);
-      alert("Erreur Stripe Checkout : " + error.message);
+      showLogilyaAlert("Erreur Stripe Checkout : " + error.message);
       return;
     }
 
     if (!data?.url) {
       console.error("RÉPONSE STRIPE INVALIDE :", data);
-      alert(data?.error || "Stripe n'a pas renvoyé d'adresse de paiement.");
+      showLogilyaAlert(data?.error || "Stripe n'a pas renvoyé d'adresse de paiement.");
       return;
     }
 
     window.location.href = data.url;
   } catch (error) {
     console.error("ERREUR STRIPE :", error);
-    alert("Erreur Stripe : " + error.message);
+    showLogilyaAlert("Erreur Stripe : " + error.message);
   } finally {
     setIsCreatingCheckout(false);
   }
@@ -828,11 +913,11 @@ useEffect(() => {
 
 const updateStripeArtistPlan = async () => {
   if (!subscriptionBillingInterval) {
-    alert("Impossible de vérifier le forfait. Réessayez après rechargement.");
+    showLogilyaAlert("Impossible de vérifier le forfait. Réessayez après rechargement.");
     return;
   }
   if (!session?.user?.id) {
-    alert("Erreur : utilisateur non connecté.");
+    showLogilyaAlert("Erreur : utilisateur non connecté.");
     return;
   }
 
@@ -859,7 +944,7 @@ const updateStripeArtistPlan = async () => {
 
     if (error) {
       console.error("ERREUR MODIFICATION ABONNEMENT :", error);
-      alert(
+      showLogilyaAlert(
         "Impossible de modifier l'abonnement : " +
           (error.message || "erreur inconnue")
       );
@@ -868,7 +953,7 @@ const updateStripeArtistPlan = async () => {
 
     if (!data?.success) {
       console.error("RÉPONSE MODIFICATION ABONNEMENT INVALIDE :", data);
-      alert(
+      showLogilyaAlert(
         data?.error ||
           "Stripe n'a pas confirmé la modification de l'abonnement."
       );
@@ -899,7 +984,7 @@ const updateStripeArtistPlan = async () => {
     );
   } catch (error) {
     console.error("ERREUR MODIFICATION STRIPE :", error);
-    alert(
+    showLogilyaAlert(
       "Erreur Stripe : " +
         (error instanceof Error ? error.message : "erreur inconnue")
     );
@@ -1191,7 +1276,7 @@ console.log("ERREUR RDV =", appointmentsError);
     closedDaysError;
 
     if (firstError) {
-      alert(firstError.message);
+      showLogilyaAlert(firstError.message);
       setCheckingSetup(false);
       return;
     }
@@ -1316,14 +1401,14 @@ console.log("ERREUR RDV =", appointmentsError);
       }
       await loadAbsenceRules();
       showMessage("✔ Fermetures hebdomadaires enregistrées.");
-    } catch (error) { alert("Enregistrement impossible : " + error.message); }
+    } catch (error) { showLogilyaAlert("Enregistrement impossible : " + error.message); }
     finally { setSavingAbsences(false); }
   };
 
   const saveLeave = async () => {
     if (!session?.user?.id || savingAbsences) return;
     if (!leaveStart || !leaveEnd || leaveEnd < leaveStart) {
-      alert("Choisissez une date de début et une date de fin valides."); return;
+      showLogilyaAlert("Choisissez une date de début et une date de fin valides."); return;
     }
     setSavingAbsences(true);
     const { error } = await supabase.from("absence_rules").insert({
@@ -1331,16 +1416,16 @@ console.log("ERREUR RDV =", appointmentsError);
       end_date: leaveEnd, artist_id: leaveArtist === "all" ? null : leaveArtist,
       label: leaveLabel.trim() || "Congés",
     });
-    if (error) alert("Enregistrement impossible : " + error.message);
+    if (error) showLogilyaAlert("Enregistrement impossible : " + error.message);
     else { await loadAbsenceRules(); setLeaveLabel(""); showMessage("✔ Congés enregistrés."); }
     setSavingAbsences(false);
   };
 
   const deleteLeave = async (id) => {
-    if (!window.confirm("Supprimer cette période de congés ?")) return;
+    if (!await showLogilyaConfirm("Supprimer cette période de congés ?")) return;
     const { error } = await supabase.from("absence_rules").delete()
       .eq("id", id).eq("user_id", session.user.id).eq("rule_type", "leave");
-    if (error) alert(error.message);
+    if (error) showLogilyaAlert(error.message);
     else await loadAbsenceRules();
   };
 
@@ -1804,12 +1889,12 @@ const saveClient = async () => {
   const firstName = clientForm.firstName.trim();
 
   if (!lastName || !firstName) {
-    alert("Erreur : nom et prénom obligatoires.");
+    showLogilyaAlert("Erreur : nom et prénom obligatoires.");
     return;
   }
 
   if (!session?.user) {
-    alert("Erreur : utilisateur non connecté.");
+    showLogilyaAlert("Erreur : utilisateur non connecté.");
     return;
   }
 
@@ -1831,7 +1916,7 @@ const saveClient = async () => {
       .single();
 
     if (error) {
-      alert("Erreur modification : " + error.message);
+      showLogilyaAlert("Erreur modification : " + error.message);
       return;
     }
 
@@ -1851,12 +1936,12 @@ const saveClient = async () => {
     .single();
 
   if (error) {
-    alert("Erreur création : " + error.message);
+    showLogilyaAlert("Erreur création : " + error.message);
     return;
   }
 
   if (!insertedClient?.id) {
-    alert("Erreur : Supabase n'a pas renvoyé la cliente créée.");
+    showLogilyaAlert("Erreur : Supabase n'a pas renvoyé la cliente créée.");
     return;
   }
 
@@ -1910,7 +1995,7 @@ const importClientsFromCsv = async (event) => {
         .filter((client) => client.last_name || client.first_name || client.phone);
 
       if (clientsToInsert.length === 0) {
-        alert("Aucun client valide trouvé. Le CSV doit contenir au minimum nom et prénom.");
+        showLogilyaAlert("Aucun client valide trouvé. Le CSV doit contenir au minimum nom et prénom.");
         return;
       }
 
@@ -1919,7 +2004,7 @@ const importClientsFromCsv = async (event) => {
         .insert(clientsToInsert);
 
       if (error) {
-        alert(error.message);
+        showLogilyaAlert(error.message);
         return;
       }
 
@@ -1929,7 +2014,7 @@ const importClientsFromCsv = async (event) => {
       event.target.value = "";
     },
     error: (error) => {
-      alert(`Erreur CSV : ${error.message}`);
+      showLogilyaAlert(`Erreur CSV : ${error.message}`);
     },
   });
 };
@@ -2136,17 +2221,17 @@ const downloadAppointmentsCsvTemplate = () => {
 
 const openExportArtistModal = () => {
   if (!exportStartDate || !exportEndDate) {
-    alert("Veuillez renseigner une date de début et une date de fin.");
+    showLogilyaAlert("Veuillez renseigner une date de début et une date de fin.");
     return;
   }
 
   if (exportStartDate > exportEndDate) {
-    alert("La date de début ne peut pas être après la date de fin.");
+    showLogilyaAlert("La date de début ne peut pas être après la date de fin.");
     return;
   }
 
   if (artists.length === 0) {
-    alert("Aucun membre de l’équipe disponible.");
+    showLogilyaAlert("Aucun membre de l’équipe disponible.");
     return;
   }
 
@@ -2166,17 +2251,17 @@ const toggleExportArtist = (artistId) => {
 
 const exportAppointmentsCsv = () => {
   if (!exportStartDate || !exportEndDate) {
-    alert("Veuillez renseigner une date de début et une date de fin.");
+    showLogilyaAlert("Veuillez renseigner une date de début et une date de fin.");
     return;
   }
 
   if (exportStartDate > exportEndDate) {
-    alert("La date de début ne peut pas être après la date de fin.");
+    showLogilyaAlert("La date de début ne peut pas être après la date de fin.");
     return;
   }
 
   if (selectedExportArtistIds.length === 0) {
-    alert("Veuillez sélectionner au moins un membre de l’équipe.");
+    showLogilyaAlert("Veuillez sélectionner au moins un membre de l’équipe.");
     return;
   }
 
@@ -2256,7 +2341,7 @@ const exportAppointmentsCsv = () => {
     .filter(Boolean);
 
   if (regularAppointments.length === 0 && shiftedDeposits.length === 0) {
-    alert("Aucun rendez-vous trouvé sur cette période pour les membres de l’équipe sélectionnés.");
+    showLogilyaAlert("Aucun rendez-vous trouvé sur cette période pour les membres de l’équipe sélectionnés.");
     return;
   }
 
@@ -2458,7 +2543,7 @@ const importAppointmentsFromCsv = async (event) => {
         .eq("user_id", session.user.id);
 
       if (clientsFetchError) {
-        alert("Erreur lecture clients : " + clientsFetchError.message);
+        showLogilyaAlert("Erreur lecture clients : " + clientsFetchError.message);
         return;
       }
 
@@ -2468,12 +2553,12 @@ const importAppointmentsFromCsv = async (event) => {
         .eq("user_id", session.user.id);
 
       if (artistsFetchError) {
-        alert("Erreur lecture membres de l’équipe : " + artistsFetchError.message);
+        showLogilyaAlert("Erreur lecture membres de l’équipe : " + artistsFetchError.message);
         return;
       }
 
       if (!allArtists || allArtists.length === 0) {
-        alert("Erreur : aucun membre de l’équipe trouvé dans Supabase.");
+        showLogilyaAlert("Erreur : aucun membre de l’équipe trouvé dans Supabase.");
         return;
       }
 
@@ -2662,7 +2747,7 @@ const importAppointmentsFromCsv = async (event) => {
 
 
       if (validAppointments.length === 0) {
-        alert("Aucun RDV valide à importer.\n\n" + rejectedRows.join("\n"));
+        showLogilyaAlert("Aucun RDV valide à importer.\n\n" + rejectedRows.join("\n"));
         event.target.value = "";
         return;
       }
@@ -2673,7 +2758,7 @@ const importAppointmentsFromCsv = async (event) => {
         .select();
 
       if (insertError) {
-        alert("Erreur insertion RDV Supabase : " + insertError.message);
+        showLogilyaAlert("Erreur insertion RDV Supabase : " + insertError.message);
         return;
       }
 
@@ -2685,7 +2770,7 @@ const importAppointmentsFromCsv = async (event) => {
         .lt("appointment", "2026-07-01T00:00:00");
 
       if (checkError) {
-        alert("RDV insérés, mais vérification impossible : " + checkError.message);
+        showLogilyaAlert("RDV insérés, mais vérification impossible : " + checkError.message);
         return;
       }
 
@@ -2696,7 +2781,7 @@ const importAppointmentsFromCsv = async (event) => {
       setAgendaView("month");
       navigateTo("agenda");
 
-      alert(
+      showLogilyaAlert(
         `${insertedAppointments?.length || 0} RDV envoyés à Supabase.\n` +
           `${checkJune?.length || 0} RDV trouvés dans Supabase sur juin 2026.\n\n` +
           `${rejectedRows.length} ligne(s) ignorée(s).\n\n` +
@@ -2707,7 +2792,7 @@ const importAppointmentsFromCsv = async (event) => {
     },
 
     error: (error) => {
-      alert("Erreur lecture CSV : " + error.message);
+      showLogilyaAlert("Erreur lecture CSV : " + error.message);
     },
   });
 };
@@ -2729,7 +2814,7 @@ const saveQuickClient = async () => {
     .single();
 
   if (error) {
-    alert(error.message);
+    showLogilyaAlert(error.message);
     return;
   }
 
@@ -2780,7 +2865,7 @@ const saveArtist = async () => {
       .eq("user_id", session.user.id);
 
     if (error) {
-      alert(error.message);
+      showLogilyaAlert(error.message);
       return;
     }
   } else {
@@ -2791,7 +2876,7 @@ const saveArtist = async () => {
     });
 
     if (error) {
-      alert(error.message);
+      showLogilyaAlert(error.message);
       return;
     }
   }
@@ -2817,7 +2902,7 @@ const deleteArtist = async (artistId) => {
   );
 
   if (!artist) {
-    alert("Erreur : membre de l’équipe introuvable.");
+    showLogilyaAlert("Erreur : membre de l’équipe introuvable.");
     return;
   }
 
@@ -2826,7 +2911,7 @@ const deleteArtist = async (artistId) => {
   );
 
   if (hasAppointments) {
-    alert("Suppression impossible : ce membre de l’équipe possède encore un ou plusieurs rendez-vous.");
+    showLogilyaAlert("Suppression impossible : ce membre de l’équipe possède encore un ou plusieurs rendez-vous.");
     return;
   }
 
@@ -2847,7 +2932,7 @@ const confirmDeleteArtist = async () => {
   const targetMaxArtists = Math.max(1, remainingArtistCount);
   const mustUpdateSubscription = targetMaxArtists < currentMaxArtists;
   if (mustUpdateSubscription && !subscriptionBillingInterval) {
-    alert("Impossible de vérifier la périodicité de votre abonnement. Rechargez la page.");
+    showLogilyaAlert("Impossible de vérifier la périodicité de votre abonnement. Rechargez la page.");
     return;
   }
 
@@ -2866,7 +2951,7 @@ const confirmDeleteArtist = async () => {
 
       if (subscriptionError) {
         console.error("ERREUR BAISSE FORFAIT :", subscriptionError);
-        alert(
+        showLogilyaAlert(
           "La suppression a été annulée car le forfait Stripe n'a pas pu être modifié : " +
             (subscriptionError.message || "erreur inconnue")
         );
@@ -2875,7 +2960,7 @@ const confirmDeleteArtist = async () => {
 
       if (!subscriptionData?.success) {
         console.error("RÉPONSE BAISSE FORFAIT INVALIDE :", subscriptionData);
-        alert(
+        showLogilyaAlert(
           subscriptionData?.error ||
             "La suppression a été annulée car Stripe n'a pas confirmé le nouveau forfait."
         );
@@ -2906,14 +2991,14 @@ const confirmDeleteArtist = async () => {
 
         if (rollbackError) {
           console.error("ERREUR RESTAURATION FORFAIT :", rollbackError);
-          alert(
+          showLogilyaAlert(
             "Le membre de l’équipe n'a pas été supprimé. Le forfait avait déjà été modifié et sa restauration automatique a échoué. Vérifiez l'abonnement Stripe avant de réessayer."
           );
           return;
         }
       }
 
-      alert("Le membre de l’équipe n'a pas été supprimé : " + deleteError.message);
+      showLogilyaAlert("Le membre de l’équipe n'a pas été supprimé : " + deleteError.message);
       return;
     }
 
@@ -2958,7 +3043,7 @@ const confirmDeleteArtist = async () => {
     );
   } catch (error) {
     console.error("ERREUR SUPPRESSION MEMBRE DE L’ÉQUIPE / FORFAIT :", error);
-    alert(
+    showLogilyaAlert(
       "Erreur : " +
         (error instanceof Error ? error.message : "erreur inconnue")
     );
@@ -2997,7 +3082,7 @@ const saveService = async () => {
       .eq("user_id", session.user.id);
 
     if (error) {
-      alert(error.message);
+      showLogilyaAlert(error.message);
       return;
     }
   } else {
@@ -3016,7 +3101,7 @@ const saveService = async () => {
     });
 
     if (error) {
-      alert(error.message);
+      showLogilyaAlert(error.message);
       return;
     }
   }
@@ -3048,7 +3133,7 @@ const deleteService = async (serviceName) => {
   if (!session?.user) return;
 
   if (serviceHasAppointments(serviceNameValue)) {
-    alert("Suppression impossible : cette prestation est utilisée dans un ou plusieurs rendez-vous.");
+    showLogilyaAlert("Suppression impossible : cette prestation est utilisée dans un ou plusieurs rendez-vous.");
     return;
   }
 
@@ -3059,7 +3144,7 @@ const deleteService = async (serviceName) => {
     .eq("user_id", session.user.id);
 
   if (error) {
-    alert(error.message);
+    showLogilyaAlert(error.message);
     return;
   }
 
@@ -3089,11 +3174,11 @@ const deleteClient = async (clientId) => {
   );
 
   if (hasAppointments) {
-    alert("Suppression impossible : ce client possède encore un ou plusieurs rendez-vous.");
+    showLogilyaAlert("Suppression impossible : ce client possède encore un ou plusieurs rendez-vous.");
     return;
   }
 
-  const confirmDelete = window.confirm(
+  const confirmDelete = await showLogilyaConfirm(
     "Confirmez-vous la suppression de cette fiche client ?"
   );
 
@@ -3106,7 +3191,7 @@ const deleteClient = async (clientId) => {
     .eq("user_id", session.user.id);
 
   if (error) {
-    alert(error.message);
+    showLogilyaAlert(error.message);
     return;
   }
 
@@ -3131,27 +3216,27 @@ const saveAppointment = async () => {
   if (isSavingAppointment) return;
 
   if (!appointmentForm.clientId) {
-    alert("Client obligatoire.");
+    showLogilyaAlert("Client obligatoire.");
     return;
   }
 
   if (!appointmentForm.artistId) {
-    alert("Membre de l’équipe obligatoire.");
+    showLogilyaAlert("Membre de l’équipe obligatoire.");
     return;
   }
 
   if (!appointmentForm.title) {
-    alert("Type de prestation obligatoire.");
+    showLogilyaAlert("Type de prestation obligatoire.");
     return;
   }
 
   if (!appointmentForm.appointment) {
-    alert("Date et heure obligatoires.");
+    showLogilyaAlert("Date et heure obligatoires.");
     return;
   }
 
   if (!session?.user) {
-    alert("Utilisateur non connecté.");
+    showLogilyaAlert("Utilisateur non connecté.");
     return;
   }
 
@@ -3174,7 +3259,7 @@ const saveAppointment = async () => {
     const { data: currentRules, error: absenceError } = await supabase
       .from("absence_rules").select("*").eq("user_id", session.user.id);
     if (absenceError) {
-      alert("Impossible de vérifier les congés : " + absenceError.message);
+      showLogilyaAlert("Impossible de vérifier les congés : " + absenceError.message);
       return;
     }
     const weekday = toDate(newAppointmentDate)?.getDay();
@@ -3187,11 +3272,12 @@ const saveAppointment = async () => {
     const manuallyClosed = closedDays.some((item) => item.day === newAppointmentDate);
     if (conflicts.length || manuallyClosed) {
       const artistName = artists.find((a) => String(a.id) === String(appointmentForm.artistId))?.name || "Ce membre de l’équipe";
-      const reason = conflicts.some((rule) => rule.rule_type === "leave") ? "en congés" : "indisponible (fermeture du shop)";
-      const confirmed = window.confirm(
+      const reason = conflicts.some((rule) => rule.rule_type === "leave") ? "en congés" : "indisponible (fermeture de l’établissement)";
+      const confirmed = await showLogilyaConfirm(
         `⚠️ ${artistName} est ${reason} le ${formatDateOnly(newAppointmentDate)}.\n\n` +
         "Ce créneau est normalement bloqué.\n\n" +
-        "Cliquez sur OK pour autoriser EXCEPTIONNELLEMENT ce rendez-vous, ou Annuler pour revenir au formulaire."
+        "Choisissez « Autoriser exceptionnellement » pour poursuivre, ou « Revenir » pour modifier le rendez-vous.",
+        { title: "Créneau indisponible", confirmLabel: "Autoriser exceptionnellement", cancelLabel: "Revenir" }
       );
       if (!confirmed) return;
     }
@@ -3219,10 +3305,11 @@ const saveAppointment = async () => {
         0
       );
 
-      const keepDeposit = window.confirm(
+      const keepDeposit = await showLogilyaConfirm(
         `Ce rendez-vous possède ${linkedActiveDeposits.length} acompte(s) pour un total de ${formatCurrency(totalDeposits)}.\n\n` +
-        `Cliquez sur OK si l'acompte est GARDÉ.\n` +
-        `Cliquez sur Annuler si l'acompte est RENDU au client.`
+        `Choisissez « Acompte conservé » si l'acompte est gardé.\n` +
+        `Cliquez sur « Rendu au client » si l'acompte est remboursé.`,
+        { title: "Sort de l’acompte", confirmLabel: "Acompte conservé", cancelLabel: "Rendu au client", preventEscapeClose: true }
       );
 
       depositDecisionForCancellation = keepDeposit ? "kept" : "returned";
@@ -3236,7 +3323,7 @@ const saveAppointment = async () => {
     currentEditingAppointment.title !== ACOMPTE_TYPE &&
     appointmentForm.title === ACOMPTE_TYPE
   ) {
-    alert(
+    showLogilyaAlert(
       "Impossible de transformer un rendez-vous classique en acompte. Créez un acompte séparément."
     );
     return;
@@ -3248,13 +3335,13 @@ const saveAppointment = async () => {
     currentEditingAppointment.title === ACOMPTE_TYPE &&
     appointmentForm.title !== ACOMPTE_TYPE
   ) {
-    alert("Impossible de transformer un acompte en rendez-vous classique.");
+    showLogilyaAlert("Impossible de transformer un acompte en rendez-vous classique.");
     return;
   }
 
   if (appointmentForm.title === ACOMPTE_TYPE) {
     if (!appointmentForm.linkedAppointmentId) {
-      alert(
+      showLogilyaAlert(
         "Vous devez obligatoirement lier l'acompte à un rendez-vous futur du même client."
       );
       return;
@@ -3268,12 +3355,12 @@ const saveAppointment = async () => {
     );
 
     if (!linkedAppointment) {
-      alert("Le rendez-vous lié est introuvable.");
+      showLogilyaAlert("Le rendez-vous lié est introuvable.");
       return;
     }
 
     if (linkedAppointment.title === ACOMPTE_TYPE) {
-      alert("Un acompte ne peut pas être lié à un autre acompte.");
+      showLogilyaAlert("Un acompte ne peut pas être lié à un autre acompte.");
       return;
     }
 
@@ -3281,7 +3368,7 @@ const saveAppointment = async () => {
       String(linkedAppointment.clientId) !==
       String(appointmentForm.clientId)
     ) {
-      alert("L'acompte doit être lié à un rendez-vous du même client.");
+      showLogilyaAlert("L'acompte doit être lié à un rendez-vous du même client.");
       return;
     }
 
@@ -3289,7 +3376,7 @@ const saveAppointment = async () => {
     const linkedDate = toDate(linkedAppointment.appointment);
 
     if (!acompteDate || !linkedDate || linkedDate <= acompteDate) {
-      alert("Le rendez-vous lié doit être postérieur à l'acompte.");
+      showLogilyaAlert("Le rendez-vous lié doit être postérieur à l'acompte.");
       return;
     }
 
@@ -3297,12 +3384,12 @@ const saveAppointment = async () => {
     const linkedPrice = Number(linkedAppointment.price) || 0;
 
     if (depositAmount <= 0) {
-      alert("Le montant de l'acompte doit être supérieur à 0.");
+      showLogilyaAlert("Le montant de l'acompte doit être supérieur à 0.");
       return;
     }
 
     if (linkedPrice > 0 && depositAmount > linkedPrice) {
-      alert(
+      showLogilyaAlert(
         "Le montant de l'acompte ne peut pas dépasser le tarif du rendez-vous lié."
       );
       return;
@@ -3345,12 +3432,12 @@ const saveAppointment = async () => {
     saleAmount = Number(appointmentForm.saleAmount) || 0;
 
     if (saleAmount < 0) {
-      alert("Le montant vente ne peut pas être négatif.");
+      showLogilyaAlert("Le montant vente ne peut pas être négatif.");
       return;
     }
 
     if (saleAmount > appointmentPrice) {
-      alert("Le montant vente ne peut pas dépasser le montant total.");
+      showLogilyaAlert("Le montant vente ne peut pas dépasser le montant total.");
       return;
     }
 
@@ -3373,7 +3460,7 @@ const saveAppointment = async () => {
       Number(appointmentForm.paymentCbAmount) || 0;
 
     if (paymentCbAmount > appointmentPrice) {
-      alert(
+      showLogilyaAlert(
         "Le montant CB ne peut pas dépasser le montant total du rendez-vous."
       );
       return;
@@ -3665,7 +3752,7 @@ setSuccessMessage("✔ RDV enregistré");
       error
     );
 
-    alert(
+    showLogilyaAlert(
       "Impossible d'enregistrer le rendez-vous.\n\n" +
         (error?.message || "Erreur réseau inconnue.")
     );
@@ -3719,19 +3806,19 @@ const deleteAppointment = async (appointmentId) => {
   );
 
   if (!appointmentToDelete) {
-    alert("Rendez-vous introuvable.");
+    showLogilyaAlert("Rendez-vous introuvable.");
     return;
   }
 
   const linkedDeposits = getDepositsForAppointment(appointments, appointmentId);
 
   if (linkedDeposits.length > 0) {
-    const confirmDeleteDeposit = window.confirm(
+    const confirmDeleteDeposit = await showLogilyaConfirm(
       "Attention : un ou plusieurs acomptes sont liés à ce rendez-vous.\n\nVoulez-vous supprimer l'acompte également ?"
     );
 
     if (confirmDeleteDeposit) {
-      const confirmFinalDelete = window.confirm(
+      const confirmFinalDelete = await showLogilyaConfirm(
         "Confirmation finale : vous allez supprimer le rendez-vous ET le ou les acomptes liés.\n\nConfirmer la suppression ?"
       );
 
@@ -3746,7 +3833,7 @@ const deleteAppointment = async (appointmentId) => {
         .eq("user_id", session.user.id);
 
       if (depositsError) {
-        alert(depositsError.message);
+        showLogilyaAlert(depositsError.message);
         return;
       }
 
@@ -3757,7 +3844,7 @@ const deleteAppointment = async (appointmentId) => {
         .eq("user_id", session.user.id);
 
       if (appointmentError) {
-        alert(appointmentError.message);
+        showLogilyaAlert(appointmentError.message);
         return;
       }
 
@@ -3775,7 +3862,7 @@ const deleteAppointment = async (appointmentId) => {
                   return;
     }
 
-    const confirmDeleteOnlyAppointment = window.confirm(
+    const confirmDeleteOnlyAppointment = await showLogilyaConfirm(
       "L'acompte lié sera conservé.\n\nConfirmez-vous la suppression du rendez-vous seul ?"
     );
 
@@ -3788,7 +3875,7 @@ const deleteAppointment = async (appointmentId) => {
       .eq("user_id", session.user.id);
 
     if (error) {
-      alert(error.message);
+      showLogilyaAlert(error.message);
       return;
     }
 
@@ -3806,7 +3893,7 @@ const deleteAppointment = async (appointmentId) => {
             return;
   }
 
-  const confirmDelete = window.confirm(
+  const confirmDelete = await showLogilyaConfirm(
     "Confirmez-vous la suppression de ce rendez-vous ?"
   );
 
@@ -3819,7 +3906,7 @@ const deleteAppointment = async (appointmentId) => {
     .eq("user_id", session.user.id);
 
   if (error) {
-    alert(error.message);
+    showLogilyaAlert(error.message);
     return;
   }
 
@@ -3876,7 +3963,7 @@ const { error } = await supabase
   .eq("user_id", session.user.id);
 
     if (error) {
-      alert(error.message);
+      showLogilyaAlert(error.message);
       return;
     }
   } else {
@@ -3888,7 +3975,7 @@ const { error } = await supabase
       });
 
     if (error) {
-      alert(error.message);
+      showLogilyaAlert(error.message);
       return;
     }
   }
@@ -4281,7 +4368,7 @@ const goNext = () => {
           <button
             onClick={() => {
               if (!canFinishSetup) {
-                alert("Ajoute au moins un membre de l’équipe et une prestation.");
+                showLogilyaAlert("Ajoute au moins un membre de l’équipe et une prestation.");
                 return;
               }
               setSetupComplete(true);
