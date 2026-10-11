@@ -4,10 +4,10 @@ body {
   overflow-x: hidden;
   font-family: Arial, sans-serif;
   background:
-    radial-gradient(circle at top center, rgba(255, 196, 64, 0.10), transparent 22%),
-    radial-gradient(circle at center, rgba(255, 180, 40, 0.04), transparent 45%),
+    radial-gradient(circle at top center, rgba(210, 189, 157, 0.10), transparent 22%),
+    radial-gradient(circle at center, rgba(210, 189, 157, 0.04), transparent 45%),
     linear-gradient(180deg, #040404 0%, #090909 45%, #020202 100%);
-  color: #f3d486;
+  color: #e7d6bc;
 }
 
 * {
@@ -34,7 +34,7 @@ h1 {
   margin: 0 0 10px 0;
   font-size: 64px;
   font-weight: 800;
-  color: #efb23e;
+  color: #dfcba8;
   letter-spacing: -1.5px;
 }
 
@@ -42,20 +42,20 @@ h2 {
   margin: 0 0 10px 0;
   font-size: 54px;
   font-weight: 800;
-  color: #efb23e;
+  color: #dfcba8;
   letter-spacing: -1px;
 }
 
 .subtitle {
   margin: 0;
-  color: #d7a84b;
+  color: #cbb99c;
   font-size: 20px;
   line-height: 1.4;
 }
 
 .muted-text {
   margin: 6px 0 0 0;
-  color: #c7973c;
+  color: #c8b392;
 }
 
 h3,
@@ -67,16 +67,16 @@ h4 {
 .card {
   position: relative;
   background:
-    radial-gradient(circle at 50% 0%, rgba(255, 196, 64, 0.05), transparent 28%),
+    radial-gradient(circle at 50% 0%, rgba(210, 189, 157, 0.05), transparent 28%),
     linear-gradient(180deg, rgba(15, 15, 15, 0.98) 0%, rgba(4, 4, 4, 0.99) 100%);
   border-radius: 42px;
   padding: 30px;
-  border: 2px solid rgba(240, 180, 55, 0.88);
+  border: 2px solid rgba(188, 167, 132, 0.88);
   box-shadow:
-    inset 0 0 0 1px rgba(255, 227, 160, 0.10),
-    0 0 0 1px rgba(255, 191, 73, 0.06),
+    inset 0 0 0 1px rgba(210, 189, 157, 0.10),
+    0 0 0 1px rgba(210, 189, 157, 0.06),
     0 18px 45px rgba(0, 0, 0, 0.58),
-    0 0 20px rgba(255, 183, 48, 0.08);
+    0 0 20px rgba(210, 189, 157, 0.08);
   overflow: visible;
 }
 
@@ -87,9 +87,9 @@ h4 {
   border-radius: inherit;
   pointer-events: none;
   background:
-    radial-gradient(circle at 50% 100%, rgba(255, 204, 90, 0.28), transparent 13%),
-    radial-gradient(circle at 0% 50%, rgba(255, 204, 90, 0.14), transparent 10%),
-    radial-gradient(circle at 100% 50%, rgba(255, 204, 90, 0.14), transparent 10%);
+    radial-gradient(circle at 50% 100%, rgba(210, 189, 157, 0.28), transparent 13%),
+    radial-gradient(circle at 0% 50%, rgba(210, 189, 157, 0.14), transparent 10%),
+    radial-gradient(circle at 100% 50%, rgba(210, 189, 157, 0.14), transparent 10%);
 }
 
 .card::after {
@@ -99,20 +99,20 @@ h4 {
   border-radius: inherit;
   pointer-events: none;
   box-shadow:
-    inset 0 1px 0 rgba(255, 233, 170, 0.16),
-    inset 0 -1px 0 rgba(255, 180, 40, 0.12);
+    inset 0 1px 0 rgba(210, 189, 157, 0.16),
+    inset 0 -1px 0 rgba(210, 189, 157, 0.12);
 }
 
 .inner-card {
   margin-top: 12px;
   padding: 18px;
   box-shadow: none;
-  border: 2px solid rgba(240, 180, 55, 0.88);
+  border: 2px solid rgba(188, 167, 132, 0.88);
   border-radius: 20px;
   background:
-    radial-gradient(circle at top center, rgba(255, 196, 64, 0.06), transparent 30%),
+    radial-gradient(circle at top center, rgba(210, 189, 157, 0.06), transparent 30%),
     linear-gradient(180deg, #111111 0%, #050505 100%);
-  color: #f3d486;
+  color: #e7d6bc;
 }
 
 .home-layout {
@@ -170,9 +170,9 @@ h4 {
 .revenue-box {
   position: relative;
   background:
-    radial-gradient(circle at 50% 100%, rgba(255, 185, 60, 0.12), transparent 22%),
+    radial-gradient(circle at 50% 100%, rgba(210, 189, 157, 0.12), transparent 22%),
     linear-gradient(180deg, #121212 0%, #070707 100%);
-  color: #fff2cf;
+  color: #f4e9d8;
   border-radius: 24px;
   padding: 28px 20px;
   min-height: 128px;
@@ -181,11 +181,11 @@ h4 {
   align-items: center;
   justify-content: center;
   gap: 8px;
-  border: 2px solid rgba(240, 180, 55, 0.88);
+  border: 2px solid rgba(188, 167, 132, 0.88);
   box-shadow:
-    inset 0 0 0 1px rgba(255, 227, 160, 0.08),
+    inset 0 0 0 1px rgba(210, 189, 157, 0.08),
     0 10px 26px rgba(0, 0, 0, 0.45),
-    0 0 12px rgba(255, 180, 40, 0.07);
+    0 0 12px rgba(210, 189, 157, 0.07);
   overflow: hidden;
 }
 
@@ -196,16 +196,16 @@ h4 {
   border-radius: inherit;
   pointer-events: none;
   background:
-    radial-gradient(circle at 50% 100%, rgba(255, 210, 100, 0.34), transparent 12%),
-    radial-gradient(circle at 0% 50%, rgba(255, 210, 100, 0.18), transparent 9%),
-    radial-gradient(circle at 100% 50%, rgba(255, 210, 100, 0.18), transparent 9%);
+    radial-gradient(circle at 50% 100%, rgba(210, 189, 157, 0.34), transparent 12%),
+    radial-gradient(circle at 0% 50%, rgba(210, 189, 157, 0.18), transparent 9%),
+    radial-gradient(circle at 100% 50%, rgba(210, 189, 157, 0.18), transparent 9%);
 }
 
 .revenue-box span {
   display: block;
   font-size: 17px;
   font-weight: 700;
-  color: #e4b65d;
+  color: #d9c4a3;
   line-height: 1.2;
 }
 
@@ -215,7 +215,7 @@ h4 {
   font-weight: 800;
   line-height: 1.1;
   margin-top: 2px;
-  color: #fff0cc;
+  color: #f4e9d8;
   letter-spacing: 0.3px;
 }
 
@@ -380,56 +380,56 @@ select {
 input,
 textarea,
 select {
-  border: 2px solid rgba(240, 180, 55, 0.88);
+  border: 2px solid rgba(188, 167, 132, 0.88);
   background:
     linear-gradient(180deg, #121212 0%, #080808 100%);
-  color: #fff1cc;
+  color: #f4e9d8;
   box-shadow:
-    inset 0 0 0 1px rgba(255, 230, 170, 0.05),
-    0 0 0 1px rgba(255, 190, 70, 0.04),
-    0 0 10px rgba(255, 180, 40, 0.05);
+    inset 0 0 0 1px rgba(210, 189, 157, 0.05),
+    0 0 0 1px rgba(210, 189, 157, 0.04),
+    0 0 10px rgba(210, 189, 157, 0.05);
 }
 
 select {
   background-color: #0a0a0a;
-  color: #fff1cc;
+  color: #f4e9d8;
 }
 
 select option {
   background-color: #0a0a0a;
-  color: #fff1cc;
+  color: #f4e9d8;
 }
 
 input::placeholder,
 textarea::placeholder {
-  color: #b9924b;
+  color: #b9a588;
 }
 
 input:focus,
 textarea:focus,
 select:focus {
   outline: none;
-  border-color: #ffd36a;
+  border-color: #e9d5b4;
   box-shadow:
-    inset 0 0 0 1px rgba(255, 230, 170, 0.08),
-    0 0 0 1px rgba(255, 211, 106, 0.10),
-    0 0 16px rgba(255, 200, 70, 0.18);
+    inset 0 0 0 1px rgba(210, 189, 157, 0.08),
+    0 0 0 1px rgba(210, 189, 157, 0.10),
+    0 0 16px rgba(210, 189, 157, 0.18);
 }
 
 button {
   position: relative;
-  border: 2px solid rgba(240, 180, 55, 0.88);
+  border: 2px solid rgba(188, 167, 132, 0.88);
   background:
-    linear-gradient(180deg, #e8b23a 0%, #c98b1f 52%, #eabb4e 100%);
+    linear-gradient(180deg, #e7d5b8 0%, #c8ae88 52%, #d9c3a2 100%);
   color: #111;
   cursor: pointer;
   font-weight: 800;
   transition: transform 0.18s ease, box-shadow 0.18s ease, filter 0.18s ease;
   box-shadow:
-    inset 0 1px 0 rgba(255, 239, 190, 0.45),
+    inset 0 1px 0 rgba(210, 189, 157, 0.45),
     inset 0 -2px 8px rgba(130, 70, 0, 0.22),
     0 10px 24px rgba(0, 0, 0, 0.36),
-    0 0 16px rgba(255, 196, 64, 0.16);
+    0 0 16px rgba(210, 189, 157, 0.16);
   overflow: hidden;
 }
 
@@ -440,7 +440,7 @@ button::before {
   border-radius: inherit;
   pointer-events: none;
   background:
-    radial-gradient(circle at 50% 100%, rgba(255, 241, 190, 0.40), transparent 22%),
+    radial-gradient(circle at 50% 100%, rgba(210, 189, 157, 0.40), transparent 22%),
     linear-gradient(180deg, rgba(255,255,255,0.10), transparent 35%);
 }
 
@@ -448,21 +448,21 @@ button:hover {
   transform: translateY(-1px);
   filter: brightness(1.03);
   box-shadow:
-    inset 0 1px 0 rgba(255, 239, 190, 0.50),
+    inset 0 1px 0 rgba(210, 189, 157, 0.50),
     inset 0 -2px 8px rgba(130, 70, 0, 0.24),
     0 14px 28px rgba(0, 0, 0, 0.42),
-    0 0 22px rgba(255, 205, 90, 0.24);
+    0 0 22px rgba(210, 189, 157, 0.24);
 }
 
 .secondary-button {
   background:
     linear-gradient(180deg, #141414 0%, #090909 100%);
-  color: #f1d288;
-  border: 2px solid rgba(240, 180, 55, 0.88);
+  color: #e7d6bc;
+  border: 2px solid rgba(188, 167, 132, 0.88);
   box-shadow:
-    inset 0 0 0 1px rgba(255, 227, 160, 0.06),
+    inset 0 0 0 1px rgba(210, 189, 157, 0.06),
     0 8px 20px rgba(0, 0, 0, 0.42),
-    0 0 14px rgba(255, 190, 70, 0.10);
+    0 0 14px rgba(210, 189, 157, 0.10);
 }
 
 .full-width {
@@ -502,20 +502,20 @@ button:hover {
   padding: 14px;
   margin-bottom: 14px;
   background:
-    radial-gradient(circle at 50% 0%, rgba(255, 210, 90, 0.10), transparent 40%),
+    radial-gradient(circle at 50% 0%, rgba(210, 189, 157, 0.10), transparent 40%),
     linear-gradient(180deg, #181818 0%, #0c0c0c 100%);
-  color: #f3d486;
+  color: #e7d6bc;
   box-shadow:
-    inset 0 0 0 1px rgba(255, 224, 130, 0.06),
+    inset 0 0 0 1px rgba(210, 189, 157, 0.06),
     0 6px 16px rgba(0, 0, 0, 0.45),
     0 0 10px rgba(240, 199, 102, 0.08);
 }
 
 .client-box:hover {
   transform: translateY(-2px);
-  border-color: #ffd36a;
+  border-color: #e9d5b4;
   box-shadow:
-    inset 0 0 0 1px rgba(255, 224, 130, 0.12),
+    inset 0 0 0 1px rgba(210, 189, 157, 0.12),
     0 10px 24px rgba(0, 0, 0, 0.55),
     0 0 18px rgba(240, 199, 102, 0.18);
 }
@@ -718,7 +718,7 @@ button:hover {
 
 .month-day-name {
   font-size: 11px;
-  color: #caa85c;
+  color: #c8b395;
   line-height: 1;
   font-weight: 700;
 }
@@ -1104,9 +1104,9 @@ button:hover {
   min-width: 160px;
   padding: 10px 16px;
   border-radius: 16px;
-  border: 2px solid rgba(240, 180, 55, 0.90);
+  border: 2px solid rgba(188, 167, 132, 0.90);
   background:
-    linear-gradient(180deg, #f1c14d 0%, #cf9526 55%, #f0c859 100%);
+    linear-gradient(180deg, #e7d5b8 0%, #c5a982 55%, #dfc7a4 100%);
   color: #111;
   font-size: 16px;
   font-weight: 800;
@@ -1331,7 +1331,7 @@ button:hover {
 
 .field-header button:hover,
 .field-header a:hover {
-  color: #ffd36a !important;
+  color: #e9d5b4 !important;
   text-decoration: underline;
 }
 
@@ -1362,7 +1362,7 @@ button:hover {
   border-radius: 24px;
   border: 2px solid rgba(240, 199, 102, 0.9);
   background:
-    radial-gradient(circle at center, rgba(255, 210, 90, 0.08), transparent 58%),
+    radial-gradient(circle at center, rgba(210, 189, 157, 0.08), transparent 58%),
     linear-gradient(180deg, #101010 0%, #050505 100%);
   padding: 2px;
   display: flex;
@@ -1372,9 +1372,9 @@ button:hover {
   text-align: center;
   cursor: pointer;
   transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
-  color: #f1d288;
+  color: #e7d6bc;
   box-shadow:
-    inset 0 0 0 1px rgba(255, 224, 130, 0.08),
+    inset 0 0 0 1px rgba(210, 189, 157, 0.08),
     0 10px 26px rgba(0, 0, 0, 0.42),
     0 0 12px rgba(212, 175, 55, 0.08);
   overflow: hidden;
@@ -1382,18 +1382,18 @@ button:hover {
 
 .home-menu-button:hover {
   transform: translateY(-3px);
-  border-color: #ffd36a;
+  border-color: #e9d5b4;
   box-shadow:
-    inset 0 0 0 1px rgba(255, 224, 130, 0.14),
+    inset 0 0 0 1px rgba(210, 189, 157, 0.14),
     0 14px 30px rgba(0, 0, 0, 0.48),
     0 0 18px rgba(240, 199, 102, 0.16),
     0 0 36px rgba(240, 199, 102, 0.10);
 }
 
 .home-menu-primary {
-  border: 2px solid #ffd36a;
+  border: 2px solid #e9d5b4;
   box-shadow:
-    inset 0 0 0 1px rgba(255, 224, 130, 0.14),
+    inset 0 0 0 1px rgba(210, 189, 157, 0.14),
     0 14px 30px rgba(0, 0, 0, 0.50),
     0 0 20px rgba(240, 199, 102, 0.18),
     0 0 42px rgba(240, 199, 102, 0.10);
@@ -1422,7 +1422,7 @@ button:hover {
 
 .stats-box {
   background:
-    radial-gradient(circle at 50% 100%, rgba(255, 210, 90, 0.10), transparent 35%),
+    radial-gradient(circle at 50% 100%, rgba(210, 189, 157, 0.10), transparent 35%),
     linear-gradient(180deg, #181818 0%, #0c0c0c 100%);
   border: 2px solid rgba(240, 199, 102, 0.7);
   border-radius: 16px;
@@ -1431,7 +1431,7 @@ button:hover {
   flex-direction: column;
   gap: 8px;
   box-shadow:
-    inset 0 0 0 1px rgba(255, 224, 130, 0.06),
+    inset 0 0 0 1px rgba(210, 189, 157, 0.06),
     0 8px 18px rgba(0, 0, 0, 0.40),
     0 0 10px rgba(240, 199, 102, 0.08);
 }
@@ -1443,14 +1443,14 @@ button:hover {
 
 .stats-box strong {
   font-size: 24px;
-  color: #fff0cc;
+  color: #f4e9d8;
 }
 
 .stats-box:hover {
   transform: translateY(-2px);
-  border-color: #ffd36a;
+  border-color: #e9d5b4;
   box-shadow:
-    inset 0 0 0 1px rgba(255, 224, 130, 0.12),
+    inset 0 0 0 1px rgba(210, 189, 157, 0.12),
     0 12px 24px rgba(0, 0, 0, 0.48),
     0 0 16px rgba(240, 199, 102, 0.14);
 }
@@ -1626,13 +1626,13 @@ button:hover {
 
 .home-screen-card {
   background:
-    radial-gradient(circle at top center, rgba(255, 215, 120, 0.08), transparent 22%),
+    radial-gradient(circle at top center, rgba(210, 189, 157, 0.08), transparent 22%),
     linear-gradient(180deg, #0d0d0d 0%, #040404 100%);
   border: 2px solid rgba(240, 199, 102, 0.88);
   border-radius: 42px;
   padding: 34px;
   box-shadow:
-    inset 0 0 0 1px rgba(255, 224, 130, 0.08),
+    inset 0 0 0 1px rgba(210, 189, 157, 0.08),
     0 14px 40px rgba(0, 0, 0, 0.52),
     0 0 20px rgba(240, 199, 102, 0.10);
 }
@@ -1666,7 +1666,7 @@ button:hover {
 
 .inline-link-button:hover {
   text-decoration: underline;
-  color: #ffd36a;
+  color: #e9d5b4;
 }
 
 .gold-line-glow {
@@ -1683,9 +1683,9 @@ button:hover {
   background:
     linear-gradient(90deg,
       transparent 0%,
-      rgba(255, 210, 90, 0.00) 18%,
-      rgba(255, 225, 150, 0.55) 50%,
-      rgba(255, 210, 90, 0.00) 82%,
+      rgba(210, 189, 157, 0.00) 18%,
+      rgba(210, 189, 157, 0.55) 50%,
+      rgba(210, 189, 157, 0.00) 82%,
       transparent 100%);
   mix-blend-mode: screen;
   opacity: 0.9;
@@ -1759,7 +1759,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   font-weight: 800;
   box-shadow:
     0 10px 30px rgba(0,0,0,0.5),
-    0 0 20px rgba(240,180,55,0.3);
+    0 0 20px rgba(188, 167, 132,0.3);
 }
 
 .success-box {
@@ -1808,23 +1808,23 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   border-radius: 16px;
   border: 2px solid rgba(240, 199, 102, 0.9);
   background:
-    radial-gradient(circle at center, rgba(255, 210, 90, 0.08), transparent 58%),
+    radial-gradient(circle at center, rgba(210, 189, 157, 0.08), transparent 58%),
     linear-gradient(180deg, #101010 0%, #050505 100%);
-  color: #f1d288;
+  color: #e7d6bc;
   cursor: pointer;
   font-weight: 800;
   box-shadow:
-    inset 0 0 0 1px rgba(255, 224, 130, 0.08),
+    inset 0 0 0 1px rgba(210, 189, 157, 0.08),
     0 10px 26px rgba(0, 0, 0, 0.42),
     0 0 12px rgba(212, 175, 55, 0.08);
 }
 
 .logout-button:hover {
   transform: translateY(-2px);
-  border-color: #ffd36a;
+  border-color: #e9d5b4;
   color: #ffe29a;
   box-shadow:
-    inset 0 0 0 1px rgba(255, 224, 130, 0.14),
+    inset 0 0 0 1px rgba(210, 189, 157, 0.14),
     0 14px 30px rgba(0, 0, 0, 0.48),
     0 0 18px rgba(240, 199, 102, 0.16);
 }
@@ -2189,7 +2189,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   padding: 12px 16px;
   border: none;
   border-radius: 10px;
-  background: #f3d486;
+  background: #e7d6bc;
   color: #111;
   text-decoration: none;
   font-weight: 700;
@@ -2354,20 +2354,20 @@ body,
   padding: 14px 18px;
   min-height: 92px;
   border-radius: 24px;
-  border: 2px solid rgba(240, 180, 55, 0.88);
+  border: 2px solid rgba(188, 167, 132, 0.88);
   background:
-    radial-gradient(circle at 50% 100%, rgba(255, 185, 60, 0.12), transparent 22%),
+    radial-gradient(circle at 50% 100%, rgba(210, 189, 157, 0.12), transparent 22%),
     linear-gradient(180deg, #121212 0%, #070707 100%);
-  color: #fff2cf;
+  color: #f4e9d8;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   gap: 6px;
   box-shadow:
-    inset 0 0 0 1px rgba(255, 227, 160, 0.08),
+    inset 0 0 0 1px rgba(210, 189, 157, 0.08),
     0 10px 26px rgba(0, 0, 0, 0.45),
-    0 0 12px rgba(255, 180, 40, 0.07);
+    0 0 12px rgba(210, 189, 157, 0.07);
   overflow: hidden;
 }
 
@@ -2375,7 +2375,7 @@ body,
   display: block;
   font-size: 15px;
   font-weight: 700;
-  color: #e4b65d;
+  color: #d9c4a3;
   line-height: 1.2;
 }
 
@@ -2384,7 +2384,7 @@ body,
   font-size: 24px;
   font-weight: 800;
   line-height: 1.1;
-  color: #fff0cc;
+  color: #f4e9d8;
   letter-spacing: 0.3px;
 }
 
@@ -2426,7 +2426,7 @@ body,
   text-align: center;
   font-weight: 700;
   font-size: 0.72rem;
-  color: #caa85c;
+  color: #c8b395;
   padding: 2px 0;
   line-height: 1;
 }
@@ -2559,9 +2559,9 @@ body,
 }
 
 .client-appointment-card:hover {
-  border-color: #ffd36a;
+  border-color: #e9d5b4;
   box-shadow:
-    inset 0 0 0 1px rgba(255, 224, 130, 0.12),
+    inset 0 0 0 1px rgba(210, 189, 157, 0.12),
     0 10px 24px rgba(0, 0, 0, 0.55),
     0 0 18px rgba(240, 199, 102, 0.18);
 }
@@ -2815,20 +2815,20 @@ body,
   background:
     radial-gradient(
       circle at top center,
-      rgba(255, 196, 64, 0.08),
+      rgba(210, 189, 157, 0.08),
       transparent 30%
     ),
     linear-gradient(180deg, #111111 0%, #050505 100%);
 
-  border: 2px solid rgba(240, 180, 55, 0.9);
+  border: 2px solid rgba(188, 167, 132, 0.9);
 
   box-shadow:
-    inset 0 0 0 1px rgba(255, 227, 160, 0.08),
+    inset 0 0 0 1px rgba(210, 189, 157, 0.08),
     0 20px 55px rgba(0, 0, 0, 0.75),
-    0 0 28px rgba(255, 190, 70, 0.16);
+    0 0 28px rgba(210, 189, 157, 0.16);
 
   text-align: center;
-  color: #f3d486;
+  color: #e7d6bc;
 
   animation: subscriptionModalIn 0.25s ease;
 }
@@ -2837,14 +2837,14 @@ body,
   margin: 0 0 18px;
   font-size: 34px;
   line-height: 1.15;
-  color: #efb23e;
+  color: #dfcba8;
 }
 
 .subscription-modal p {
   margin: 10px 0;
   font-size: 16px;
   line-height: 1.55;
-  color: #f3d486;
+  color: #e7d6bc;
 }
 
 .subscription-modal-price {
@@ -2855,19 +2855,19 @@ body,
   background:
     linear-gradient(180deg, #151515 0%, #090909 100%);
 
-  border: 1px solid rgba(240, 180, 55, 0.75);
+  border: 1px solid rgba(188, 167, 132, 0.75);
 }
 
 .subscription-modal-price span {
   display: block;
   margin-bottom: 6px;
-  color: #c7973c;
+  color: #c8b392;
   font-size: 14px;
 }
 
 .subscription-modal-price strong {
   display: block;
-  color: #fff0cc;
+  color: #f4e9d8;
   font-size: 28px;
 }
 
@@ -2885,7 +2885,7 @@ body,
 .subscription-modal-cancel {
   background:
     linear-gradient(180deg, #141414 0%, #090909 100%);
-  color: #f1d288;
+  color: #e7d6bc;
 }
 
 @keyframes subscriptionModalIn {
@@ -2998,7 +2998,7 @@ select option {background:#111; color:#f2e5cf;}
   border: 1px solid rgba(212, 186, 137, .65);
   border-radius: 22px;
   background: linear-gradient(155deg, #22201d 0%, #121211 48%, #090909 100%);
-  box-shadow: 0 24px 85px rgba(0,0,0,.72), 0 0 0 1px rgba(255,244,220,.05) inset;
+  box-shadow: 0 24px 85px rgba(0,0,0,.72), 0 0 0 1px rgba(210, 189, 157,.05) inset;
   color: #f5eee1;
   text-align: left;
   animation: logilya-dialog-in .22s cubic-bezier(.2,.8,.2,1);
@@ -3489,3 +3489,43 @@ body:has(.subscription-modal) .subscription-modal-overlay {
   color: #ecd8b7 !important;
   -webkit-text-fill-color: #ecd8b7 !important;
 }
+
+/* =========================================================
+   CORRECTION DEFINITIVE : MODALES ABONNEMENT + FIN D'ESSAI
+   Couleurs champagne, contraste et lisibilite
+   ========================================================= */
+.subscription-modal-overlay { background: rgba(0,0,0,.78) !important; backdrop-filter: blur(3px) !important; }
+.subscription-modal, .container > .card[style*="620px"] {
+ background: linear-gradient(155deg,#252320,#161615 65%,#111111) !important;
+ border: 1px solid #bca784 !important;
+ box-shadow: 0 22px 60px rgba(0,0,0,.55) !important;
+ color: #eee1cc !important;
+}
+.subscription-modal::before,.subscription-modal::after,
+.container > .card[style*="620px"]::before,.container > .card[style*="620px"]::after {display:none !important;}
+.subscription-modal h1,.subscription-modal h2,.subscription-modal h3,
+.container > .card[style*="620px"] h1 {color:#f0dfc4 !important;text-shadow:none !important;}
+.subscription-modal p,.subscription-modal label,.subscription-modal span,.subscription-modal small,
+.container > .card[style*="620px"] p,.container > .card[style*="620px"] span {color:#e0d1b9 !important;opacity:1 !important;text-shadow:none !important;}
+.subscription-modal strong,.subscription-modal-price strong,
+.container > .card[style*="620px"] strong {color:#f5e9d8 !important;text-shadow:none !important;}
+.subscription-modal-price {background:#1b1a18 !important;border:1px solid #8e7e67 !important;box-shadow:none !important;}
+.subscription-modal select,.subscription-modal input {background:#201e1b !important;color:#f4e8d7 !important;border:1px solid #bca784 !important;box-shadow:none !important;}
+.subscription-modal select option {background:#201e1b !important;color:#f4e8d7 !important;}
+.subscription-modal button:not(.subscription-modal-cancel),
+.container > .card[style*="620px"] button:not(.secondary-button) {
+ background:linear-gradient(180deg,#f1e4d0,#d9c4a5) !important;
+ color:#26201a !important;-webkit-text-fill-color:#26201a !important;
+ border:1px solid #c4ae8d !important;box-shadow:none !important;text-shadow:none !important;
+}
+.subscription-modal button:not(.subscription-modal-cancel) *,
+.subscription-modal button:not(.subscription-modal-cancel) span {
+ color:#26201a !important;-webkit-text-fill-color:#26201a !important;
+}
+.subscription-modal button.subscription-modal-cancel,
+.container > .card[style*="620px"] button.secondary-button {
+ background:#211f1d !important;color:#eee1cc !important;-webkit-text-fill-color:#eee1cc !important;
+ border:1px solid #9f8b6f !important;box-shadow:none !important;
+}
+.subscription-modal button::before,.container > .card[style*="620px"] button::before {display:none !important;}
+.subscription-modal button:focus-visible,.subscription-modal select:focus-visible {outline:2px solid #f0dfc4 !important;outline-offset:2px;}

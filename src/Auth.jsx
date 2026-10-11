@@ -2,29 +2,45 @@ import { useState } from "react";
 import { supabase } from "./supabaseClient";
 
 export default function Auth() {
-  // Connexion
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  // Création de compte
   const [showSignUpModal, setShowSignUpModal] = useState(false);
   const [signUpEmail, setSignUpEmail] = useState("");
   const [signUpPassword, setSignUpPassword] = useState("");
   const [signUpPasswordConfirm, setSignUpPasswordConfirm] = useState("");
   const [signUpMessage, setSignUpMessage] = useState("");
 
-  // Affichage / masquage des mots de passe de création
   const [showSignUpPassword, setShowSignUpPassword] = useState(false);
   const [showSignUpPasswordConfirm, setShowSignUpPasswordConfirm] =
     useState(false);
 
-  // Message général
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
-
-  // Confirmation après création
   const [showAccountCreatedModal, setShowAccountCreatedModal] =
     useState(false);
+
+  // ========================================
+  // PALETTE NOIR / BEIGE / CHAMPAGNE
+  // ========================================
+
+  const theme = {
+    black: "#08090a",
+    panel: "#141516",
+    panelLight: "#22201d",
+    champagne: "#e8d4b5",
+    champagneLight: "#f3e8d7",
+    champagneDark: "#c6aa83",
+    beige: "#f1e7d8",
+    muted: "#c9bdad",
+    border: "#bca784",
+    textDark: "#211c16",
+    error: "#f0b7aa",
+  };
+
+  // ========================================
+  // GESTION DES FENÊTRES
+  // ========================================
 
   function openSignUpModal() {
     setSignUpEmail("");
@@ -46,6 +62,10 @@ export default function Auth() {
     setShowSignUpPasswordConfirm(false);
   }
 
+  // ========================================
+  // CRÉATION DE COMPTE
+  // ========================================
+
   async function handleSignUp() {
     setSignUpMessage("");
 
@@ -61,8 +81,14 @@ export default function Auth() {
       return;
     }
 
-    if (signUpPassword.length < 8 || !/[A-Za-z]/.test(signUpPassword) || !/[0-9]/.test(signUpPassword)) {
-      setSignUpMessage("Le mot de passe doit contenir au moins 8 caractères, dont des lettres et des chiffres.");
+    if (
+      signUpPassword.length < 8 ||
+      !/[A-Za-z]/.test(signUpPassword) ||
+      !/[0-9]/.test(signUpPassword)
+    ) {
+      setSignUpMessage(
+        "Le mot de passe doit contenir au moins 8 caractères, dont des lettres et des chiffres."
+      );
       return;
     }
 
@@ -80,76 +106,98 @@ export default function Auth() {
 
     setLoading(true);
 
-    // Ne pas interroger email_exists : cette RPC exposerait l'existence des comptes.
-    // Supabase Auth gère l'inscription et, si la confirmation email est activée,
-    // peut renvoyer une réponse non révélatrice pour une adresse déjà utilisée.
-    const { error } = await supabase.auth.signUp({
-      email: cleanEmail,
-      password: signUpPassword,
-    });
+    try {
+      const { error } = await supabase.auth.signUp({
+        email: cleanEmail,
+        password: signUpPassword,
+      });
 
-    if (error) {
-      // Ne pas exposer les erreurs signalant explicitement qu'un compte existe.
-      const detail = String(error.message || "");
-      const duplicate = /already registered|already exists|user already|email.*registered|email.*exists/i.test(detail);
-      setSignUpMessage(duplicate
-        ? "Si cette adresse peut être utilisée, un email de confirmation vous sera envoyé. Si vous possédez déjà un compte, connectez-vous."
-        : detail);
+      if (error) {
+        const detail = String(error.message || "");
+
+        const duplicate =
+          /already registered|already exists|user already|email.*registered|email.*exists/i.test(
+            detail
+          );
+
+        setSignUpMessage(
+          duplicate
+            ? "Si cette adresse peut être utilisée, un email de confirmation vous sera envoyé. Si vous possédez déjà un compte, connectez-vous."
+            : detail
+        );
+
+        return;
+      }
+
+      setShowSignUpModal(false);
+
+      setEmail(cleanEmail);
+      setPassword("");
+
+      setSignUpEmail("");
+      setSignUpPassword("");
+      setSignUpPasswordConfirm("");
+      setSignUpMessage("");
+
+      setShowSignUpPassword(false);
+      setShowSignUpPasswordConfirm(false);
+
+      setShowAccountCreatedModal(true);
+    } catch {
+      setSignUpMessage(
+        "Une erreur est survenue. Veuillez réessayer."
+      );
+    } finally {
       setLoading(false);
-      return;
     }
-
-    setLoading(false);
-
-    // Ferme la fenêtre de création
-    setShowSignUpModal(false);
-
-    // Préremplit l'adresse email sur la page de connexion
-    setEmail(cleanEmail);
-    setPassword("");
-
-    // Vide les champs de création
-    setSignUpEmail("");
-    setSignUpPassword("");
-    setSignUpPasswordConfirm("");
-    setSignUpMessage("");
-    setShowSignUpPassword(false);
-    setShowSignUpPasswordConfirm(false);
-
-    // Affiche la grande confirmation
-    setShowAccountCreatedModal(true);
   }
 
+  // ========================================
+  // CONNEXION
+  // ========================================
+
   async function handleSignIn() {
+    if (loading) return;
+
     setLoading(true);
     setMessage("");
 
-    const { error } = await supabase.auth.signInWithPassword({
-      email: email.trim(),
-      password,
-    });
+    try {
+      const { error } = await supabase.auth.signInWithPassword({
+        email: email.trim(),
+        password,
+      });
 
-    if (error) {
-      setMessage(error.message);
-    } else {
-      setMessage("Connexion réussie.");
+      if (error) {
+        setMessage(error.message);
+      } else {
+        setMessage("Connexion réussie.");
+      }
+    } catch {
+      setMessage(
+        "Impossible de se connecter pour le moment."
+      );
+    } finally {
+      setLoading(false);
     }
-
-    setLoading(false);
   }
+
+  // ========================================
+  // STYLES CHAMPAGNE
+  // ========================================
 
   const overlayStyle = {
     position: "fixed",
-    top: 0,
-    left: 0,
+    inset: 0,
     width: "100%",
     height: "100%",
-    backgroundColor: "rgba(0, 0, 0, 0.9)",
+    background: "rgba(0, 0, 0, 0.88)",
+    backdropFilter: "blur(7px)",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
     zIndex: 99999,
-    padding: "20px",
+    padding: "16px",
     boxSizing: "border-box",
   };
 
@@ -158,84 +206,203 @@ export default function Auth() {
     maxWidth: "520px",
     maxHeight: "90vh",
     overflowY: "auto",
-    background: "linear-gradient(145deg, #242321 0%, #151515 100%)",
-    border: "1px solid #bca784",
-    borderRadius: "28px",
-    padding: "38px 30px",
+    background:
+      "linear-gradient(155deg, #22201d 0%, #141516 55%, #090909 100%)",
+    border: `1px solid ${theme.border}`,
+    borderRadius: "20px",
+    padding: "30px 24px",
     boxSizing: "border-box",
-    boxShadow:
-      "0 20px 60px rgba(0, 0, 0, 0.55)",
+    boxShadow: "0 24px 65px rgba(0, 0, 0, 0.65)",
+    color: theme.beige,
+    fontFamily: "Georgia, 'Times New Roman', serif",
+  };
+
+  const titleStyle = {
+    color: theme.champagneLight,
+    fontFamily: "Georgia, 'Times New Roman', serif",
+    fontSize: "32px",
+    fontWeight: 500,
+    lineHeight: 1.2,
+    margin: "0 0 22px",
+    textAlign: "center",
+  };
+
+  const labelStyle = {
+    display: "block",
+    color: theme.champagne,
+    fontSize: "15px",
+    fontWeight: 600,
+    marginBottom: "7px",
   };
 
   const modalInputStyle = {
+    display: "block",
     width: "100%",
+    minHeight: "48px",
     boxSizing: "border-box",
-    marginBottom: "14px",
-    background: "#f5f0e8",
-    color: "#26231f",
-    border: "1px solid #bca784",
-    borderRadius: "10px",
+    margin: "0 0 16px",
     padding: "12px 14px",
+    background: "#f5f0e8",
+    color: theme.textDark,
+    border: `1px solid ${theme.border}`,
+    borderRadius: "10px",
     fontSize: "16px",
+    fontFamily: "Arial, sans-serif",
+    boxShadow: "none",
   };
 
   const passwordWrapperStyle = {
     position: "relative",
     width: "100%",
-    marginBottom: "14px",
+    marginBottom: "16px",
   };
 
   const passwordInputStyle = {
-    width: "100%",
-    boxSizing: "border-box",
+    ...modalInputStyle,
     marginBottom: 0,
     paddingRight: "50px",
-    background: "#f5f0e8",
-    color: "#26231f",
-    border: "1px solid #bca784",
-    borderRadius: "10px",
-    padding: "12px 50px 12px 14px",
-    fontSize: "16px",
   };
 
   const eyeButtonStyle = {
     position: "absolute",
-    right: "12px",
+    right: "9px",
     top: "50%",
     transform: "translateY(-50%)",
-    width: "34px",
-    height: "34px",
-    padding: 0,
-    margin: 0,
-    border: "none",
-    background: "transparent",
-    boxShadow: "none",
-    color: "#5a4b38",
-    cursor: "pointer",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
+    width: "38px",
+    height: "38px",
+    minWidth: "38px",
+    minHeight: "38px",
+    margin: 0,
+    padding: 0,
+    background: "transparent",
+    backgroundImage: "none",
+    color: "#5a4b38",
+    border: "none",
+    borderRadius: "8px",
+    boxShadow: "none",
+    cursor: "pointer",
     zIndex: 2,
   };
 
+  const primaryButtonStyle = {
+    display: "block",
+    width: "100%",
+    minHeight: "48px",
+    padding: "13px 18px",
+    marginTop: "12px",
+    background:
+      "linear-gradient(180deg, #f3e8d7 0%, #ddc6a5 100%)",
+    backgroundImage:
+      "linear-gradient(180deg, #f3e8d7 0%, #ddc6a5 100%)",
+    color: theme.textDark,
+    WebkitTextFillColor: theme.textDark,
+    border: `1px solid ${theme.champagneDark}`,
+    borderRadius: "12px",
+    fontSize: "15px",
+    fontWeight: 700,
+    fontFamily: "Arial, sans-serif",
+    boxShadow: "0 4px 12px rgba(0,0,0,0.25)",
+    cursor: "pointer",
+  };
+
+  const secondaryButtonStyle = {
+    ...primaryButtonStyle,
+    background: "#181818",
+    backgroundImage: "none",
+    color: theme.champagneLight,
+    WebkitTextFillColor: theme.champagneLight,
+    border: `1px solid ${theme.border}`,
+    boxShadow: "none",
+  };
+
   const offerStyle = {
-    border: "1px solid #bca784",
-    borderRadius: "16px",
-    padding: "18px",
+    border: `1px solid ${theme.border}`,
+    borderRadius: "14px",
+    padding: "20px 16px",
     marginBottom: "24px",
     textAlign: "center",
     background:
-      "linear-gradient(145deg, rgba(188,167,132,0.12), rgba(188,167,132,0.035))",
-    boxShadow: "0 0 14px rgba(188,167,132,0.09)",
+      "linear-gradient(145deg, rgba(188,167,132,0.13), rgba(188,167,132,0.035))",
   };
+
+  const messageStyle = {
+    marginTop: "10px",
+    marginBottom: "16px",
+    padding: "12px 14px",
+    border: `1px solid ${theme.border}`,
+    borderRadius: "10px",
+    background: "rgba(188,167,132,0.10)",
+    color: theme.champagneLight,
+    fontSize: "14px",
+    lineHeight: 1.5,
+  };
+
+  // ========================================
+  // AFFICHAGE / MASQUAGE MOT DE PASSE
+  // ========================================
+
+  function EyeIcon({ visible }) {
+    return visible ? (
+      <svg
+        width="22"
+        height="22"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <path d="M3 3l18 18" />
+        <path d="M10.6 10.6a2 2 0 002.8 2.8" />
+        <path d="M9.9 4.2A10.6 10.6 0 0112 4c5.5 0 9 8 9 8a17.5 17.5 0 01-2.1 3.2" />
+        <path d="M6.6 6.6C4.4 8.1 3 12 3 12s3.5 8 9 8a9.7 9.7 0 004.1-.9" />
+      </svg>
+    ) : (
+      <svg
+        width="22"
+        height="22"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z" />
+        <circle cx="12" cy="12" r="3" />
+      </svg>
+    );
+  }
+
+  // ========================================
+  // INTERFACE
+  // ========================================
 
   return (
     <>
-      {/* =========================
-          CONNEXION
-      ========================== */}
-      <div className="card" style={{ maxWidth: 420, margin: "40px auto", background: "linear-gradient(145deg, #242321, #151515)", border: "1px solid #bca784", color: "#f3eadc", borderRadius: 18, boxShadow: "0 16px 42px rgba(0,0,0,0.23)" }}>
-        <h2 style={{ color: "#dfcba8", textAlign: "center", letterSpacing: "0.04em" }}>Connexion</h2>
+      {/* =====================================
+          PAGE DE CONNEXION
+      ===================================== */}
+
+      <div
+        className="card"
+        style={{
+          maxWidth: "420px",
+          margin: "40px auto",
+          padding: "30px 24px",
+          background:
+            "linear-gradient(145deg, #22201d, #101112)",
+          border: `1px solid ${theme.border}`,
+          borderRadius: "18px",
+          color: theme.beige,
+          boxShadow: "0 16px 42px rgba(0,0,0,0.35)",
+        }}
+      >
+        <h2 style={titleStyle}>Connexion</h2>
 
         <input
           type="email"
@@ -243,6 +410,7 @@ export default function Auth() {
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           autoComplete="email"
+          aria-label="Adresse email"
         />
 
         <input
@@ -251,6 +419,7 @@ export default function Auth() {
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           autoComplete="current-password"
+          aria-label="Mot de passe"
           onKeyDown={(e) => {
             if (e.key === "Enter" && !loading) {
               handleSignIn();
@@ -258,148 +427,155 @@ export default function Auth() {
           }}
         />
 
-        <button onClick={handleSignIn} disabled={loading}>
+        <button
+          type="button"
+          onClick={handleSignIn}
+          disabled={loading}
+          style={primaryButtonStyle}
+        >
           {loading ? "Chargement..." : "Se connecter"}
         </button>
 
         <button
-          className="secondary-button"
+          type="button"
           onClick={openSignUpModal}
           disabled={loading}
+          style={secondaryButtonStyle}
         >
           Créer un compte
         </button>
 
-        {message ? <p style={{ marginTop: 12, color: "#f3eadc" }} role="status">{message}</p> : null}
+        {message && (
+          <p
+            role="status"
+            style={{
+              marginTop: "16px",
+              color: theme.champagneLight,
+              lineHeight: 1.5,
+            }}
+          >
+            {message}
+          </p>
+        )}
       </div>
 
-      {/* =========================
-          FENÊTRE CRÉATION COMPTE
-      ========================== */}
+      {/* =====================================
+          FENÊTRE CRÉATION DE COMPTE
+      ===================================== */}
+
       {showSignUpModal && (
         <div style={overlayStyle}>
-          <div style={modalStyle}>
-            <h2
-              style={{
-                color: "#dfcba8",
-                fontSize: "32px",
-                margin: "0 0 10px 0",
-                textAlign: "center",
-              }}
-            >
-              Créer un compte
-            </h2>
+          <div
+            style={modalStyle}
+            role="dialog"
+            aria-modal="true"
+            aria-label="Créer un compte"
+          >
+            <h2 style={titleStyle}>Créer un compte</h2>
 
-            {/* OFFRE COMMERCIALE */}
+            {/* OFFRE D'ESSAI */}
+
             <div style={offerStyle}>
               <div
                 style={{
-                  color: "#dfcba8",
-                  fontSize: "23px",
-                  fontWeight: "bold",
-                  marginBottom: "8px",
+                  color: theme.champagneLight,
+                  fontSize: "24px",
+                  fontWeight: 600,
+                  marginBottom: "12px",
                 }}
               >
-                30 jours d&apos;essai gratuit
+                30 jours d'essai gratuit
               </div>
 
-              <div
+              <p
                 style={{
-                  color: "#ffffff",
+                  color: theme.beige,
                   fontSize: "15px",
-                  lineHeight: "1.5",
-                  marginBottom: "10px",
+                  lineHeight: 1.6,
+                  margin: "0 0 12px",
                 }}
               >
-                Profitez de l&apos;accès complet à l&apos;application pendant
-                30 jours.
-              </div>
+                Profitez de l'accès complet à l'application
+                pendant 30 jours.
+              </p>
 
-              <div
+              <p
                 style={{
-                  color: "#ffffff",
+                  color: theme.beige,
                   fontSize: "16px",
-                  lineHeight: "1.5",
+                  lineHeight: 1.5,
+                  margin: "0 0 12px",
                 }}
               >
-                Puis à partir de{" "}
+                Puis à partir de
+                <br />
                 <strong
                   style={{
-                    color: "#dfcba8",
-                    fontSize: "21px",
+                    display: "inline-block",
+                    marginTop: "6px",
+                    color: theme.champagneLight,
+                    fontSize: "24px",
                   }}
                 >
                   9,90 € TTC / mois
                 </strong>
-              </div>
+              </p>
 
               <div
                 style={{
-                  color: "#c5beb3",
+                  color: theme.muted,
                   fontSize: "13px",
-                  marginTop: "5px",
+                  lineHeight: 1.7,
                 }}
               >
-                Formule Solo : 1 membre de l’équipe — 9,90 € / mois
+                Formule Solo : 1 membre de l'équipe
+                <br />
+                9,90 € / mois
                 <br />
                 Membre supplémentaire : +8 € / mois
                 <br />
                 Abonnement annuel Solo : 99 € / an
                 <br />
-                Remise annuelle équivalente pour les formules multi-membres
+                Remise annuelle équivalente pour les
+                formules multi-membres
                 <br />
-                <span style={{ display: "inline-block", marginTop: "7px" }}>
+                <span
+                  style={{
+                    display: "inline-block",
+                    marginTop: "8px",
+                    color: theme.champagne,
+                  }}
+                >
                   Tarifs TTC · Sans engagement
                 </span>
               </div>
             </div>
 
-            <p
-              style={{
-                color: "#e0d8ca",
-                fontSize: "15px",
-                lineHeight: "1.5",
-                textAlign: "center",
-                margin: "0 0 28px 0",
-              }}
-            >
-              Renseignez votre adresse email et choisissez un mot de passe de 8 caractères minimum, avec des lettres et des chiffres.
-            </p>
+            {/* ADRESSE EMAIL */}
 
-            <label
-              style={{
-                display: "block",
-                color: "#dfcba8",
-                fontWeight: "bold",
-                marginBottom: "7px",
-              }}
-            >
+            <label style={labelStyle} htmlFor="signup-email">
               Adresse email
             </label>
 
             <input
+              id="signup-email"
               type="email"
               placeholder="Votre adresse email"
               value={signUpEmail}
               onChange={(e) => setSignUpEmail(e.target.value)}
               autoComplete="email"
               style={modalInputStyle}
-              autoFocus
             />
 
-            <label
-              style={{
-                display: "block",
-                color: "#dfcba8",
-                fontWeight: "bold",
-                marginBottom: "7px",
-              }}
-            >
+            {/* MOT DE PASSE */}
+
+            <label style={labelStyle} htmlFor="signup-password">
               Mot de passe
             </label>
 
             <div style={passwordWrapperStyle}>
               <input
+                id="signup-password"
                 type={showSignUpPassword ? "text" : "password"}
                 placeholder="Choisissez votre mot de passe"
                 value={signUpPassword}
@@ -411,7 +587,7 @@ export default function Auth() {
               <button
                 type="button"
                 onClick={() =>
-                  setShowSignUpPassword((currentValue) => !currentValue)
+                  setShowSignUpPassword((value) => !value)
                 }
                 style={eyeButtonStyle}
                 aria-label={
@@ -420,57 +596,32 @@ export default function Auth() {
                     : "Afficher le mot de passe"
                 }
               >
-                {showSignUpPassword ? (
-                  <svg
-                    width="22"
-                    height="22"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  >
-                    <path d="M3 3l18 18" />
-                    <path d="M10.6 10.6a2 2 0 002.8 2.8" />
-                    <path d="M9.9 4.2A10.6 10.6 0 0112 4c5.5 0 9 8 9 8a17.5 17.5 0 01-2.1 3.2" />
-                    <path d="M6.6 6.6C4.4 8.1 3 12 3 12s3.5 8 9 8a9.7 9.7 0 004.1-.9" />
-                  </svg>
-                ) : (
-                  <svg
-                    width="22"
-                    height="22"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  >
-                    <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z" />
-                    <circle cx="12" cy="12" r="3" />
-                  </svg>
-                )}
+                <EyeIcon visible={showSignUpPassword} />
               </button>
             </div>
 
+            {/* CONFIRMATION MOT DE PASSE */}
+
             <label
-              style={{
-                display: "block",
-                color: "#dfcba8",
-                fontWeight: "bold",
-                marginBottom: "7px",
-              }}
+              style={labelStyle}
+              htmlFor="signup-password-confirm"
             >
               Confirmez votre mot de passe
             </label>
 
             <div style={passwordWrapperStyle}>
               <input
-                type={showSignUpPasswordConfirm ? "text" : "password"}
+                id="signup-password-confirm"
+                type={
+                  showSignUpPasswordConfirm
+                    ? "text"
+                    : "password"
+                }
                 placeholder="Saisissez à nouveau votre mot de passe"
                 value={signUpPasswordConfirm}
-                onChange={(e) => setSignUpPasswordConfirm(e.target.value)}
+                onChange={(e) =>
+                  setSignUpPasswordConfirm(e.target.value)
+                }
                 autoComplete="new-password"
                 style={passwordInputStyle}
                 onKeyDown={(e) => {
@@ -484,7 +635,7 @@ export default function Auth() {
                 type="button"
                 onClick={() =>
                   setShowSignUpPasswordConfirm(
-                    (currentValue) => !currentValue
+                    (value) => !value
                   )
                 }
                 style={eyeButtonStyle}
@@ -494,75 +645,29 @@ export default function Auth() {
                     : "Afficher le mot de passe"
                 }
               >
-                {showSignUpPasswordConfirm ? (
-                  <svg
-                    width="22"
-                    height="22"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  >
-                    <path d="M3 3l18 18" />
-                    <path d="M10.6 10.6a2 2 0 002.8 2.8" />
-                    <path d="M9.9 4.2A10.6 10.6 0 0112 4c5.5 0 9 8 9 8a17.5 17.5 0 01-2.1 3.2" />
-                    <path d="M6.6 6.6C4.4 8.1 3 12 3 12s3.5 8 9 8a9.7 9.7 0 004.1-.9" />
-                  </svg>
-                ) : (
-                  <svg
-                    width="22"
-                    height="22"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  >
-                    <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z" />
-                    <circle cx="12" cy="12" r="3" />
-                  </svg>
-                )}
+                <EyeIcon
+                  visible={showSignUpPasswordConfirm}
+                />
               </button>
             </div>
 
-            {signUpMessage ? (
-              <div
-                style={{
-                  marginTop: "8px",
-                  marginBottom: "18px",
-                  padding: "12px 14px",
-                  border: "1px solid #bca784",
-                  borderRadius: "10px",
-                  backgroundColor: "rgba(188,167,132,0.10)",
-                  color: "#dfcba8",
-                  fontSize: "14px",
-                  lineHeight: "1.4",
-                }}
-              >
+            {/* MESSAGE D'ERREUR */}
+
+            {signUpMessage && (
+              <div role="alert" style={messageStyle}>
                 {signUpMessage}
               </div>
-            ) : null}
+            )}
+
+            {/* VALIDATION */}
 
             <button
+              type="button"
               onClick={handleSignUp}
               disabled={loading}
               style={{
-                width: "100%",
-                padding: "15px 20px",
-                marginTop: signUpMessage ? "0" : "12px",
-                border: "none",
-                borderRadius: "14px",
-                background:
-                  "linear-gradient(180deg, #e4d4b8 0%, #bda783 100%)",
-                color: "#000000",
-                fontSize: "17px",
-                fontWeight: "bold",
-                cursor: loading ? "default" : "pointer",
+                ...primaryButtonStyle,
                 opacity: loading ? 0.7 : 1,
-                boxShadow: "0 4px 12px rgba(188,167,132,0.20)",
               }}
             >
               {loading
@@ -571,13 +676,10 @@ export default function Auth() {
             </button>
 
             <button
-              className="secondary-button"
+              type="button"
               onClick={closeSignUpModal}
               disabled={loading}
-              style={{
-                width: "100%",
-                marginTop: "12px",
-              }}
+              style={secondaryButtonStyle}
             >
               Annuler
             </button>
@@ -585,9 +687,10 @@ export default function Auth() {
         </div>
       )}
 
-      {/* =========================
-          COMPTE CRÉÉ
-      ========================== */}
+      {/* =====================================
+          CONFIRMATION DE CRÉATION
+      ===================================== */}
+
       {showAccountCreatedModal && (
         <div style={overlayStyle}>
           <div
@@ -595,56 +698,54 @@ export default function Auth() {
               ...modalStyle,
               textAlign: "center",
             }}
+            role="dialog"
+            aria-modal="true"
+            aria-label="Demande enregistrée"
           >
             <div
               style={{
                 fontSize: "52px",
-                marginBottom: "10px",
-                color: "#dfcba8",
+                marginBottom: "12px",
+                color: theme.champagneLight,
               }}
             >
               ✓
             </div>
 
-            <h2
-              style={{
-                color: "#dfcba8",
-                fontSize: "32px",
-                margin: "0 0 15px 0",
-              }}
-            >
+            <h2 style={titleStyle}>
               Demande enregistrée
             </h2>
 
-            <div
-              style={{
-                border: "1px solid #bca784",
-                borderRadius: "14px",
-                padding: "15px",
-                marginBottom: "22px",
-                backgroundColor: "rgba(188,167,132,0.10)",
-              }}
-            >
+            <div style={offerStyle}>
               <div
                 style={{
-                  color: "#dfcba8",
-                  fontSize: "21px",
-                  fontWeight: "bold",
-                  marginBottom: "5px",
+                  color: theme.champagneLight,
+                  fontSize: "22px",
+                  fontWeight: 600,
+                  marginBottom: "12px",
                 }}
               >
-                Découvrez votre essai gratuit de 30 jours
+                Découvrez votre essai gratuit
+                de 30 jours
               </div>
 
               <div
                 style={{
-                  color: "#e0d8ca",
+                  color: theme.beige,
                   fontSize: "14px",
+                  lineHeight: 1.7,
                 }}
               >
-                À l&apos;issue de la période d&apos;essai : à partir de{" "}
-                <strong style={{ color: "#ffffff" }}>
-                  9,90 € TTC / mois en Solo
+                À l'issue de la période d'essai :
+                <br />
+                <strong
+                  style={{
+                    color: theme.champagneLight,
+                    fontSize: "17px",
+                  }}
+                >
+                  À partir de 9,90 € TTC / mois
+                  en Solo
                 </strong>
                 <br />
                 +8 € / mois par membre supplémentaire
@@ -655,49 +756,48 @@ export default function Auth() {
 
             <p
               style={{
-                color: "#ffffff",
-                fontSize: "20px",
-                lineHeight: "1.5",
-                marginBottom: "15px",
+                color: theme.champagneLight,
+                fontSize: "19px",
+                lineHeight: 1.5,
+                marginBottom: "16px",
               }}
             >
               <strong>
-                Consultez votre messagerie pour poursuivre votre inscription.
+                Consultez votre messagerie pour
+                poursuivre votre inscription.
               </strong>
             </p>
 
             <p
               style={{
-                color: "#e0d8ca",
-                fontSize: "16px",
-                lineHeight: "1.5",
-                marginBottom: "30px",
+                color: theme.muted,
+                fontSize: "15px",
+                lineHeight: 1.7,
+                marginBottom: "25px",
               }}
             >
-              Si un email de confirmation vous est adressé, cliquez sur le lien pour activer votre compte. Si vous possédez déjà un compte, utilisez la connexion.
+              Si un email de confirmation vous est
+              adressé, cliquez sur le lien pour
+              activer votre compte.
               <br />
               <br />
-              Pensez à vérifier vos courriers indésirables si vous ne trouvez
-              pas l&apos;email.
+              Si vous possédez déjà un compte,
+              utilisez la connexion.
+              <br />
+              <br />
+              Pensez à vérifier vos courriers
+              indésirables si vous ne trouvez pas
+              l'email.
             </p>
 
             <button
-              onClick={() => setShowAccountCreatedModal(false)}
-              style={{
-                width: "100%",
-                padding: "15px 20px",
-                border: "none",
-                borderRadius: "14px",
-                background:
-                  "linear-gradient(180deg, #e4d4b8 0%, #bda783 100%)",
-                color: "#000000",
-                fontSize: "17px",
-                fontWeight: "bold",
-                cursor: "pointer",
-                boxShadow: "0 4px 12px rgba(188,167,132,0.20)",
-              }}
+              type="button"
+              onClick={() =>
+                setShowAccountCreatedModal(false)
+              }
+              style={primaryButtonStyle}
             >
-              J&apos;ai compris
+              J'ai compris
             </button>
           </div>
         </div>
