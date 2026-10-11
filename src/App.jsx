@@ -417,6 +417,15 @@ const evaluateSetup = (artistsList, servicesList) => {
   return ok;
 };
 
+  // Règles de fermeture hebdomadaire et périodes de congés (stockées dans Supabase).
+  const [absenceRules, setAbsenceRules] = useState([]);
+  const [weeklyClosedDays, setWeeklyClosedDays] = useState([]);
+  const [leaveStart, setLeaveStart] = useState(getTodayDateOnly());
+  const [leaveEnd, setLeaveEnd] = useState(getTodayDateOnly());
+  const [leaveArtist, setLeaveArtist] = useState("all");
+  const [leaveLabel, setLeaveLabel] = useState("");
+  const [savingAbsences, setSavingAbsences] = useState(false);
+
   const [selectedDate, setSelectedDate] = useState(getTodayDateOnly());
   const [agendaView, setAgendaView] = useState("month");
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
@@ -1104,6 +1113,76 @@ console.log("ERREUR RDV =", appointmentsError);
   });
     evaluateSetup(artists || [], services || []);
 };
+
+  const loadAbsenceRules = async () => {
+    if (!session?.user?.id) return;
+    const { data: rules, error } = await supabase.from("absence_rules")
+      .select("*").eq("user_id", session.user.id).order("start_date", { ascending: true });
+    if (error) {
+      console.error("Chargement des congés :", error);
+      return;
+    }
+    setAbsenceRules(rules || []);
+    const weekly = (rules || []).filter((r) => r.rule_type === "weekly");
+    setWeeklyClosedDays(weekly.map((r) => Number(r.weekday)));
+  };
+
+  useEffect(() => {
+    if (session?.user?.id && accessAllowed) loadAbsenceRules();
+    else { setAbsenceRules([]); setWeeklyClosedDays([]); }
+  }, [session?.user?.id, accessAllowed]);
+
+  const dateHasAbsence = (dateKey, artistId = "all") => {
+    const day = toDate(dateKey)?.getDay();
+    return absenceRules.some((rule) => {
+      if (rule.rule_type === "weekly") return Number(rule.weekday) === day;
+      if (rule.rule_type !== "leave" || dateKey < rule.start_date || dateKey > rule.end_date) return false;
+      return rule.artist_id == null || (artistId !== "all" && String(rule.artist_id) === String(artistId));
+    });
+  };
+
+  const saveWeeklyClosures = async () => {
+    if (!session?.user?.id || savingAbsences) return;
+    setSavingAbsences(true);
+    try {
+      const { error: deleteError } = await supabase.from("absence_rules").delete()
+        .eq("user_id", session.user.id).eq("rule_type", "weekly");
+      if (deleteError) throw deleteError;
+      if (weeklyClosedDays.length) {
+        const { error } = await supabase.from("absence_rules").insert(
+          weeklyClosedDays.map((weekday) => ({ user_id: session.user.id, rule_type: "weekly", weekday }))
+        );
+        if (error) throw error;
+      }
+      await loadAbsenceRules();
+      showMessage("✔ Fermetures hebdomadaires enregistrées.");
+    } catch (error) { alert("Enregistrement impossible : " + error.message); }
+    finally { setSavingAbsences(false); }
+  };
+
+  const saveLeave = async () => {
+    if (!session?.user?.id || savingAbsences) return;
+    if (!leaveStart || !leaveEnd || leaveEnd < leaveStart) {
+      alert("Choisissez une date de début et une date de fin valides."); return;
+    }
+    setSavingAbsences(true);
+    const { error } = await supabase.from("absence_rules").insert({
+      user_id: session.user.id, rule_type: "leave", start_date: leaveStart,
+      end_date: leaveEnd, artist_id: leaveArtist === "all" ? null : leaveArtist,
+      label: leaveLabel.trim() || "Congés",
+    });
+    if (error) alert("Enregistrement impossible : " + error.message);
+    else { await loadAbsenceRules(); setLeaveLabel(""); showMessage("✔ Congés enregistrés."); }
+    setSavingAbsences(false);
+  };
+
+  const deleteLeave = async (id) => {
+    if (!window.confirm("Supprimer cette période de congés ?")) return;
+    const { error } = await supabase.from("absence_rules").delete()
+      .eq("id", id).eq("user_id", session.user.id).eq("rule_type", "leave");
+    if (error) alert(error.message);
+    else await loadAbsenceRules();
+  };
 
   const appointmentsWithClient = useMemo(() => {
     return appointments
@@ -3590,7 +3669,7 @@ const serviceHasAppointments = (serviceName) => {
 };
 
 const isClosedDay = (dateKey) => {
-  return closedDays.some((item) => item.day === dateKey);
+  return closedDays.some((item) => item.day === dateKey) || dateHasAbsence(dateKey, agendaArtistFilter);
 };
 
 const toggleClosedDay = async (dateKey) => {
@@ -4515,7 +4594,7 @@ const goNext = () => {
                  <label>
                    <input
                      type="checkbox"
-                     checked={isClosedDay(selectedDate)}
+                     checked={closedDays.some((item) => item.day === selectedDate)}
                      onChange={() => toggleClosedDay(selectedDate)}
                    />
                    Journée en congés
@@ -5160,8 +5239,11 @@ const goNext = () => {
     />
   </div>
 </button>
-
-
+            <button className="home-menu-button settings-tattoo-button" type="button" onClick={() => navigateTo("absences")}
+              style={{ display: "flex", alignItems: "center", justifyContent: "center", flexDirection: "column", gap: 8 }}>
+              <span style={{ fontSize: 38, color: "#d8bd8b" }}>▦</span>
+              <strong style={{ color: "#d8bd8b", letterSpacing: 1 }}>CONGÉS</strong>
+            </button>
           </div>
 
           <div
@@ -5178,6 +5260,56 @@ const goNext = () => {
               Déconnexion
             </button>
           </div>
+        </section>
+      )}
+
+      {page === "absences" && setupComplete && (
+        <section className="card">
+          <h2>Congés et fermetures du shop</h2>
+          <p className="muted-text">Configurez les jours de fermeture habituels et les absences des tatoueurs. Les dates sont conservées dans votre compte.</p>
+          <div className="card inner-card" style={{ marginBottom: 20 }}>
+            <h3>Fermeture hebdomadaire du shop</h3>
+            <p className="muted-text">Cochez les jours où le shop est systématiquement fermé, chaque semaine.</p>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 16, marginBottom: 16 }}>
+              {[{v:1,n:"Lundi"},{v:2,n:"Mardi"},{v:3,n:"Mercredi"},{v:4,n:"Jeudi"},{v:5,n:"Vendredi"},{v:6,n:"Samedi"},{v:0,n:"Dimanche"}].map((d) => (
+                <label key={d.v} style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                  <input type="checkbox" checked={weeklyClosedDays.includes(d.v)}
+                    onChange={() => setWeeklyClosedDays((prev) => prev.includes(d.v) ? prev.filter((v) => v !== d.v) : [...prev,d.v])}/>
+                  {d.n}
+                </label>
+              ))}
+            </div>
+            <button type="button" onClick={saveWeeklyClosures} disabled={savingAbsences}>Enregistrer les fermetures habituelles</button>
+          </div>
+          <div className="card inner-card" style={{ marginBottom: 20 }}>
+            <h3>Ajouter une période de congés</h3>
+            <div className="form-grid">
+              <label>Date de début<input type="date" value={leaveStart} onChange={(e) => setLeaveStart(e.target.value)}/></label>
+              <label>Date de fin<input type="date" min={leaveStart} value={leaveEnd} onChange={(e) => setLeaveEnd(e.target.value)}/></label>
+              <label>Tatoueur concerné
+                <select value={leaveArtist} onChange={(e) => setLeaveArtist(e.target.value)}>
+                  <option value="all">Tous les tatoueurs (shop fermé)</option>
+                  {artists.map((artist) => <option key={artist.id} value={artist.id}>{artist.name}</option>)}
+                </select>
+              </label>
+              <label>Motif (facultatif)<input type="text" value={leaveLabel} placeholder="Ex. Vacances d'été" onChange={(e) => setLeaveLabel(e.target.value)}/></label>
+            </div>
+            <button type="button" onClick={saveLeave} disabled={savingAbsences}>Enregistrer les congés</button>
+          </div>
+          <div className="card inner-card">
+            <h3>Périodes enregistrées</h3>
+            {absenceRules.filter((r) => r.rule_type === "leave").length === 0 ? <p className="muted-text">Aucun congé enregistré.</p> :
+              absenceRules.filter((r) => r.rule_type === "leave").map((rule) => (
+                <div key={rule.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 12, padding: "12px 0", borderBottom: "1px solid #8c7b60" }}>
+                  <span><strong>{rule.label || "Congés"}</strong> — {formatDateOnly(rule.start_date)} au {formatDateOnly(rule.end_date)}<br/>
+                    {rule.artist_id == null ? "Tous les tatoueurs" : artists.find((a) => String(a.id) === String(rule.artist_id))?.name || "Tatoueur supprimé"}
+                  </span>
+                  <button type="button" onClick={() => deleteLeave(rule.id)}>Supprimer</button>
+                </div>
+              ))}
+          </div>
+          <p className="muted-text">Les fermetures sont visibles dans l'agenda. Les congés individuels s'affichent lors du filtrage par tatoueur. Les rendez-vous existants ne sont pas supprimés.</p>
+          <button type="button" onClick={() => navigateTo("settings")}>Retour aux paramètres</button>
         </section>
       )}
 
