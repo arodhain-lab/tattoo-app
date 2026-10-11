@@ -4709,15 +4709,13 @@ const goNext = () => {
 
       {page === "home" && setupComplete && (
         <section className="card home-card">
-<h2 className="organizya-home-brand">
-  <span className="organizya-home-name">Organizya</span>
-
-  <span className="organizya-home-pro-line">
-    <span className="organizya-home-rule"></span>
-    <span className="organizya-home-pro">PRO</span>
-    <span className="organizya-home-rule"></span>
-  </span>
-</h2>
+<h2 className="organizya-home-brand" aria-label="Organizya PRO" style={{ margin: "4px 0 20px", padding: 0, width: "100%", display: "flex", justifyContent: "center", alignItems: "center" }}>
+            <img
+              src="/icons/logo_organizia.png"
+              alt="Organizya PRO"
+              style={{ display: "block", width: "min(76%, 320px)", maxWidth: "100%", height: "auto", objectFit: "contain" }}
+            />
+          </h2>
           <div
             className="home-menu-grid"
             style={
