@@ -2914,140 +2914,60 @@ body,
     flex-direction: column;
   }
 }
+
 /* ================================================================
-   ORGANISYA / TATTOO — DESIGN NOIR & BEIGE CONTEMPORAIN
-   Couche visuelle uniquement : aucune modification JSX nécessaire.
-   Les couleurs métier des rendez-vous sont préservées.
+   THEME NOIR / CHAMPAGNE — inspiré de la référence, SANS FLEURS
+   Modifications purement visuelles. Conserve la logique JSX.
    ================================================================ */
-:root {
-  --ui-black:#141310;
-  --ui-dark:#211f1b;
-  --ui-beige:#e8ddc9;
-  --ui-cream:#f6f1e8;
-  --ui-sand:#c7b69b;
-  --ui-line:#d8cbb7;
-  --ui-text:#24211d;
-  --ui-muted:#776e62;
-  --ui-accent:#a68b65;
-  --ui-shadow:0 12px 34px rgba(32,26,18,.09);
+:root { --lux-black:#08090a; --lux-panel:#101112; --lux-gold:#c6a16b; --lux-beige:#ecd8b7; --lux-line:rgba(198,161,107,.58); }
+body { background:#08090a !important; color:var(--lux-beige); font-family:Georgia, 'Times New Roman', serif; }
+h1,h2 {font-family:Georgia,'Times New Roman',serif; font-weight:500; letter-spacing:.1px; color:var(--lux-beige);}
+h3,h4,.home-section-title,.home-menu-title {color:var(--lux-beige);}
+.subtitle,.muted-text,.home-page-intro p {color:#c5aa83;}
+.card,.home-screen-card,.inner-card,.revenue-box,.stats-box,.client-box,.history-box,.agenda-item {
+ background:linear-gradient(145deg,#141516,#070809) !important;
+ color:var(--lux-beige); border:1px solid var(--lux-line);
+ box-shadow:0 12px 28px rgba(0,0,0,.36),inset 0 1px 0 rgba(255,255,255,.04);
 }
-body {
-  font-family: Inter, "Segoe UI", Arial, sans-serif;
-  background:#f0ebe2;
-  color:var(--ui-text);
-  -webkit-font-smoothing:antialiased;
-}
-h1,h2 {color:var(--ui-black);letter-spacing:-.035em;line-height:1.12;}
-h1 {font-size:clamp(32px,4.5vw,52px);}
-h2 {font-size:clamp(28px,4vw,43px);}
-h3,h4 {color:var(--ui-black);}
-.subtitle,.muted-text,.home-page-intro p,.stats-box span {color:var(--ui-muted);}
-.card,.home-screen-card,.inner-card,.revenue-box,.stats-box,
-.client-box,.history-box,.agenda-item,.subscription-modal,.success-box {
-  background:var(--ui-cream);
-  color:var(--ui-text);
-  border:1px solid var(--ui-line);
-  border-radius:20px;
-  box-shadow:var(--ui-shadow);
-}
-.card {padding:clamp(18px,3vw,30px);}
-.card::before,.card::after,.revenue-box::before {content:none;}
-.inner-card {background:#fffdf9;border-radius:14px;box-shadow:none;}
-.revenue-box,.stats-box {background:#fffdf9;border-radius:16px;}
-.revenue-box span,.stats-box span {color:var(--ui-muted);}
-.revenue-box strong,.stats-box strong {color:var(--ui-black);}
-.home-section-title,.home-menu-title,.input-label,.field-header-label,
-.input-suffix,.subscription-modal h2 {color:var(--ui-black);}
-.field-header,.field-header label,.field-header span,.field-header p {
-  color:var(--ui-text) !important;
-}
-.field-header button,.field-header a {color:#806747 !important;}
-.field-header button:hover,.field-header a:hover {color:var(--ui-black) !important;}
-input:not([type="checkbox"]):not([type="radio"]):not([type="color"]),
-textarea,select {
-  background:#fffdf9;
-  color:var(--ui-text);
-  border:1px solid #cfc3b1;
-  border-radius:12px;
-  box-shadow:none;
-}
-input::placeholder,textarea::placeholder {color:#958b7d;}
-input:focus,textarea:focus,select:focus {
-  border-color:#9b805b;
-  outline:2px solid rgba(166,139,101,.20);
-  outline-offset:1px;
-  box-shadow:none;
-}
-select,select option {background-color:#fffdf9;color:var(--ui-text);}
-input[type="date"]::-webkit-calendar-picker-indicator {filter:none;}
-button {
-  background:var(--ui-black);
-  color:var(--ui-cream);
-  border:1px solid var(--ui-black);
-  border-radius:12px;
-  box-shadow:0 5px 12px rgba(25,22,18,.12);
-  font-weight:650;
-  transition:background .18s ease,border-color .18s ease,transform .18s ease;
-}
-button::before {content:none;}
-button:hover {background:#38332c;color:#fff;box-shadow:0 8px 18px rgba(25,22,18,.14);filter:none;}
-button:focus-visible {outline:3px solid #b69d79;outline-offset:2px;}
-.secondary-button,.back-button,.logout-button,.subscription-modal-cancel {
-  background:#e7ddce;
-  border:1px solid #cfc0aa;
-  color:var(--ui-black);
-  box-shadow:none;
-}
-.secondary-button:hover,.back-button:hover,.logout-button:hover,.subscription-modal-cancel:hover {
-  background:#d9cbb7;color:var(--ui-black);border-color:#bba98d;
-}
-.home-menu-button,.home-menu-primary {
-  background:#1d1b18;
-  color:#f7f0e4;
-  border:1px solid #6d6252;
-  border-radius:18px;
-  box-shadow:0 10px 25px rgba(20,18,15,.16);
-}
-.home-menu-button:hover,.home-menu-primary:hover {
-  background:#302b25;border-color:#aa9677;
-  box-shadow:0 14px 28px rgba(20,18,15,.20);
-}
-.home-menu-button .home-menu-title {color:#f4ead8;}
-.home-menu-icon-image img,.home-menu-full-logo {filter:none;}
-.gold-line-glow::before {content:none;}
-.btn-add-rdv {background:var(--ui-black);color:var(--ui-cream);border:1px solid #4c4438;}
-.btn-add-plus {color:var(--ui-cream);}
-.artist-row,.week-day-card {background:#fffdf9;border:1px solid var(--ui-line);}
-.week-day-header,.week-column-header {background:#e4d8c5;border-color:var(--ui-line);color:var(--ui-black);}
-.week-time-slot,.week-column-header strong,.week-column-header span {color:var(--ui-text);}
-.week-day-column,.week-planner-scroll,.week-planner-header,.week-time-header,
-.week-time-column {background:#fffdf9;border-color:#ded3c3;}
-.week-time-slot {background:#fffdf9;}
-.week-hour-line {border-color:rgba(95,80,59,.18);}
-.week-half-line {border-color:rgba(95,80,59,.08);}
-.month-cell {background:#fffdf9;color:var(--ui-text);border:1px solid var(--ui-line);box-shadow:none;}
-.month-cell:hover {background:#f0e7d9;color:var(--ui-black);}
-.month-day-name,.month-special-label,.month-mini-item {color:#776e62;}
-.month-count {background:var(--ui-black);color:#fff;}
-.month-weekday-cell {color:var(--ui-muted);}
-.active-view {background:#a58a66;color:#fff;border-color:#a58a66;}
-.public-holiday-badge,.public-holiday-cell {background:#eee4d6;color:#514432;border-color:#d9c7aa;}
-.school-holiday-badge,.school-holiday-cell {background:#f1ede6;color:#5d564c;border-color:#dcd4c8;}
-.special-day-text,.empty-text,.week-empty-text {color:var(--ui-muted);}
-.projects-history {background:#eee6da;}
-.subscription-modal-price {background:#fffdf9;border:1px solid var(--ui-line);}
-.subscription-modal p,.subscription-modal-price strong {color:var(--ui-text);}
-.subscription-modal-price span {color:var(--ui-muted);}
-.success-box {color:var(--ui-black);}
-/* Garder lisibles les événements dont le fond est défini par le JSX. */
-.week-appointment-block,.week-appointment-chip {background-image:none;}
-.week-appointment-block::before,.week-appointment-chip::before,
-.month-cell::before,.month-mini-item::before,.agenda-item::before {content:none;}
-/* Préserver les codes couleur des praticiens et des événements. */
-.artist-color-dot {background-color:inherit;}
-@media(max-width:768px){
-  .card,.home-screen-card {border-radius:16px;padding:18px;}
-  .home-menu-button {border-radius:14px;}
-  h1 {font-size:34px;}
-  h2 {font-size:29px;}
-}
+.card,.home-screen-card {border-radius:12px;}
+.card::before,.card::after,.revenue-box::before,.gold-line-glow::before {background:none !important; box-shadow:none !important;}
+.home-menu-button,.home-menu-primary {background:linear-gradient(145deg,#141516,#060708) !important;
+ border:1px solid #b99766 !important; border-radius:17px;
+ box-shadow:inset 0 0 0 1px rgba(198,161,107,.07),0 7px 18px rgba(0,0,0,.34) !important;
+ color:var(--lux-beige);}
+.home-menu-button:hover {border-color:#e8ca97 !important; box-shadow:0 10px 24px rgba(0,0,0,.45) !important;}
+.home-menu-title {font-family:Georgia,'Times New Roman',serif; font-weight:500; letter-spacing:.25px; color:#ead0a3;}
+.home-menu-icon-image img,.home-menu-full-logo {filter:none !important;}
+button {background:linear-gradient(180deg,#f2e2c5,#cba771) !important; border:1px solid #a98858;
+ color:#121110; box-shadow:0 4px 12px rgba(0,0,0,.26) !important; font-weight:700;}
+button::before {background:none !important;}
+.secondary-button,.logout-button,.view-switch button:not(.active-view) {background:linear-gradient(180deg,#171819,#090a0b) !important;
+ color:#ecd8b7; border:1px solid #9f8155; box-shadow:none !important;}
+.active-view,.view-switch .active-view {background:linear-gradient(180deg,#f1dfc1,#cda66e) !important; color:#111 !important;}
+input,textarea,select {background:#101112 !important; color:#f2e5cf !important; border:1px solid #967950 !important;
+ box-shadow:none !important;}
+input::placeholder,textarea::placeholder {color:#a99a83;}
+input:focus,textarea:focus,select:focus {border-color:#e8c996 !important; outline:1px solid #cba771;}
+select option {background:#111; color:#f2e5cf;}
+.field-header,.field-header label,.field-header span,.field-header p,.field-header button,.field-header a,.field-header-label,.input-label,.input-suffix {color:#e5c89b !important;}
+.field-header button,.field-header a,.inline-link-button {background:transparent !important; border:0 !important; box-shadow:none !important;}
+.revenue-box span,.stats-box span {color:#c9ad80;}
+.revenue-box strong,.stats-box strong {color:#f0dfc2;}
+.artist-row,.week-day-card,.week-column-header,.week-day-column,.week-planner-scroll,.week-planner-header,.week-time-header,.week-time-column,.week-time-slot,.month-cell,.month-bottom-section {border-color:rgba(198,161,107,.35);}
+.artist-row,.week-day-card,.week-column-header,.week-planner-scroll,.week-planner-header,.week-time-header,.week-time-column,.week-time-slot {background:#111213; color:#e9d7b9;}
+.week-day-column {background:#141516;}
+.week-hour-line {border-top-color:rgba(198,161,107,.18);}
+.week-half-line {border-top-color:rgba(198,161,107,.08);}
+.month-cell {background:linear-gradient(180deg,#f9f7f2,#e7e1d7) !important; color:#252321 !important; border:1px solid #b8ac9b; box-shadow:none !important;}
+.month-cell:hover {background:#f4e2c4 !important;}
+.month-cell.empty-cell {background:transparent !important; border:none !important;}
+.month-cell.public-holiday-cell {background:#ead4aa !important;}
+.month-cell.school-holiday-cell {background:#ddd8d0 !important;}
+.month-mini-item,.month-mini-item * {color:#27231e;}
+.month-day-name {color:#896c43;}
+.month-count {background:#191919;color:#f2dfc0;}
+.week-time-slot {color:#e3c99e;}
+.week-appointment-block {box-shadow:0 3px 8px rgba(0,0,0,.3) !important;}
+/* Ne pas remplacer les couleurs de rendez-vous fixées dynamiquement dans JSX. */
+.success-box {background:#111; border:1px solid #c6a16b; color:#ecd8b7; box-shadow:0 12px 32px rgba(0,0,0,.5);}
+/* Aucun motif floral ni image de fond ajouté par ce thème. */
