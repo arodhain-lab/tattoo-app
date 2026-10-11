@@ -319,8 +319,91 @@ function getClientPhone(client) {
   return sanitizePhoneNumber(client?.phone || "");
 }
 
+
+const CGV_VERSION = "2026-10-11";
+
+function ConditionsGeneralesContent() {
+  return (
+<div style={{ maxHeight: "65vh", overflowY: "auto", lineHeight: 1.65, paddingRight: "8px" }}>
+                    <p className="muted-text" style={{ fontSize: "0.9em" }}>Conditions générales d’utilisation et de vente — version du 11 octobre 2026 — application professionnelle LOGILYA.</p>
+                    <h4>1. Objet et champ d’application</h4>
+                    <p>Les présentes conditions générales d’utilisation et de vente (« Conditions générales ») régissent l’accès et l’utilisation de l’application de gestion professionnelle éditée par LOGILYA, ainsi que la souscription des abonnements associés. Elles s’adressent aux professionnels agissant pour les besoins de leur activité. Elles s’appliquent sans préjudice des dispositions légales impératives et des conditions particulières expressément convenues par écrit.</p>
+                    <h4>2. Identité de l’éditeur</h4>
+                    <p>L’application est éditée par l’EURL LOGILYA, représentée par Angélique THILL, dont le siège social est situé 9, Grande Rue, Les Ombraies, 55260 Lignières-sur-Aire, France. SIREN : 108 539 420. Contact : contact@logilya.fr. Les informations complémentaires d’immatriculation figurent, lorsqu’elles sont applicables, dans les mentions légales de l’application.</p>
+                    <h4>3. Description du service</h4>
+                    <p>LOGILYA propose un logiciel en ligne destiné notamment à la gestion des rendez-vous, des fiches clients, des membres de l’équipe, des prestations, des congés et de certaines données de suivi d’activité. Les fonctionnalités accessibles dépendent de la version du service et des options souscrites. Le service constitue un outil de gestion : il ne se substitue ni aux obligations professionnelles, comptables, fiscales ou réglementaires de l’utilisateur, ni à ses propres vérifications.</p>
+                    <h4>4. Création du compte et sécurité</h4>
+                    <p>L’accès au service suppose la création d’un compte et la communication d’informations exactes et à jour. L’utilisateur est responsable de la confidentialité de ses identifiants, de l’utilisation de son compte et des droits qu’il accorde aux personnes de son équipe. Il informe sans délai LOGILYA de toute suspicion d’accès non autorisé. LOGILYA peut mettre en œuvre des mesures de sécurité proportionnées, notamment une suspension temporaire en cas de risque avéré pour le service ou les données.</p>
+                    <h4>5. Essai gratuit et souscription</h4>
+                    <p>Lorsqu’elle est proposée, la période d’essai gratuite est de 30 jours, selon les conditions affichées au moment de l’inscription. À son terme, l’accès aux fonctionnalités soumises à abonnement peut être suspendu en l’absence de souscription. Le choix d’une formule et la validation du paiement emportent souscription aux conditions tarifaires et à la périodicité expressément présentées avant confirmation de la commande.</p>
+                    <h4>6. Prix et modalités de paiement</h4>
+                    <p>À la date de rédaction des présentes, les tarifs affichés dans l’application sont de 9,90 € TTC par mois pour un membre de l’équipe, puis 8 € supplémentaires par mois et par membre ajouté ; l’offre annuelle est affichée à 99 € par an pour un membre, puis 80 € supplémentaires par an et par membre ajouté. Le prix, les taxes applicables, le nombre de membres autorisés et la période de facturation opposables sont ceux récapitulés lors de la souscription. Le paiement et la gestion de l’abonnement sont assurés au moyen d’un prestataire de paiement tiers. Aucun prélèvement ne peut être exigé au titre d’une option non commandée.</p>
+                    <h4>7. Renouvellement, modification et résiliation</h4>
+                    <p>Les abonnements sont proposés selon une périodicité mensuelle ou annuelle, renouvelable dans les conditions indiquées lors de la commande. L’utilisateur peut gérer son abonnement depuis l’espace de facturation accessible dans l’application, notamment demander sa résiliation ou modifier le nombre de membres lorsque cette option est disponible. Sauf disposition impérative ou condition plus favorable affichée lors de la commande, la résiliation prend effet à l’échéance de la période déjà réglée, sans remboursement automatique au prorata. Toute modification tarifaire applicable à un renouvellement sera portée à la connaissance de l’utilisateur dans un délai permettant, le cas échéant, de résilier avant son entrée en vigueur.</p>
+                    <h4>8. Retard de paiement et suspension</h4>
+                    <p>En cas d’échec ou de retard de paiement, LOGILYA peut inviter l’utilisateur à régulariser la situation et, après information appropriée, suspendre l’accès aux fonctionnalités payantes dans les conditions prévues par le service. L’application peut prévoir un délai technique de régularisation ; celui-ci ne constitue pas une garantie de crédit. La suspension ne dispense pas du paiement des sommes contractuellement exigibles. Les dispositions légales applicables aux retards de paiement entre professionnels demeurent réservées.</p>
+                    <h4>9. Obligations de l’utilisateur</h4>
+                    <p>L’utilisateur s’engage à utiliser le service conformément à sa destination, aux lois applicables et aux droits des tiers. Il lui appartient notamment d’obtenir les informations et autorisations nécessaires à la collecte de données relatives à ses clients et collaborateurs, d’en vérifier l’exactitude, de respecter ses obligations d’information et de confidentialité, et de ne pas introduire de contenu illicite, malveillant ou portant atteinte à des droits de propriété intellectuelle. Toute tentative d’accès non autorisé, de perturbation du service ou de contournement de ses limitations est interdite.</p>
+                    <h4>10. Disponibilité, maintenance et évolution</h4>
+                    <p>LOGILYA met en œuvre des moyens raisonnables pour assurer la disponibilité et la sécurité du service. Des interruptions peuvent néanmoins résulter d’opérations de maintenance, de mises à jour, de défaillances de réseaux ou de prestataires techniques, ou d’événements échappant à son contrôle. LOGILYA peut faire évoluer l’interface et les fonctionnalités, sous réserve de ne pas priver abusivement l’utilisateur des caractéristiques essentielles du service souscrit. Aucun taux de disponibilité garanti n’est stipulé par les présentes.</p>
+                    <h4>11. Données professionnelles, sauvegardes et réversibilité</h4>
+                    <p>Les données saisies par l’utilisateur restent sous sa responsabilité et ne deviennent pas la propriété de LOGILYA du seul fait de leur hébergement. L’utilisateur est invité à procéder régulièrement aux exports proposés par l’application et à conserver les documents nécessaires à son activité. Avant une résiliation ou une suppression de compte, il lui appartient d’exporter les données accessibles. Les modalités techniques de restitution, de conservation puis d’effacement des données après la fin du contrat doivent être précisées dans la documentation contractuelle et la politique de confidentialité ; les présentes ne garantissent pas une durée de conservation ou un format d’export non expressément annoncé.</p>
+                    <h4>12. Protection des données personnelles</h4>
+                    <p>Pour les données de ses propres clients et membres de l’équipe qu’il saisit dans le logiciel, l’utilisateur agit en principe en qualité de responsable du traitement et LOGILYA en qualité de sous-traitant, dans les limites des opérations réalisées pour son compte. LOGILYA agit séparément comme responsable du traitement des données nécessaires à la gestion des comptes, de la facturation et de ses obligations légales. Les parties s’engagent à respecter le RGPD et la réglementation applicable. Les modalités obligatoires de sous-traitance au titre de l’article 28 du RGPD doivent être formalisées dans un accord de traitement des données distinct, notamment pour les mesures de sécurité, sous-traitants ultérieurs, transferts éventuels, assistance, conservation et suppression. Une politique de confidentialité distincte doit informer les personnes concernées.</p>
+                    <h4>13. Prestataires techniques</h4>
+                    <p>Le fonctionnement de l’application repose notamment sur Vercel pour son déploiement et Supabase pour les services de base de données et d’authentification ; le paiement de l’abonnement peut faire intervenir Stripe. Ces prestataires agissent dans le cadre de leurs services respectifs. Leur intervention ne dispense pas LOGILYA de ses obligations contractuelles et légales. Les informations relatives à la localisation des données et aux éventuels transferts hors de l’Espace économique européen doivent être précisées dans la documentation de confidentialité et de sous-traitance.</p>
+                    <h4>14. Propriété intellectuelle et licence</h4>
+                    <p>L’application, son code, son interface, ses éléments graphiques et sa documentation demeurent protégés par les droits de propriété intellectuelle de leurs titulaires. Sous réserve du paiement de l’abonnement lorsqu’il est dû, LOGILYA concède à l’utilisateur un droit personnel, non exclusif, non transférable et limité à la durée de son accès, pour ses besoins professionnels internes. Toute reproduction, distribution, revente, mise à disposition à des tiers, extraction substantielle ou décompilation non autorisée est interdite, sauf exceptions prévues par la loi.</p>
+                    <h4>15. Responsabilité</h4>
+                    <p>Chaque partie répond des dommages directs résultant d’un manquement qui lui est imputable, dans les conditions du droit applicable. LOGILYA ne saurait être tenue responsable des erreurs de saisie, des décisions de gestion prises sur la base des données enregistrées, d’une utilisation non conforme du service ou des conséquences d’une indisponibilité imputable exclusivement à un tiers ou à un cas de force majeure, sous réserve de ses propres obligations. Aucune stipulation des présentes n’exclut ni ne limite une responsabilité dont l’exclusion ou la limitation serait interdite par la loi, notamment en cas de faute lourde ou dolosive.</p>
+                    <h4>16. Assistance et réclamations</h4>
+                    <p>Pour toute demande d’assistance, difficulté technique ou réclamation relative à l’abonnement, l’utilisateur peut écrire à contact@logilya.fr en précisant les informations nécessaires au traitement de sa demande, sans transmettre de mot de passe. LOGILYA s’efforce de répondre dans un délai raisonnable, sans engagement contractuel de délai de résolution sauf accord distinct.</p>
+                    <h4>17. Modification des conditions générales</h4>
+                    <p>LOGILYA peut actualiser les présentes Conditions générales pour tenir compte d’évolutions légales, techniques ou commerciales. Toute modification substantielle affectant un abonnement en cours doit être communiquée sur un support durable ou par un moyen approprié avant son entrée en vigueur, avec indication des droits dont dispose l’utilisateur. Les modifications ne peuvent produire d’effet rétroactif contraire à la loi ou aux engagements contractuels déjà acquis.</p>
+                    <h4>18. Droit applicable et différends</h4>
+                    <p>Les présentes Conditions générales sont soumises au droit français, sous réserve des règles impératives éventuellement applicables. En cas de différend, les parties recherchent prioritairement une solution amiable par écrit. À défaut, les juridictions compétentes sont déterminées conformément aux règles de procédure applicables ; aucune clause attributive de compétence n’est stipulée par les présentes.</p>
+                    <p style={{ fontSize: "0.9em", borderTop: "1px solid rgba(180,155,105,0.35)", paddingTop: "12px" }}><strong>Information importante :</strong> ces conditions doivent être validées avant leur mise en production, en particulier les modalités de résiliation, la réversibilité des données et l’accord de sous-traitance RGPD.</p>
+                  </div>
+  );
+}
+
 export default function App() {
   const [session, setSession] = useState(null);
+  const [cgvStatus, setCgvStatus] = useState("loading");
+  const [cgvChecked, setCgvChecked] = useState(false);
+  const [cgvSaving, setCgvSaving] = useState(false);
+  const [cgvError, setCgvError] = useState("");
+
+  useEffect(() => {
+    let active = true;
+    if (!session?.user?.id) { setCgvStatus("loading"); return; }
+    setCgvStatus("loading");
+    (async () => {
+      const { data: acceptance, error } = await supabase
+        .from("legal_acceptances")
+        .select("id")
+        .eq("user_id", session.user.id)
+        .eq("version", CGV_VERSION)
+        .maybeSingle();
+      if (!active) return;
+      if (error) { setCgvError("Vérification des conditions impossible : " + error.message); setCgvStatus("error"); }
+      else { setCgvError(""); setCgvStatus(acceptance ? "accepted" : "required"); }
+    })();
+    return () => { active = false; };
+  }, [session?.user?.id]);
+
+  const acceptConditionsGenerales = async () => {
+    if (!cgvChecked || !session?.user?.id || cgvSaving) return;
+    setCgvSaving(true);
+    setCgvError("");
+    const { error } = await supabase.from("legal_acceptances").insert({
+      user_id: session.user.id, version: CGV_VERSION
+    });
+    if (error) { setCgvError("Acceptation non enregistrée : " + error.message); }
+    else { setCgvStatus("accepted"); setCgvChecked(false); }
+    setCgvSaving(false);
+  };
+
   const [searchAppointmentQuery, setSearchAppointmentQuery] = useState("");
   const [loadingSession, setLoadingSession] = useState(true);
   const [checkingSetup, setCheckingSetup] = useState(true);
@@ -3758,6 +3841,36 @@ const goNext = () => {
     return <Auth />;
   }
 
+  if (cgvStatus !== "accepted") {
+    return (
+      <div className="container" style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <div className="card" style={{ width: "100%", maxWidth: 850, padding: 24 }}>
+          <h2 style={{ textAlign: "center" }}>Conditions générales LOGILYA</h2>
+          {cgvStatus === "loading" ? <p>Vérification de votre acceptation…</p> : (
+            <>
+              <p>Pour accéder à votre espace professionnel, veuillez prendre connaissance des conditions générales d'utilisation et de vente ci-dessous (version du 11 octobre 2026).</p>
+              <ConditionsGeneralesContent />
+              {cgvStatus === "required" && (
+                <>
+                  <label style={{ display: "flex", gap: 12, alignItems: "flex-start", margin: "20px 0", cursor: "pointer" }}>
+                    <input type="checkbox" checked={cgvChecked} onChange={(e) => setCgvChecked(e.target.checked)} style={{ marginTop: 5 }} />
+                    <span>Je reconnais avoir pris connaissance des Conditions générales d'utilisation et de vente (CGU/CGV), version du 11 octobre 2026, et les accepte.</span>
+                  </label>
+                  <button type="button" disabled={!cgvChecked || cgvSaving} onClick={acceptConditionsGenerales}>
+                    {cgvSaving ? "Enregistrement…" : "Accepter et accéder à l'application"}
+                  </button>
+                </>
+              )}
+              {cgvError && <p role="alert" style={{ color: "#d9534f" }}>{cgvError}</p>}
+              {cgvStatus === "error" && <button type="button" onClick={() => window.location.reload()}>Réessayer</button>}
+              <button type="button" className="secondary-button" style={{ marginLeft: 10 }} onClick={() => supabase.auth.signOut()}>Refuser / Se déconnecter</button>
+            </>
+          )}
+        </div>
+      </div>
+    );
+  }
+
   if (checkingAccess) {
     return (
       <div className="container">
@@ -5294,46 +5407,7 @@ const goNext = () => {
                     </p>
                   </div>
                 ) : (
-                  <div style={{ maxHeight: "65vh", overflowY: "auto", lineHeight: 1.65, paddingRight: "8px" }}>
-                    <p className="muted-text" style={{ fontSize: "0.9em" }}>Conditions générales d’utilisation et de vente — version du 11 octobre 2026 — application professionnelle LOGILYA.</p>
-                    <h4>1. Objet et champ d’application</h4>
-                    <p>Les présentes conditions générales d’utilisation et de vente (« Conditions générales ») régissent l’accès et l’utilisation de l’application de gestion professionnelle éditée par LOGILYA, ainsi que la souscription des abonnements associés. Elles s’adressent aux professionnels agissant pour les besoins de leur activité. Elles s’appliquent sans préjudice des dispositions légales impératives et des conditions particulières expressément convenues par écrit.</p>
-                    <h4>2. Identité de l’éditeur</h4>
-                    <p>L’application est éditée par l’EURL LOGILYA, représentée par Angélique THILL, dont le siège social est situé 9, Grande Rue, Les Ombraies, 55260 Lignières-sur-Aire, France. SIREN : 108 539 420. Contact : contact@logilya.fr. Les informations complémentaires d’immatriculation figurent, lorsqu’elles sont applicables, dans les mentions légales de l’application.</p>
-                    <h4>3. Description du service</h4>
-                    <p>LOGILYA propose un logiciel en ligne destiné notamment à la gestion des rendez-vous, des fiches clients, des membres de l’équipe, des prestations, des congés et de certaines données de suivi d’activité. Les fonctionnalités accessibles dépendent de la version du service et des options souscrites. Le service constitue un outil de gestion : il ne se substitue ni aux obligations professionnelles, comptables, fiscales ou réglementaires de l’utilisateur, ni à ses propres vérifications.</p>
-                    <h4>4. Création du compte et sécurité</h4>
-                    <p>L’accès au service suppose la création d’un compte et la communication d’informations exactes et à jour. L’utilisateur est responsable de la confidentialité de ses identifiants, de l’utilisation de son compte et des droits qu’il accorde aux personnes de son équipe. Il informe sans délai LOGILYA de toute suspicion d’accès non autorisé. LOGILYA peut mettre en œuvre des mesures de sécurité proportionnées, notamment une suspension temporaire en cas de risque avéré pour le service ou les données.</p>
-                    <h4>5. Essai gratuit et souscription</h4>
-                    <p>Lorsqu’elle est proposée, la période d’essai gratuite est de 30 jours, selon les conditions affichées au moment de l’inscription. À son terme, l’accès aux fonctionnalités soumises à abonnement peut être suspendu en l’absence de souscription. Le choix d’une formule et la validation du paiement emportent souscription aux conditions tarifaires et à la périodicité expressément présentées avant confirmation de la commande.</p>
-                    <h4>6. Prix et modalités de paiement</h4>
-                    <p>À la date de rédaction des présentes, les tarifs affichés dans l’application sont de 9,90 € TTC par mois pour un membre de l’équipe, puis 8 € supplémentaires par mois et par membre ajouté ; l’offre annuelle est affichée à 99 € par an pour un membre, puis 80 € supplémentaires par an et par membre ajouté. Le prix, les taxes applicables, le nombre de membres autorisés et la période de facturation opposables sont ceux récapitulés lors de la souscription. Le paiement et la gestion de l’abonnement sont assurés au moyen d’un prestataire de paiement tiers. Aucun prélèvement ne peut être exigé au titre d’une option non commandée.</p>
-                    <h4>7. Renouvellement, modification et résiliation</h4>
-                    <p>Les abonnements sont proposés selon une périodicité mensuelle ou annuelle, renouvelable dans les conditions indiquées lors de la commande. L’utilisateur peut gérer son abonnement depuis l’espace de facturation accessible dans l’application, notamment demander sa résiliation ou modifier le nombre de membres lorsque cette option est disponible. Sauf disposition impérative ou condition plus favorable affichée lors de la commande, la résiliation prend effet à l’échéance de la période déjà réglée, sans remboursement automatique au prorata. Toute modification tarifaire applicable à un renouvellement sera portée à la connaissance de l’utilisateur dans un délai permettant, le cas échéant, de résilier avant son entrée en vigueur.</p>
-                    <h4>8. Retard de paiement et suspension</h4>
-                    <p>En cas d’échec ou de retard de paiement, LOGILYA peut inviter l’utilisateur à régulariser la situation et, après information appropriée, suspendre l’accès aux fonctionnalités payantes dans les conditions prévues par le service. L’application peut prévoir un délai technique de régularisation ; celui-ci ne constitue pas une garantie de crédit. La suspension ne dispense pas du paiement des sommes contractuellement exigibles. Les dispositions légales applicables aux retards de paiement entre professionnels demeurent réservées.</p>
-                    <h4>9. Obligations de l’utilisateur</h4>
-                    <p>L’utilisateur s’engage à utiliser le service conformément à sa destination, aux lois applicables et aux droits des tiers. Il lui appartient notamment d’obtenir les informations et autorisations nécessaires à la collecte de données relatives à ses clients et collaborateurs, d’en vérifier l’exactitude, de respecter ses obligations d’information et de confidentialité, et de ne pas introduire de contenu illicite, malveillant ou portant atteinte à des droits de propriété intellectuelle. Toute tentative d’accès non autorisé, de perturbation du service ou de contournement de ses limitations est interdite.</p>
-                    <h4>10. Disponibilité, maintenance et évolution</h4>
-                    <p>LOGILYA met en œuvre des moyens raisonnables pour assurer la disponibilité et la sécurité du service. Des interruptions peuvent néanmoins résulter d’opérations de maintenance, de mises à jour, de défaillances de réseaux ou de prestataires techniques, ou d’événements échappant à son contrôle. LOGILYA peut faire évoluer l’interface et les fonctionnalités, sous réserve de ne pas priver abusivement l’utilisateur des caractéristiques essentielles du service souscrit. Aucun taux de disponibilité garanti n’est stipulé par les présentes.</p>
-                    <h4>11. Données professionnelles, sauvegardes et réversibilité</h4>
-                    <p>Les données saisies par l’utilisateur restent sous sa responsabilité et ne deviennent pas la propriété de LOGILYA du seul fait de leur hébergement. L’utilisateur est invité à procéder régulièrement aux exports proposés par l’application et à conserver les documents nécessaires à son activité. Avant une résiliation ou une suppression de compte, il lui appartient d’exporter les données accessibles. Les modalités techniques de restitution, de conservation puis d’effacement des données après la fin du contrat doivent être précisées dans la documentation contractuelle et la politique de confidentialité ; les présentes ne garantissent pas une durée de conservation ou un format d’export non expressément annoncé.</p>
-                    <h4>12. Protection des données personnelles</h4>
-                    <p>Pour les données de ses propres clients et membres de l’équipe qu’il saisit dans le logiciel, l’utilisateur agit en principe en qualité de responsable du traitement et LOGILYA en qualité de sous-traitant, dans les limites des opérations réalisées pour son compte. LOGILYA agit séparément comme responsable du traitement des données nécessaires à la gestion des comptes, de la facturation et de ses obligations légales. Les parties s’engagent à respecter le RGPD et la réglementation applicable. Les modalités obligatoires de sous-traitance au titre de l’article 28 du RGPD doivent être formalisées dans un accord de traitement des données distinct, notamment pour les mesures de sécurité, sous-traitants ultérieurs, transferts éventuels, assistance, conservation et suppression. Une politique de confidentialité distincte doit informer les personnes concernées.</p>
-                    <h4>13. Prestataires techniques</h4>
-                    <p>Le fonctionnement de l’application repose notamment sur Vercel pour son déploiement et Supabase pour les services de base de données et d’authentification ; le paiement de l’abonnement peut faire intervenir Stripe. Ces prestataires agissent dans le cadre de leurs services respectifs. Leur intervention ne dispense pas LOGILYA de ses obligations contractuelles et légales. Les informations relatives à la localisation des données et aux éventuels transferts hors de l’Espace économique européen doivent être précisées dans la documentation de confidentialité et de sous-traitance.</p>
-                    <h4>14. Propriété intellectuelle et licence</h4>
-                    <p>L’application, son code, son interface, ses éléments graphiques et sa documentation demeurent protégés par les droits de propriété intellectuelle de leurs titulaires. Sous réserve du paiement de l’abonnement lorsqu’il est dû, LOGILYA concède à l’utilisateur un droit personnel, non exclusif, non transférable et limité à la durée de son accès, pour ses besoins professionnels internes. Toute reproduction, distribution, revente, mise à disposition à des tiers, extraction substantielle ou décompilation non autorisée est interdite, sauf exceptions prévues par la loi.</p>
-                    <h4>15. Responsabilité</h4>
-                    <p>Chaque partie répond des dommages directs résultant d’un manquement qui lui est imputable, dans les conditions du droit applicable. LOGILYA ne saurait être tenue responsable des erreurs de saisie, des décisions de gestion prises sur la base des données enregistrées, d’une utilisation non conforme du service ou des conséquences d’une indisponibilité imputable exclusivement à un tiers ou à un cas de force majeure, sous réserve de ses propres obligations. Aucune stipulation des présentes n’exclut ni ne limite une responsabilité dont l’exclusion ou la limitation serait interdite par la loi, notamment en cas de faute lourde ou dolosive.</p>
-                    <h4>16. Assistance et réclamations</h4>
-                    <p>Pour toute demande d’assistance, difficulté technique ou réclamation relative à l’abonnement, l’utilisateur peut écrire à contact@logilya.fr en précisant les informations nécessaires au traitement de sa demande, sans transmettre de mot de passe. LOGILYA s’efforce de répondre dans un délai raisonnable, sans engagement contractuel de délai de résolution sauf accord distinct.</p>
-                    <h4>17. Modification des conditions générales</h4>
-                    <p>LOGILYA peut actualiser les présentes Conditions générales pour tenir compte d’évolutions légales, techniques ou commerciales. Toute modification substantielle affectant un abonnement en cours doit être communiquée sur un support durable ou par un moyen approprié avant son entrée en vigueur, avec indication des droits dont dispose l’utilisateur. Les modifications ne peuvent produire d’effet rétroactif contraire à la loi ou aux engagements contractuels déjà acquis.</p>
-                    <h4>18. Droit applicable et différends</h4>
-                    <p>Les présentes Conditions générales sont soumises au droit français, sous réserve des règles impératives éventuellement applicables. En cas de différend, les parties recherchent prioritairement une solution amiable par écrit. À défaut, les juridictions compétentes sont déterminées conformément aux règles de procédure applicables ; aucune clause attributive de compétence n’est stipulée par les présentes.</p>
-                    <p style={{ fontSize: "0.9em", borderTop: "1px solid rgba(180,155,105,0.35)", paddingTop: "12px" }}><strong>Information importante :</strong> ces conditions doivent être validées avant leur mise en production, en particulier les modalités de résiliation, la réversibilité des données et l’accord de sous-traitance RGPD.</p>
-                  </div>
+                  <ConditionsGeneralesContent />
                 )}
                 <button type="button" onClick={() => setSettingsLegalPanel(null)}>Fermer</button>
               </div>
