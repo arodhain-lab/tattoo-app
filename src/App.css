@@ -3367,3 +3367,125 @@ body:has(.subscription-modal) .subscription-modal-overlay {
   }
 
 }
+
+/* ==========================================================
+   GESTIONINK — ABONNEMENT
+   HARMONISATION NOIR / BEIGE / CHAMPAGNE
+   ========================================================== */
+
+/* ÉCRAN DE FIN D'ESSAI */
+
+.container > .card[style*="620px"] {
+  background: linear-gradient(
+    145deg,
+    #171819 0%,
+    #101112 50%,
+    #08090a 100%
+  ) !important;
+
+  border: 1px solid #bca784 !important;
+  border-radius: 18px !important;
+
+  color: #ecd8b7 !important;
+
+  box-shadow:
+    0 16px 45px rgba(0, 0, 0, 0.48) !important;
+}
+
+/* TITRE */
+
+.container > .card[style*="620px"] h1 {
+  color: #ecd8b7 !important;
+  font-family: Georgia, "Times New Roman", serif !important;
+  font-weight: 500 !important;
+  text-shadow: none !important;
+}
+
+/* TEXTES */
+
+.container > .card[style*="620px"] p,
+.container > .card[style*="620px"] span {
+  color: #dfcba8 !important;
+  text-shadow: none !important;
+}
+
+/* TARIFS */
+
+.container > .card[style*="620px"] strong {
+  color: #f3e6d0 !important;
+  font-weight: 700 !important;
+}
+
+/* BOUTON ACTIVER L'ABONNEMENT */
+
+.container > .card[style*="620px"] button:not(.secondary-button) {
+  background: linear-gradient(
+    180deg,
+    #f2e2c5 0%,
+    #dfc59e 55%,
+    #cba771 100%
+  ) !important;
+
+  border: 1px solid #b99a6d !important;
+
+  color: #17130e !important;
+  -webkit-text-fill-color: #17130e !important;
+
+  border-radius: 12px !important;
+  box-shadow: none !important;
+}
+
+/* BOUTON DÉCONNEXION */
+
+.container > .card[style*="620px"] .secondary-button {
+  background: linear-gradient(
+    180deg,
+    #191a1b,
+    #090a0b
+  ) !important;
+
+  border: 1px solid #a68a63 !important;
+
+  color: #ecd8b7 !important;
+  -webkit-text-fill-color: #ecd8b7 !important;
+
+  box-shadow: none !important;
+}
+
+/* FENÊTRE CHOIX ABONNEMENT */
+
+.subscription-modal {
+  border-color: #bca784 !important;
+  color: #ecd8b7 !important;
+}
+
+.subscription-modal h2 {
+  color: #ecd8b7 !important;
+}
+
+.subscription-modal p,
+.subscription-modal label {
+  color: #dfcba8 !important;
+}
+
+.subscription-modal-price strong {
+  color: #f3e6d0 !important;
+}
+
+/* BOUTONS MENSUEL / ANNUEL */
+
+.subscription-modal button {
+  text-shadow: none !important;
+}
+
+.subscription-modal button:not(.subscription-modal-cancel) {
+  color: #17130e !important;
+  -webkit-text-fill-color: #17130e !important;
+}
+
+/* BOUTON ANNULER */
+
+.subscription-modal .subscription-modal-cancel {
+  color: #ecd8b7 !important;
+  -webkit-text-fill-color: #ecd8b7 !important;
+}
