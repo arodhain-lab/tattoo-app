@@ -3047,3 +3047,34 @@ select option {background:#111; color:#f2e5cf;}
 @media (prefers-reduced-motion: reduce) {
   .logilya-dialog-overlay, .logilya-dialog { animation: none; }
 }
+
+
+/* ============================================================
+   CORRECTIF CONTRASTE — toutes les fenêtres LOGILYA
+   Les anciennes règles globales !important ne doivent pas
+   rendre les libellés illisibles sur un fond champagne.
+   ============================================================ */
+.logilya-dialog-overlay .logilya-dialog-actions button.logilya-dialog-button,
+.logilya-dialog-overlay .logilya-dialog-actions button.logilya-dialog-primary,
+.logilya-dialog-overlay .logilya-dialog-actions button.logilya-dialog-secondary {
+  color: #17130e !important;
+  -webkit-text-fill-color: #17130e !important;
+  background: linear-gradient(180deg, #f1e1c5 0%, #d1ae78 100%) !important;
+  border: 1px solid #c5a06b !important;
+  opacity: 1 !important;
+  text-shadow: none !important;
+  font-weight: 800 !important;
+}
+.logilya-dialog-overlay .logilya-dialog-actions button.logilya-dialog-button:hover {
+  background: linear-gradient(180deg, #fff0d7 0%, #e1bf89 100%) !important;
+  color: #100d09 !important;
+  -webkit-text-fill-color: #100d09 !important;
+}
+.logilya-dialog-overlay .logilya-dialog-actions button.logilya-dialog-button:focus-visible {
+  outline: 3px solid #f5e2bd !important;
+  outline-offset: 3px;
+}
+.logilya-dialog-overlay .logilya-dialog-actions button.logilya-dialog-button:disabled {
+  opacity: .6 !important;
+  cursor: not-allowed;
+}
