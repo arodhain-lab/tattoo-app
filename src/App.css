@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Italianno&display=swap');
 body {
   margin: 0;
   width: 100%;
@@ -3582,4 +3583,18 @@ body:has(.subscription-modal) .subscription-modal-overlay {
   letter-spacing: 0.36em;
   padding-left: 0.36em;
   color: #e7d2ad;
+}
+
+
+/* ORGANIZYA PRO — Calligraphie fine et élégante */
+
+.organizya-home-name {
+  font-family: 'Italianno', cursive !important;
+  font-size: clamp(56px, 10vw, 86px) !important;
+  font-weight: 400 !important;
+  font-style: normal !important;
+  line-height: 0.9 !important;
+  letter-spacing: 0 !important;
+  color: #e7d2ad !important;
+  text-shadow: 0 1px 3px rgba(210, 189, 157, 0.18) !important;
 }
