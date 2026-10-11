@@ -321,6 +321,7 @@ function getClientPhone(client) {
 
 
 const CGV_VERSION = "2026-10-11";
+const DPA_VERSION = "DPA-2026-10-11-v1";
 
 function ConditionsGeneralesContent() {
   return (
@@ -401,10 +402,51 @@ function PolitiqueConfidentialiteContent() {
   );
 }
 
+
+function AccordSousTraitanceContent() {
+  return (
+    <div style={{ maxHeight: "65vh", overflowY: "auto", lineHeight: 1.7, paddingRight: 10 }}>
+      <p className="muted-text">Accord de sous-traitance des données personnelles (DPA) — version du 11 octobre 2026, v1 — annexe contractuelle aux CGU/CGV de LOGILYA.</p>
+      <h4>1. Parties et portée contractuelle</h4>
+      <p>Le présent accord est conclu entre le professionnel titulaire du compte LOGILYA (le « Responsable de traitement ») et l’EURL LOGILYA, représentée par Angélique THILL, 9, Grande Rue, Les Ombraies, 55260 Lignières-sur-Aire, France, SIREN 108 539 420, contact@logilya.fr (le « Sous-traitant »). Il régit les traitements de données personnelles réalisés par LOGILYA pour le compte du Responsable de traitement dans le cadre du logiciel de gestion professionnelle. Il complète les CGU/CGV et prévaut sur celles-ci pour les obligations relevant de l’article 28 du RGPD.</p>
+      <h4>2. Objet, durée et instructions documentées</h4>
+      <p>Les opérations de sous-traitance ont pour objet l’hébergement, l’organisation, la consultation, la mise à jour, la sauvegarde technique et la restitution des données renseignées par le professionnel. Elles durent pendant la mise à disposition du service et, le cas échéant, pendant les opérations de restitution ou de suppression. LOGILYA traite ces données uniquement sur instruction documentée du Responsable de traitement, constituée notamment par le présent accord, les fonctionnalités utilisées et les demandes écrites, sauf obligation légale contraire. Dans ce dernier cas, LOGILYA informe préalablement le Responsable de traitement, sauf interdiction légale. LOGILYA avertit sans délai le Responsable de traitement si une instruction lui paraît constituer une violation du RGPD ou d’une autre disposition applicable en matière de protection des données.</p>
+      <h4>3. Description des traitements — annexe A</h4>
+      <p><strong>Finalités :</strong> gestion des fiches clients, coordonnées, rendez-vous, prestations, membres de l’équipe, plannings, congés et informations professionnelles associées, selon les fonctionnalités activées. <strong>Opérations :</strong> collecte par saisie du professionnel, enregistrement, structuration, hébergement, consultation, modification, export et effacement. <strong>Personnes concernées :</strong> clients et prospects du professionnel, membres de son équipe et contacts professionnels enregistrés. <strong>Catégories de données :</strong> identité, coordonnées, informations de rendez-vous, prestations, notes et données professionnelles associées. Le Responsable de traitement détermine les finalités et la base légale de ses traitements.</p>
+      <p><strong>Données sensibles :</strong> le logiciel n’est pas destiné, par défaut, à recueillir des données relevant de l’article 9 du RGPD (notamment données de santé). Le professionnel s’interdit d’y saisir de telles données sans avoir vérifié la licéité du traitement, sa nécessité, les mesures de sécurité appropriées et l’adéquation du service. Aucune garantie d’hébergement de données de santé au sens du droit français n’est donnée par le présent accord.</p>
+      <h4>4. Confidentialité des personnes autorisées</h4>
+      <p>LOGILYA veille à ce que les personnes autorisées à traiter les données pour son compte soient soumises à un engagement de confidentialité ou à une obligation légale appropriée, et reçoivent des instructions adaptées à leurs fonctions. L’accès aux données doit être limité aux besoins opérationnels et de support légitimes.</p>
+      <h4>5. Mesures techniques et organisationnelles — annexe B</h4>
+      <p>LOGILYA met en œuvre des mesures appropriées au risque, conformément à l’article 32 du RGPD, notamment : authentification et contrôle des accès, séparation logique des comptes, restrictions d’accès aux données par utilisateur, communications chiffrées lorsqu’elles transitent sur les réseaux publics, gestion des habilitations, mises à jour de sécurité, suivi des incidents et recours aux mécanismes de sécurité des prestataires. Les modalités concrètes de sauvegarde, de journalisation, de chiffrement au repos, de restauration et de conservation doivent être vérifiées et documentées dans les procédures techniques de LOGILYA ; le présent accord ne prétend pas qu’un dispositif non vérifié est déjà opérationnel.</p>
+      <h4>6. Sous-traitants ultérieurs — annexe C</h4>
+      <p>Le Responsable de traitement autorise de manière générale le recours aux prestataires nécessaires au fonctionnement du service, notamment <strong>Supabase</strong> (base de données, authentification et services associés) et <strong>Vercel</strong> (hébergement et déploiement de l’application), dans la mesure où ils ont effectivement accès à des données traitées pour son compte. <strong>Stripe</strong> intervient pour les paiements et la facturation ; sa qualification et son périmètre de traitement doivent être appréciés selon les flux réels et ses conditions contractuelles, sans le qualifier automatiquement de sous-traitant ultérieur pour les fiches clients.</p>
+      <p>LOGILYA impose à ses sous-traitants ultérieurs des obligations de protection des données substantiellement équivalentes à celles du présent accord, conformément à l’article 28 du RGPD, et demeure responsable de leur exécution dans les conditions légales. Toute addition ou remplacement de sous-traitant ultérieur est annoncé par un moyen approprié avec un délai raisonnable permettant au Responsable de traitement de formuler une objection motivée ; les modalités pratiques de notification et d’objection devront être définies dans la documentation contractuelle.</p>
+      <h4>7. Localisation et transferts internationaux</h4>
+      <p>Les régions effectives de stockage, les accès d’administration et les éventuels transferts hors de l’Espace économique européen dépendent des configurations et des contrats conclus avec les prestataires. LOGILYA ne réalise de transfert soumis au chapitre V du RGPD que sur un fondement valide (décision d’adéquation, clauses contractuelles types accompagnées, si nécessaire, de garanties supplémentaires, ou autre mécanisme légal). La liste vérifiée des pays et mécanismes de transfert doit être communiquée au Responsable de traitement avant la mise en production définitive de cet accord.</p>
+      <h4>8. Assistance au Responsable de traitement</h4>
+      <p>Compte tenu de la nature du traitement et des informations à sa disposition, LOGILYA aide raisonnablement le Responsable de traitement à répondre aux demandes d’exercice des droits (accès, rectification, effacement, limitation, portabilité, opposition), et l’assiste dans ses obligations de sécurité, notification de violations, analyses d’impact et consultations préalables lorsqu’elles sont requises. Toute demande reçue directement concernant les données d’un client du professionnel lui est transmise dans les meilleurs délais, sans réponse sur le fond sauf instruction ou obligation légale.</p>
+      <h4>9. Violations de données personnelles</h4>
+      <p>LOGILYA notifie au Responsable de traitement toute violation de données personnelles dont elle a connaissance, <strong>dans les meilleurs délais</strong>, conformément à l’article 33, paragraphe 2, du RGPD. Elle communique les informations disponibles sur la nature de l’incident, les catégories de données et personnes concernées, les conséquences probables et les mesures prises ou proposées, puis complète ces informations au fur et à mesure. Le Responsable de traitement demeure chargé d’apprécier et, le cas échéant, d’effectuer les notifications à la CNIL et aux personnes concernées dans les délais légaux.</p>
+      <h4>10. Sort des données en fin de prestation</h4>
+      <p>Au terme de la prestation, LOGILYA restitue ou supprime, au choix du Responsable de traitement et sous réserve des obligations légales de conservation, les données personnelles traitées pour son compte et supprime les copies existantes. Les formats d’export disponibles, les modalités de demande, les délais opérationnels et le traitement des sauvegardes résiduelles doivent être précisés dans une procédure de réversibilité communiquée avant la contractualisation définitive. Aucune suppression immédiate des sauvegardes techniques n’est promise sans validation des contraintes réelles.</p>
+      <h4>11. Démonstration de conformité et audits</h4>
+      <p>LOGILYA met à disposition les informations nécessaires pour démontrer le respect de ses obligations découlant de l’article 28 du RGPD et permet, dans des conditions raisonnables de confidentialité, de sécurité et de proportionnalité, les audits et inspections réalisés par le Responsable de traitement ou un auditeur mandaté par lui. Les modalités pratiques sont convenues préalablement afin de préserver les données des autres utilisateurs et la sécurité du service.</p>
+      <h4>12. Obligations du Responsable de traitement</h4>
+      <p>Le professionnel détermine les finalités et bases légales des traitements, informe les personnes concernées, recueille les autorisations nécessaires, veille à la pertinence et à la minimisation des données, définit les durées de conservation, gère les habilitations de son équipe et adresse à LOGILYA des instructions licites et documentées. Il conserve la responsabilité des données et contenus qu’il décide de saisir.</p>
+      <h4>13. Entrée en vigueur, modifications et contact</h4>
+      <p>Le présent accord entre en vigueur à la date de son acceptation expresse par le titulaire du compte, enregistrée avec sa version. Il demeure applicable pendant la durée des opérations de sous-traitance. Toute modification substantielle donne lieu à une information préalable et, lorsqu’elle le nécessite, à une nouvelle acceptation. Les questions et demandes liées à cet accord sont adressées à <a href="mailto:contact@logilya.fr">contact@logilya.fr</a>.</p>
+      <p className="muted-text" style={{ borderTop: "1px solid rgba(180,155,105,0.35)", paddingTop: 12 }}><strong>Points à finaliser avant utilisation contractuelle :</strong> inventaire exact des sous-traitants et de leurs DPA, régions et transferts, mesures de sécurité réellement activées, procédure d’incident, modalités et délais de réversibilité/suppression, ainsi que modalités de notification des changements de sous-traitants. Une validation par un professionnel du droit et une vérification technique sont recommandées.</p>
+    </div>
+  );
+}
+
 export default function App() {
   const [session, setSession] = useState(null);
   const [cgvStatus, setCgvStatus] = useState("loading");
   const [cgvChecked, setCgvChecked] = useState(false);
+  const [dpaChecked, setDpaChecked] = useState(false);
+  const [acceptedCgv, setAcceptedCgv] = useState(false);
+  const [acceptedDpa, setAcceptedDpa] = useState(false);
   const [cgvSaving, setCgvSaving] = useState(false);
   const [cgvError, setCgvError] = useState("");
 
@@ -412,29 +454,37 @@ export default function App() {
     let active = true;
     if (!session?.user?.id) { setCgvStatus("loading"); return; }
     setCgvStatus("loading");
+    setCgvChecked(false);
+    setDpaChecked(false);
     (async () => {
-      const { data: acceptance, error } = await supabase
+      const { data: acceptances, error } = await supabase
         .from("legal_acceptances")
-        .select("id")
+        .select("version")
         .eq("user_id", session.user.id)
-        .eq("version", CGV_VERSION)
-        .maybeSingle();
+        .in("version", [CGV_VERSION, DPA_VERSION]);
       if (!active) return;
-      if (error) { setCgvError("Vérification des conditions impossible : " + error.message); setCgvStatus("error"); }
-      else { setCgvError(""); setCgvStatus(acceptance ? "accepted" : "required"); }
+      if (error) { setCgvError("Vérification des accords impossible : " + error.message); setCgvStatus("error"); return; }
+      const cgvOk = (acceptances || []).some((row) => row.version === CGV_VERSION);
+      const dpaOk = (acceptances || []).some((row) => row.version === DPA_VERSION);
+      setAcceptedCgv(cgvOk);
+      setAcceptedDpa(dpaOk);
+      setCgvError("");
+      setCgvStatus(cgvOk && dpaOk ? "accepted" : "required");
     })();
     return () => { active = false; };
   }, [session?.user?.id]);
 
   const acceptConditionsGenerales = async () => {
-    if (!cgvChecked || !session?.user?.id || cgvSaving) return;
+    if ((!acceptedCgv && !cgvChecked) || (!acceptedDpa && !dpaChecked) || !session?.user?.id || cgvSaving) return;
     setCgvSaving(true);
     setCgvError("");
-    const { error } = await supabase.from("legal_acceptances").insert({
-      user_id: session.user.id, version: CGV_VERSION
-    });
+    const versions = [!acceptedCgv && CGV_VERSION, !acceptedDpa && DPA_VERSION].filter(Boolean);
+    const { error } = await supabase.from("legal_acceptances").upsert(
+      versions.map((version) => ({ user_id: session.user.id, version })),
+      { onConflict: "user_id,version", ignoreDuplicates: true }
+    );
     if (error) { setCgvError("Acceptation non enregistrée : " + error.message); }
-    else { setCgvStatus("accepted"); setCgvChecked(false); }
+    else { setAcceptedCgv(true); setAcceptedDpa(true); setCgvStatus("accepted"); setCgvChecked(false); setDpaChecked(false); }
     setCgvSaving(false);
   };
 
@@ -3879,21 +3929,35 @@ const goNext = () => {
     return (
       <div className="container" style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center" }}>
         <div className="card" style={{ width: "100%", maxWidth: 850, padding: 24 }}>
-          <h2 style={{ textAlign: "center" }}>Conditions générales LOGILYA</h2>
-          {cgvStatus === "loading" ? <p>Vérification de votre acceptation…</p> : (
+          <h2 style={{ textAlign: "center" }}>Accords contractuels LOGILYA</h2>
+          {cgvStatus === "loading" ? <p>Vérification de vos acceptations…</p> : (
             <>
-              <p>Pour accéder à votre espace professionnel, veuillez prendre connaissance des conditions générales d'utilisation et de vente ci-dessous (version du 11 octobre 2026).</p>
-              <ConditionsGeneralesContent />
-              {cgvStatus === "required" && (
+              <p>Pour accéder à votre espace professionnel, veuillez accepter les documents contractuels qui ne l'ont pas encore été.</p>
+              {!acceptedCgv && (
                 <>
+                  <h3>Conditions générales d’utilisation et de vente</h3>
+                  <ConditionsGeneralesContent />
                   <label style={{ display: "flex", gap: 12, alignItems: "flex-start", margin: "20px 0", cursor: "pointer" }}>
                     <input type="checkbox" checked={cgvChecked} onChange={(e) => setCgvChecked(e.target.checked)} style={{ marginTop: 5 }} />
-                    <span>Je reconnais avoir pris connaissance des Conditions générales d'utilisation et de vente (CGU/CGV), version du 11 octobre 2026, et les accepte.</span>
+                    <span>Je reconnais avoir pris connaissance des CGU/CGV, version du 11 octobre 2026, et les accepte.</span>
                   </label>
-                  <button type="button" disabled={!cgvChecked || cgvSaving} onClick={acceptConditionsGenerales}>
-                    {cgvSaving ? "Enregistrement…" : "Accepter et accéder à l'application"}
-                  </button>
                 </>
+              )}
+              {!acceptedDpa && (
+                <>
+                  <h3>Accord de sous-traitance des données (DPA)</h3>
+                  <p>En tant que professionnel responsable des données de vos clients, vous devez également accepter l'accord de sous-traitance conclu avec LOGILYA.</p>
+                  <AccordSousTraitanceContent />
+                  <label style={{ display: "flex", gap: 12, alignItems: "flex-start", margin: "20px 0", cursor: "pointer" }}>
+                    <input type="checkbox" checked={dpaChecked} onChange={(e) => setDpaChecked(e.target.checked)} style={{ marginTop: 5 }} />
+                    <span>En qualité de responsable du traitement, j'ai pris connaissance de l'accord de sous-traitance des données (DPA), version du 11 octobre 2026 (v1), et l'accepte pour mon activité professionnelle.</span>
+                  </label>
+                </>
+              )}
+              {cgvStatus === "required" && (
+                <button type="button" disabled={(!acceptedCgv && !cgvChecked) || (!acceptedDpa && !dpaChecked) || cgvSaving} onClick={acceptConditionsGenerales}>
+                  {cgvSaving ? "Enregistrement…" : "Accepter et accéder à l'application"}
+                </button>
               )}
               {cgvError && <p role="alert" style={{ color: "#d9534f" }}>{cgvError}</p>}
               {cgvStatus === "error" && <button type="button" onClick={() => window.location.reload()}>Réessayer</button>}
@@ -5393,6 +5457,7 @@ const goNext = () => {
               <button type="button" onClick={() => setSettingsLegalPanel("Mentions légales")}>Mentions légales</button>
               <button type="button" onClick={() => setSettingsLegalPanel("Conditions générales")}>Conditions générales</button>
               <button type="button" onClick={() => setSettingsLegalPanel("Politique de confidentialité")}>Politique de confidentialité</button>
+              <button type="button" onClick={() => setSettingsLegalPanel("Accord de sous-traitance (DPA)")}>Accord de sous-traitance (DPA)</button>
             </div>
           </div>
           {settingsLegalPanel && (
@@ -5443,6 +5508,8 @@ const goNext = () => {
                   </div>
                 ) : settingsLegalPanel === "Politique de confidentialité" ? (
                   <PolitiqueConfidentialiteContent />
+                ) : settingsLegalPanel === "Accord de sous-traitance (DPA)" ? (
+                  <AccordSousTraitanceContent />
                 ) : (
                   <ConditionsGeneralesContent />
                 )}
