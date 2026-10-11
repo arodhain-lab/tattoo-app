@@ -5111,7 +5111,7 @@ const goNext = () => {
                           onClick={(e) => e.stopPropagation()}
                           style={{
                             width: "100%",
-                            maxWidth: "520px",
+                            maxWidth: "680px",
                             maxHeight: "85vh",
                             overflowY: "auto",
                           }}
@@ -5251,8 +5251,54 @@ const goNext = () => {
             <div className="modal-overlay" onClick={() => setSettingsLegalPanel(null)} style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.7)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 9999, padding: "20px" }}>
               <div className="card" onClick={(e) => e.stopPropagation()} style={{ width: "100%", maxWidth: "520px" }}>
                 <h3>{settingsLegalPanel}</h3>
-                <p>Le contenu officiel de cette rubrique doit être renseigné par LOGILYA avant sa publication.</p>
-                <p className="muted-text">Pour obtenir ces documents, contactez contact@logilya.fr.</p>
+                {settingsLegalPanel === "Mentions légales" ? (
+                  <div style={{ maxHeight: "65vh", overflowY: "auto", lineHeight: 1.65, paddingRight: "8px" }}>
+                    <h4>1. Éditeur de l'application</h4>
+                    <p>
+                      L'application est éditée par <strong>LOGILYA</strong>, entreprise unipersonnelle à responsabilité limitée (EURL),
+                      représentée par <strong>Angélique THILL</strong>.
+                    </p>
+                    <p>
+                      <strong>Siège social :</strong> 9, Grande Rue, Les Ombraies, 55260 Lignières-sur-Aire, France.<br />
+                      <strong>SIREN :</strong> 108 539 420<br />
+                      <strong>Contact :</strong> <a href="mailto:contact@logilya.fr">contact@logilya.fr</a>
+                    </p>
+                    <h4>2. Hébergement et infrastructure</h4>
+                    <p>
+                      L'application est déployée via Vercel. Les services de base de données et d'authentification
+                      reposent sur Supabase. Les informations légales complètes des prestataires d'hébergement
+                      doivent être confirmées et ajoutées avant publication définitive.
+                    </p>
+                    <h4>3. Propriété intellectuelle</h4>
+                    <p>
+                      Sauf mention contraire, les textes, éléments graphiques, interfaces, marques et logiciels
+                      propres à LOGILYA sont protégés par les règles applicables à la propriété intellectuelle.
+                      Toute reproduction ou exploitation non autorisée est interdite, sous réserve des exceptions légales.
+                    </p>
+                    <h4>4. Données personnelles</h4>
+                    <p>
+                      Les données saisies dans l'application peuvent notamment concerner les comptes utilisateurs,
+                      les membres de l'équipe, les clients et les rendez-vous. Le traitement de ces données doit être
+                      détaillé dans une politique de confidentialité distincte précisant les finalités, les durées de
+                      conservation, les destinataires et les modalités d'exercice des droits.
+                      Pour toute question : <a href="mailto:contact@logilya.fr">contact@logilya.fr</a>.
+                    </p>
+                    <h4>5. Contact</h4>
+                    <p>
+                      Pour toute question relative à l'application ou à ces mentions légales, écrivez à
+                      {" "}<a href="mailto:contact@logilya.fr">contact@logilya.fr</a>.
+                    </p>
+                    <p className="muted-text" style={{ fontSize: "0.85em" }}>
+                      Document à compléter et à vérifier avant publication : notamment l'identifiant d'immatriculation,
+                      les coordonnées légales des hébergeurs et les informations sur le traitement des données.
+                    </p>
+                  </div>
+                ) : (
+                  <>
+                    <p>Les conditions générales doivent être rédigées et validées avant leur publication.</p>
+                    <p className="muted-text">Contact : contact@logilya.fr.</p>
+                  </>
+                )}
                 <button type="button" onClick={() => setSettingsLegalPanel(null)}>Fermer</button>
               </div>
             </div>
