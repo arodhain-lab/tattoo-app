@@ -5294,10 +5294,18 @@ const goNext = () => {
     />
   </div>
 </button>
-            <button className="home-menu-button settings-tattoo-button" type="button" onClick={() => navigateTo("absences")}
-              style={{ display: "flex", alignItems: "center", justifyContent: "center", flexDirection: "column", gap: 8 }}>
-              <span style={{ fontSize: 38, color: "#d8bd8b" }}>▦</span>
-              <strong style={{ color: "#d8bd8b", letterSpacing: 1 }}>CONGÉS</strong>
+            <button
+              className="home-menu-button settings-tattoo-button"
+              type="button"
+              onClick={() => navigateTo("absences")}
+            >
+              <div className="settings-tattoo-logo-wrap">
+                <img
+                  src="/icons/conges.png"
+                  alt="Congés"
+                  className="settings-tattoo-logo"
+                />
+              </div>
             </button>
           </div>
 
