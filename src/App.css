@@ -3110,3 +3110,260 @@ select option {background:#111; color:#f2e5cf;}
 .agenda-day-revenue-box::before {
   display: none !important;
 }
+
+/* ============================================================
+   LOGILYA / GESTIONINK
+   CORRECTION ABONNEMENT ET FIN DE PERIODE D'ESSAI
+   THEME NOIR / CHAMPAGNE / BEIGE
+   ============================================================ */
+
+/* VARIABLES DU THEME */
+:root {
+  --abo-champagne: #ecd8b7;
+  --abo-champagne-clair: #f4e6d0;
+  --abo-champagne-fonce: #c6a16b;
+  --abo-beige: #dfcba8;
+  --abo-noir: #08090a;
+  --abo-fond: #111213;
+  --abo-bordure: rgba(198, 161, 107, 0.65);
+}
+
+
+/* ============================================================
+   1. FENETRE DE CHOIX D'ABONNEMENT
+   ============================================================ */
+
+.subscription-modal {
+  background: linear-gradient(
+    145deg,
+    #171819 0%,
+    #101112 48%,
+    #08090a 100%
+  ) !important;
+
+  border: 1px solid var(--abo-bordure) !important;
+
+  border-radius: 20px !important;
+
+  color: var(--abo-champagne) !important;
+
+  box-shadow:
+    0 22px 60px rgba(0, 0, 0, 0.65),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04) !important;
+}
+
+
+/* TITRE DE LA FENETRE */
+
+.subscription-modal h1,
+.subscription-modal h2,
+.subscription-modal h3 {
+  color: var(--abo-champagne) !important;
+
+  font-family: Georgia, "Times New Roman", serif !important;
+
+  font-weight: 500 !important;
+
+  text-shadow: none !important;
+}
+
+
+/* TEXTES */
+
+.subscription-modal p,
+.subscription-modal label,
+.subscription-modal span,
+.subscription-modal small {
+  color: var(--abo-beige) !important;
+
+  text-shadow: none !important;
+}
+
+
+/* PRIX */
+
+.subscription-modal-price {
+  background: linear-gradient(
+    180deg,
+    #171819 0%,
+    #0b0c0d 100%
+  ) !important;
+
+  border: 1px solid var(--abo-bordure) !important;
+
+  border-radius: 14px !important;
+
+  box-shadow: none !important;
+}
+
+.subscription-modal-price strong {
+  color: var(--abo-champagne-clair) !important;
+
+  font-weight: 700 !important;
+
+  text-shadow: none !important;
+}
+
+.subscription-modal-price span {
+  color: var(--abo-beige) !important;
+}
+
+
+/* LISTE DEROULANTE */
+
+.subscription-modal select {
+  background: #101112 !important;
+
+  color: var(--abo-champagne-clair) !important;
+
+  border: 1px solid #a68a63 !important;
+
+  border-radius: 12px !important;
+
+  box-shadow: none !important;
+}
+
+.subscription-modal select:focus {
+  border-color: var(--abo-champagne-fonce) !important;
+
+  outline: 1px solid var(--abo-champagne-fonce) !important;
+}
+
+.subscription-modal select option {
+  background: #101112 !important;
+
+  color: var(--abo-champagne-clair) !important;
+}
+
+
+/* ============================================================
+   2. BOUTONS DE LA FENETRE D'ABONNEMENT
+   ============================================================ */
+
+.subscription-modal button:not(.subscription-modal-cancel) {
+  background: linear-gradient(
+    180deg,
+    #f2e2c5 0%,
+    #dfc59e 55%,
+    #cba771 100%
+  ) !important;
+
+  border: 1px solid #b99a6d !important;
+
+  color: #17130e !important;
+
+  -webkit-text-fill-color: #17130e !important;
+
+  border-radius: 12px !important;
+
+  box-shadow:
+    0 5px 14px rgba(0, 0, 0, 0.25) !important;
+
+  text-shadow: none !important;
+}
+
+.subscription-modal button:not(.subscription-modal-cancel):hover {
+  background: linear-gradient(
+    180deg,
+    #f7ead5 0%,
+    #e7d0ad 100%
+  ) !important;
+
+  color: #111111 !important;
+}
+
+
+/* BOUTON ANNULER */
+
+.subscription-modal .subscription-modal-cancel {
+  background: linear-gradient(
+    180deg,
+    #191a1b 0%,
+    #090a0b 100%
+  ) !important;
+
+  border: 1px solid #a68a63 !important;
+
+  color: var(--abo-champagne-clair) !important;
+
+  -webkit-text-fill-color: var(--abo-champagne-clair) !important;
+
+  box-shadow: none !important;
+}
+
+.subscription-modal .subscription-modal-cancel:hover {
+  background: #202123 !important;
+
+  border-color: var(--abo-champagne-fonce) !important;
+}
+
+
+/* ============================================================
+   3. ECRAN DE FIN DE PERIODE D'ESSAI
+   ============================================================ */
+
+/* Fenêtre centrale et ses textes */
+
+body:has(.subscription-modal) .subscription-modal-overlay {
+  background: rgba(0, 0, 0, 0.84) !important;
+}
+
+.subscription-modal-overlay {
+  backdrop-filter: blur(6px) !important;
+}
+
+
+/* ============================================================
+   4. CORRECTION DES ANCIENS TEXTES DORES
+   DANS LES FENETRES D'ABONNEMENT
+   ============================================================ */
+
+.subscription-modal .field-header,
+.subscription-modal .field-header label,
+.subscription-modal .field-header span,
+.subscription-modal .field-header p,
+.subscription-modal .field-header-label,
+.subscription-modal .input-label {
+  color: var(--abo-beige) !important;
+}
+
+
+/* ============================================================
+   5. CORRECTION DES BOUTONS MENSUEL / ANNUEL
+   ============================================================ */
+
+.subscription-modal button {
+  text-shadow: none !important;
+}
+
+.subscription-modal button:disabled {
+  opacity: 0.55 !important;
+  cursor: not-allowed !important;
+}
+
+
+/* ============================================================
+   6. RESPONSIVE MOBILE
+   ============================================================ */
+
+@media (max-width: 600px) {
+
+  .subscription-modal {
+    padding: 24px 18px !important;
+
+    border-radius: 18px !important;
+  }
+
+  .subscription-modal h2 {
+    font-size: 28px !important;
+  }
+
+  .subscription-modal-price strong {
+    font-size: 25px !important;
+  }
+
+  .subscription-modal-actions {
+    gap: 10px !important;
+  }
+
+}
