@@ -4231,6 +4231,32 @@ const goNext = () => {
             </button>
           </div>
         </div>
+        <style>{`
+          .logilya-checkout-champagne select,
+          .logilya-checkout-champagne select:focus,
+          .logilya-checkout-champagne select:hover {
+            background: #fffaf3 !important;
+            background-color: #fffaf3 !important;
+            color: #29231e !important;
+            -webkit-text-fill-color: #29231e !important;
+            border: 1px solid #a99373 !important;
+            color-scheme: light;
+          }
+          .logilya-checkout-champagne select option {
+            background: #fffaf3 !important;
+            color: #29231e !important;
+          }
+          .logilya-checkout-champagne .logilya-checkout-cancel,
+          .logilya-checkout-champagne .logilya-checkout-cancel:hover,
+          .logilya-checkout-champagne .logilya-checkout-cancel:focus {
+            background: #fffaf3 !important;
+            background-color: #fffaf3 !important;
+            color: #29231e !important;
+            -webkit-text-fill-color: #29231e !important;
+            border: 1px solid #a99373 !important;
+            opacity: 1 !important;
+          }
+        `}</style>
         {showCheckoutPlanModal && (
           <div style={{
             position: "fixed", inset: 0, zIndex: 9999,
@@ -4238,7 +4264,7 @@ const goNext = () => {
             alignItems: "center", justifyContent: "center", padding: 16,
             overflowY: "auto"
           }}>
-            <div role="dialog" aria-modal="true" aria-label="Choisir mon abonnement"
+            <div className="logilya-checkout-champagne" role="dialog" aria-modal="true" aria-label="Choisir mon abonnement"
               style={{
                 background: "linear-gradient(145deg,#f9f5ee,#e9dfd1)",
                 color: "#29231e", border: "1px solid #a99373", borderRadius: 24,
@@ -4269,7 +4295,7 @@ const goNext = () => {
               <select id="checkout-artist-count" value={checkoutArtistCount}
                 onChange={(event) => setCheckoutArtistCount(Number(event.target.value))}
                 style={{ width: "100%", padding: 12, borderRadius: 10,
-                  background: "#111", color: "#29231e", border: "1px solid #a99373" }}>
+                  background: "#fffaf3", color: "#29231e", border: "1px solid #a99373" }}>
                 {Array.from({ length: Math.max(20, checkoutArtistCount) }, (_, index) => index + 1)
                   .map((count) => <option key={count} value={count}>{count} membre{count > 1 ? "s" : ""} de l’équipe</option>)}
               </select>
@@ -4291,7 +4317,7 @@ const goNext = () => {
                   onClick={testStripeCheckout} style={{ flex: "2 1 220px", background: "#d7c0a0", color: "#29231e", border: "1px solid #a99373", fontWeight: 700 }}>
                   {isCreatingCheckout ? "Redirection vers Stripe..." : "Continuer vers le paiement"}
                 </button>
-                <button type="button" className="secondary-button"
+                <button type="button" className="logilya-checkout-cancel"
                   disabled={isCreatingCheckout}
                   onClick={() => setShowCheckoutPlanModal(false)}
                   style={{ flex: "1 1 120px", background: "#fffaf3", color: "#29231e", border: "1px solid #a99373", fontWeight: 700 }}>Annuler</button>
