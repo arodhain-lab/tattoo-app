@@ -4713,7 +4713,7 @@ const goNext = () => {
             <img
               src="/icons/logo_organizia.png"
               alt="Organizya PRO"
-              style={{ display: "block", width: "min(76%, 320px)", maxWidth: "100%", height: "auto", objectFit: "contain" }}
+              style={{ display: "block", width: "min(85%, 360px)", maxWidth: "100%", height: "auto", objectFit: "contain" }}
             />
           </h2>
           <div
