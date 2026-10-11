@@ -825,7 +825,7 @@ const openBillingPortal = async () => {
   if (isOpeningBillingPortal) return;
   setIsOpeningBillingPortal(true);
   try {
-    const { data, error } = await supabase.functions.invoke("create-billing-portal");
+    const { data, error } = await supabase.functions.invoke("create-billing-portal-live");
     if (error) throw error;
     if (!data?.url || !data.url.startsWith("https://billing.stripe.com/")) {
       throw new Error(data?.error || "Lien de gestion de facturation indisponible.");
@@ -864,7 +864,7 @@ const testStripeCheckout = async () => {
   setIsCreatingCheckout(true);
   try {
     const { data, error } = await supabase.functions.invoke(
-      "create-checkout-session",
+      "create-checkout-session-live",
       {
         body: {
           billingInterval: checkoutBillingInterval,
@@ -897,7 +897,7 @@ const testStripeCheckout = async () => {
 const refreshSubscriptionPlan = async () => {
   setSubscriptionBillingInterval(null);
   setSubscriptionPlanError("");
-  const { data, error } = await supabase.functions.invoke("get-subscription-plan");
+  const { data, error } = await supabase.functions.invoke("get-subscription-plan-live");
   if (error || !["month", "year"].includes(data?.billingInterval)) {
     setSubscriptionPlanError("Impossible de vérifier la périodicité de votre abonnement Stripe.");
     return;
@@ -934,7 +934,7 @@ const updateStripeArtistPlan = async () => {
 
   try {
     const { data, error } = await supabase.functions.invoke(
-      "update-subscription",
+      "update-subscription-live",
       {
         body: {
           maxArtists: targetMaxArtists,
@@ -2943,7 +2943,7 @@ const confirmDeleteArtist = async () => {
     // le membre de l’équipe reste intact dans l'application.
     if (mustUpdateSubscription) {
       const { data: subscriptionData, error: subscriptionError } =
-        await supabase.functions.invoke("update-subscription", {
+        await supabase.functions.invoke("update-subscription-live", {
           body: {
             maxArtists: targetMaxArtists,
           },
@@ -2981,7 +2981,7 @@ const confirmDeleteArtist = async () => {
       // on tente de remettre immédiatement le forfait précédent.
       if (mustUpdateSubscription) {
         const { error: rollbackError } = await supabase.functions.invoke(
-          "update-subscription",
+          "update-subscription-live",
           {
             body: {
               maxArtists: currentMaxArtists,
