@@ -511,6 +511,7 @@ export default function App() {
   useEffect(() => { setGraceNoticeDismissed(false); }, [session?.user?.id, graceDeadline]);
   const [settingsLanguage, setSettingsLanguage] = useState(() => localStorage.getItem("logilya_language") || "fr");
   const [settingsCurrency, setSettingsCurrency] = useState(() => localStorage.getItem("logilya_currency") || "EUR");
+  const [settingsCurrentPassword, setSettingsCurrentPassword] = useState("");
   const [settingsNewPassword, setSettingsNewPassword] = useState("");
   const [settingsConfirmPassword, setSettingsConfirmPassword] = useState("");
   const [settingsPasswordSaving, setSettingsPasswordSaving] = useState(false);
@@ -521,17 +522,32 @@ export default function App() {
     if (key === "currency") setSettingsCurrency(value);
   };
   const changeAccountPassword = async () => {
-    if (settingsNewPassword.length < 8) { alert("Le mot de passe doit comporter au moins 8 caractères."); return; }
-    if (settingsNewPassword !== settingsConfirmPassword) { alert("Les mots de passe ne correspondent pas."); return; }
+    if (settingsPasswordSaving) return;
+    if (!settingsCurrentPassword) { alert("Saisissez votre mot de passe actuel."); return; }
+    if (settingsNewPassword.length < 8 || !/[A-Za-z]/.test(settingsNewPassword) || !/[0-9]/.test(settingsNewPassword)) {
+      alert("Le nouveau mot de passe doit comporter au moins 8 caractères, dont des lettres et des chiffres.");
+      return;
+    }
+    if (settingsNewPassword !== settingsConfirmPassword) { alert("Les nouveaux mots de passe ne correspondent pas."); return; }
+    if (settingsCurrentPassword === settingsNewPassword) { alert("Le nouveau mot de passe doit être différent de l'ancien."); return; }
     setSettingsPasswordSaving(true);
     try {
-      const { error } = await supabase.auth.updateUser({ password: settingsNewPassword });
+      // Supabase vérifie le mot de passe actuel côté serveur quand
+      // « Require current password when updating » est activé.
+      const { error } = await supabase.auth.updateUser({
+        password: settingsNewPassword,
+        current_password: settingsCurrentPassword,
+      });
       if (error) throw error;
+      setSettingsCurrentPassword("");
       setSettingsNewPassword("");
       setSettingsConfirmPassword("");
-      alert("Votre mot de passe a été modifié.");
-    } catch (error) { alert("Impossible de modifier le mot de passe : " + error.message); }
-    finally { setSettingsPasswordSaving(false); }
+      alert("Votre mot de passe a été modifié avec succès.");
+    } catch (error) {
+      alert("Impossible de modifier le mot de passe : " + (error?.message || "erreur inconnue"));
+    } finally {
+      setSettingsPasswordSaving(false);
+    }
   };
   const [page, setPage] = useState("home");
   const [pageHistory, setPageHistory] = useState([]);
@@ -5426,16 +5442,22 @@ const goNext = () => {
 
           <div className="card inner-card" style={{ marginBottom: "16px" }}>
             <h3>Préférences et informations</h3>
+            <p className="muted-text" style={{ marginBottom: "12px" }}>
+              Pour sécuriser votre compte, indiquez votre mot de passe actuel puis choisissez un nouveau mot de passe d'au moins 8 caractères contenant des lettres et des chiffres.
+            </p>
             <div className="form-grid">
-              <label>Changer de mot de passe
-                <input type="password" autoComplete="new-password" placeholder="Nouveau mot de passe (8 caractères minimum)" value={settingsNewPassword} onChange={(e) => setSettingsNewPassword(e.target.value)} />
+              <label>Mot de passe actuel
+                <input type="password" autoComplete="current-password" placeholder="Saisissez votre mot de passe actuel" value={settingsCurrentPassword} onChange={(e) => setSettingsCurrentPassword(e.target.value)} />
               </label>
-              <label>Confirmer le mot de passe
-                <input type="password" autoComplete="new-password" placeholder="Confirmer le nouveau mot de passe" value={settingsConfirmPassword} onChange={(e) => setSettingsConfirmPassword(e.target.value)} />
+              <label>Nouveau mot de passe
+                <input type="password" autoComplete="new-password" placeholder="8 caractères minimum, lettres et chiffres" value={settingsNewPassword} onChange={(e) => setSettingsNewPassword(e.target.value)} />
+              </label>
+              <label>Confirmer le nouveau mot de passe
+                <input type="password" autoComplete="new-password" placeholder="Confirmez le nouveau mot de passe" value={settingsConfirmPassword} onChange={(e) => setSettingsConfirmPassword(e.target.value)} />
               </label>
             </div>
             <div className="action-buttons" style={{ marginBottom: "18px" }}>
-              <button type="button" disabled={settingsPasswordSaving || !settingsNewPassword || !settingsConfirmPassword} onClick={changeAccountPassword}>
+              <button type="button" disabled={settingsPasswordSaving || !settingsCurrentPassword || !settingsNewPassword || !settingsConfirmPassword} onClick={changeAccountPassword}>
                 {settingsPasswordSaving ? "Modification…" : "Enregistrer le nouveau mot de passe"}
               </button>
             </div>
