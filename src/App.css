@@ -3078,3 +3078,35 @@ select option {background:#111; color:#f2e5cf;}
   opacity: .6 !important;
   cursor: not-allowed;
 }
+
+
+/* ==========================================
+   LOGILYA - CORRECTION CHIFFRE D'AFFAIRES JOUR
+   Suppression du doré jaune trop prononcé
+   ========================================== */
+
+.agenda-day-revenue-box {
+  border: 1px solid #bca784 !important;
+  background: linear-gradient(
+    145deg,
+    #141516 0%,
+    #070809 100%
+  ) !important;
+
+  color: #f3eadc !important;
+
+  box-shadow:
+    0 12px 28px rgba(0, 0, 0, 0.36) !important;
+}
+
+.agenda-day-revenue-box span {
+  color: #dfcba8 !important;
+}
+
+.agenda-day-revenue-box strong {
+  color: #f3eadc !important;
+}
+
+.agenda-day-revenue-box::before {
+  display: none !important;
+}
