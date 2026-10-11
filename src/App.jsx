@@ -5162,13 +5162,6 @@ const goNext = () => {
 </button>
 
 
-            <button className="home-menu-button" onClick={() => navigateTo("clients")}>
-              <span className="home-menu-icon">👤</span>
-              <span className="home-menu-title">Fiches clients</span>
-              <span className="home-menu-subtitle">
-                Créer une nouvelle fiche client
-              </span>
-            </button>
           </div>
 
           <div
