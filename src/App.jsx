@@ -4709,7 +4709,15 @@ const goNext = () => {
 
       {page === "home" && setupComplete && (
         <section className="card home-card">
-          <h2>Accueil</h2>
+<h2 className="organizya-home-brand">
+  <span className="organizya-home-name">Organizya</span>
+
+  <span className="organizya-home-pro-line">
+    <span className="organizya-home-rule"></span>
+    <span className="organizya-home-pro">PRO</span>
+    <span className="organizya-home-rule"></span>
+  </span>
+</h2>
           <div
             className="home-menu-grid"
             style={
