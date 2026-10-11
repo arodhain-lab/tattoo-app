@@ -253,6 +253,20 @@ function clamp(value, min, max) {
 
 const ACOMPTE_TYPE = "ACOMPTE";
 
+// Professions : identifiants stables enregistrés dans profiles.profession.
+const PROFESSIONS = [
+  { id: "tatouage", label: "Tatouage", suggestions: ["TATOUAGE", "RETOUCHE", "CONSULTATION"] },
+  { id: "piercing", label: "Piercing", suggestions: ["PIERCING", "CHANGEMENT DE BIJOU", "VENTE"] },
+  { id: "coiffure", label: "Coiffure", suggestions: ["COUPE FEMME", "COUPE HOMME", "BRUSHING", "COLORATION"] },
+  { id: "barbier", label: "Barbier", suggestions: ["COUPE", "TAILLE DE BARBE", "RASAGE"] },
+  { id: "esthetique", label: "Esthétique", suggestions: ["EPILATION", "SOIN DU VISAGE", "SOIN DU CORPS"] },
+  { id: "onglerie", label: "Onglerie", suggestions: ["POSE COMPLETE", "REMPLISSAGE", "DEPOSE", "NAIL ART"] },
+  { id: "massage", label: "Massage et bien-être", suggestions: ["MASSAGE", "SOIN BIEN-ETRE", "CONSULTATION"] },
+  { id: "autre", label: "Autre activité", suggestions: ["PRESTATION", "CONSULTATION", "VENTE"] },
+];
+const getProfession = (id) => PROFESSIONS.find((item) => item.id === id) || null;
+
+
 const MONTH_DAY_LABELS = ["Dim", "Lun", "Mar", "Mer", "Jeu", "Ven", "Sam"];
 
 function isAcompteAppointment(appointmentItem) {
@@ -495,6 +509,26 @@ export default function App() {
   const [checkingAccess, setCheckingAccess] = useState(true);
   const [accessAllowed, setAccessAllowed] = useState(false);
   const [accessProfile, setAccessProfile] = useState(null);
+  const [professionChoice, setProfessionChoice] = useState("");
+  const [professionSaving, setProfessionSaving] = useState(false);
+  const [professionError, setProfessionError] = useState("");
+  const currentProfession = getProfession(accessProfile?.profession);
+  const saveProfession = async (selectedProfession = professionChoice) => {
+    if (!session?.user?.id || !getProfession(selectedProfession) || professionSaving) return;
+    setProfessionSaving(true);
+    setProfessionError("");
+    try {
+      // RPC contrôlée côté serveur : ne donne pas le droit UPDATE sur profiles.
+      const { error } = await supabase.rpc("set_my_profession", { chosen_profession: selectedProfession });
+      if (error) throw error;
+      setAccessProfile((previous) => ({ ...previous, profession: selectedProfession }));
+      setProfessionChoice(selectedProfession);
+    } catch (error) {
+      setProfessionError("Enregistrement impossible : " + (error?.message || "erreur inconnue"));
+    } finally {
+      setProfessionSaving(false);
+    }
+  };
   const [accessError, setAccessError] = useState("");
   const [graceNoticeDismissed, setGraceNoticeDismissed] = useState(false);
   const [graceClock, setGraceClock] = useState(Date.now());
@@ -565,7 +599,7 @@ export default function App() {
     appointments: [],
     artists: [],
     closedDays: [],
-    appointmentTypes: ["TATTOO", "PIERCING", "VENTE", "ACOMPTE"],
+    appointmentTypes: ["ACOMPTE"],
   });
 
  const openAppointmentDetails = (appointmentItem) => {
@@ -1902,7 +1936,7 @@ const importClientsFromCsv = async (event) => {
 const downloadClientsCsvTemplate = () => {
   const csvContent =
     "NOM;PRENOM;TELEPHONE;NOTES\r\n" +
-    "Dupont;Marie;0612345678;Projet tatouage floral\r\n";
+    "Dupont;Marie;0612345678;Préférence de rendez-vous\r\n";
 
   const blob = new Blob(["\uFEFF" + csvContent], {
     type: "text/csv;charset=utf-8;",
@@ -2081,7 +2115,7 @@ const downloadAppointmentsCsvTemplate = () => {
   ];
   const example = [
     "25/06/2026", "14:30", "Marie Dupont", "0612345678", "Angel",
-    "TATTOO", "Tatouage floral", "180", "0", "180", "0", "180", "0", "CB",
+    "PRESTATION", "Rendez-vous client", "50", "0", "50", "0", "50", "0", "CB",
   ];
   const escapeCsv = (value) => `"${String(value ?? "").replace(/"/g, '""')}"`;
   const csvContent = [header, example]
@@ -3107,11 +3141,6 @@ const saveAppointment = async () => {
 
   if (!appointmentForm.title) {
     alert("Type de prestation obligatoire.");
-    return;
-  }
-
-  if (!appointmentForm.project.trim()) {
-    alert("Nom du projet obligatoire.");
     return;
   }
 
@@ -4186,6 +4215,32 @@ const goNext = () => {
     );
   }
 
+  // L'activité est définie une fois par compte, après authentification et
+  // validation de l'accès, avant la configuration des prestations.
+  if (!currentProfession) {
+    return (
+      <div className="container" style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <section className="card" style={{ width: "100%", maxWidth: 620, padding: 28 }}>
+          <h1>Bienvenue sur LOGILYA</h1>
+          <h2>Quelle est votre activité professionnelle ?</h2>
+          <p>Votre choix permet de vous suggérer des prestations adaptées. Vous pourrez toujours créer vos propres prestations.</p>
+          <label htmlFor="profession-initiale">Votre métier</label>
+          <select id="profession-initiale" value={professionChoice} onChange={(event) => setProfessionChoice(event.target.value)}>
+            <option value="">Sélectionner votre activité</option>
+            {PROFESSIONS.map((profession) => (
+              <option key={profession.id} value={profession.id}>{profession.label}</option>
+            ))}
+          </select>
+          {professionError && <p role="alert" style={{ color: "#b42318" }}>{professionError}</p>}
+          <button type="button" onClick={() => saveProfession()} disabled={!professionChoice || professionSaving} style={{ marginTop: 18 }}>
+            {professionSaving ? "Enregistrement…" : "Valider mon activité"}
+          </button>
+          <button type="button" className="secondary-button" onClick={() => supabase.auth.signOut()} style={{ marginLeft: 10 }}>Déconnexion</button>
+        </section>
+      </div>
+    );
+  }
+
   if (checkingSetup) {
     return (
       <div className="container">
@@ -5191,6 +5246,7 @@ const goNext = () => {
       {page === "settings" && setupComplete && (
         <section className="card">
           <h2>Paramètres</h2>
+          <p className="muted-text">Activité professionnelle : <strong>{currentProfession?.label || "Non renseignée"}</strong></p>
           <p className="muted-text">Gérez les données principales de l’application</p>
 
           <div className="home-menu-grid">
@@ -5215,7 +5271,7 @@ const goNext = () => {
 
   <div className="settings-tattoo-logo-wrap">
     <img
-      src="/icons/logo_tatoueurs.png"
+      src="/icons/membres_equipe.png"
       alt="Membres de l’équipe"
       className="settings-tattoo-logo"
     />
@@ -5581,7 +5637,7 @@ const goNext = () => {
               <label>Date de fin<input type="date" min={leaveStart} value={leaveEnd} onChange={(e) => setLeaveEnd(e.target.value)}/></label>
               <label>Membre de l’équipe concerné
                 <select value={leaveArtist} onChange={(e) => setLeaveArtist(e.target.value)}>
-                  <option value="all">Tous les membres de l’équipe (shop fermé)</option>
+                  <option value="all">Tous les membres de l’équipe (établissement fermé)</option>
                   {artists.map((artist) => <option key={artist.id} value={artist.id}>{artist.name}</option>)}
                 </select>
               </label>
@@ -5609,6 +5665,22 @@ const goNext = () => {
       {page === "services" && (
         <section className="card">
           <h2>Prestations</h2>
+          <p className="muted-text">Activité : {currentProfession?.label || "Non renseignée"}. Les suggestions sont facultatives.</p>
+          {!editingServiceName && (
+            <div style={{ marginBottom: 18 }}>
+              <label htmlFor="suggested-service">Suggestion adaptée à votre métier</label>
+              <select id="suggested-service" value="" onChange={(event) => {
+                if (!event.target.value) return;
+                const selected = event.target.value;
+                setServiceForm({ name: selected, category: selected === "VENTE" ? "VENTE" : "PRESTATION" });
+              }}>
+                <option value="">Choisir une suggestion (facultatif)</option>
+                {(currentProfession?.suggestions || []).map((suggestion) => (
+                  <option key={suggestion} value={suggestion}>{suggestion}</option>
+                ))}
+              </select>
+            </div>
+          )}
 
           <div className="form-grid">
             <input
@@ -6322,7 +6394,7 @@ const goNext = () => {
 
       <input
         type="text"
-        placeholder="Nom du projet"
+        placeholder="Description / motif (facultatif)"
         value={appointmentForm.project}
         onChange={(e) =>
           setAppointmentForm({
