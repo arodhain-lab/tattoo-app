@@ -255,9 +255,9 @@ const ACOMPTE_TYPE = "ACOMPTE";
 
 // Professions : identifiants stables enregistrés dans profiles.profession.
 const PROFESSIONS = [
-  { id: "tatouage", label: "Tatouage", suggestions: ["TATOUAGE", "RETOUCHE", "CONSULTATION", "ACOMPTE"] },
+  { id: "tatouage", label: "Tatouage", suggestions: ["TATOUAGE", "RETOUCHE", "DEVIS TATOUAGE", "ACOMPTE"] },
   { id: "piercing", label: "Piercing", suggestions: ["PIERCING", "CHANGEMENT DE BIJOU", "VENTE DE BIJOUX", "CONSULTATION"] },
-  { id: "tatouage_piercing", label: "Tatouage + Piercing", suggestions: ["TATOUAGE", "RETOUCHE", "PIERCING", "CHANGEMENT DE BIJOU", "VENTE DE BIJOUX", "CONSULTATION", "ACOMPTE"] },
+  { id: "tatouage_piercing", label: "Tatouage + Piercing", suggestions: ["TATOUAGE", "RETOUCHE", "PIERCING", "CHANGEMENT DE BIJOU", "VENTE DE BIJOUX", "DEVIS TATOUAGE", "ACOMPTE"] },
   { id: "coiffure", label: "Coiffure", suggestions: ["COUPE FEMME", "COUPE HOMME", "BRUSHING", "COLORATION"] },
   { id: "barbier", label: "Barbier", suggestions: ["COUPE", "TAILLE DE BARBE", "RASAGE"] },
   { id: "esthetique", label: "Esthétique", suggestions: ["EPILATION", "SOIN DU VISAGE", "SOIN DU CORPS"] },
