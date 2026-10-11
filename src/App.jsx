@@ -1380,7 +1380,7 @@ console.log("ERREUR RDV =", appointmentsError);
       ? names[0]
       : `${names.slice(0, -1).join(", ")} & ${names[names.length - 1]}`;
     return (
-      <div role="status" style={{ textAlign: "center", padding: "9px 12px", margin: "10px 0", border: "1px solid #c4aa80", borderRadius: 8, background: "rgba(196,170,128,0.10)", color: "inherit", fontSize: "0.92rem" }}>
+      <div role="status" style={{ textAlign: "center", padding: "9px 12px", margin: "10px 0", border: "1px solid #a99373", borderRadius: 8, background: "rgba(196,170,128,0.10)", color: "inherit", fontSize: "0.92rem" }}>
         {formattedNames} {names.length === 1 ? "est en congés" : "sont en congés"}
       </div>
     );
@@ -1620,7 +1620,7 @@ const selectedDayAppointments = useMemo(() => {
   }, [selectedDayAppointments, appointments]);
 
   const selectedDayRevenueBox = (
-    <div className="agenda-day-revenue-box gold-line-glow">
+    <div className="agenda-day-revenue-box">
       <span>Jour</span>
       <strong>{formatCurrency(selectedDayRevenue)}</strong>
     </div>
@@ -4240,12 +4240,12 @@ const goNext = () => {
           }}>
             <div role="dialog" aria-modal="true" aria-label="Choisir mon abonnement"
               style={{
-                background: "linear-gradient(145deg,#171717,#080808)",
-                color: "#f1c15b", border: "1px solid #d6a529", borderRadius: 24,
+                background: "linear-gradient(145deg,#f9f5ee,#e9dfd1)",
+                color: "#29231e", border: "1px solid #a99373", borderRadius: 24,
                 padding: "28px 24px", maxWidth: 510, width: "100%",
                 boxShadow: "0 10px 45px rgba(0,0,0,.8)", textAlign: "center"
               }}>
-              <h2 style={{ marginTop: 0, color: "#f5b938" }}>Choisir mon abonnement</h2>
+              <h2 style={{ marginTop: 0, color: "#29231e" }}>Choisir mon abonnement</h2>
               <p>Choisissez votre durée et le nombre de membres de l’équipe.</p>
               <div style={{ display: "flex", gap: 10, margin: "22px 0" }}>
                 {[
@@ -4256,9 +4256,9 @@ const goNext = () => {
                     onClick={() => setCheckoutBillingInterval(option.value)}
                     style={{
                       flex: 1, padding: "14px 8px", borderRadius: 12,
-                      border: "1px solid #d6a529",
-                      background: checkoutBillingInterval === option.value ? "#e2ad36" : "#111",
-                      color: checkoutBillingInterval === option.value ? "#080808" : "#f1c15b",
+                      border: "1px solid #a99373",
+                      background: checkoutBillingInterval === option.value ? "#d7c0a0" : "#fffaf3",
+                      color: "#29231e",
                       fontWeight: 700, cursor: "pointer"
                     }}>{option.label}</button>
                 ))}
@@ -4269,32 +4269,32 @@ const goNext = () => {
               <select id="checkout-artist-count" value={checkoutArtistCount}
                 onChange={(event) => setCheckoutArtistCount(Number(event.target.value))}
                 style={{ width: "100%", padding: 12, borderRadius: 10,
-                  background: "#111", color: "#f1c15b", border: "1px solid #d6a529" }}>
+                  background: "#111", color: "#29231e", border: "1px solid #a99373" }}>
                 {Array.from({ length: Math.max(20, checkoutArtistCount) }, (_, index) => index + 1)
                   .map((count) => <option key={count} value={count}>{count} membre{count > 1 ? "s" : ""} de l’équipe</option>)}
               </select>
               <p style={{ marginTop: 24, fontSize: 16 }}>Montant de votre forfait</p>
-              <p style={{ fontSize: 31, fontWeight: 800, margin: "8px 0", color: "#f5b938" }}>
+              <p style={{ fontSize: 31, fontWeight: 800, margin: "8px 0", color: "#29231e" }}>
                 {formatCurrency(
                   checkoutBillingInterval === "year"
                     ? 99 + (checkoutArtistCount - 1) * 80
                     : 9.9 + (checkoutArtistCount - 1) * 8
                 )} TTC / {checkoutBillingInterval === "year" ? "an" : "mois"}
               </p>
-              <p style={{ fontSize: 13, opacity: 0.8 }}>
+              <p style={{ fontSize: 13, color: "#453d35", opacity: 1 }}>
                 {checkoutBillingInterval === "year"
                   ? "99 € / an pour 1 membre de l’équipe + 80 € / an par membre supplémentaire de l’équipe."
                   : "9,90 € / mois pour 1 membre de l’équipe + 8 € / mois par membre supplémentaire de l’équipe."}
               </p>
               <div style={{ display: "flex", gap: 10, marginTop: 24, flexWrap: "wrap" }}>
                 <button type="button" disabled={isCreatingCheckout}
-                  onClick={testStripeCheckout} style={{ flex: "2 1 220px" }}>
+                  onClick={testStripeCheckout} style={{ flex: "2 1 220px", background: "#d7c0a0", color: "#29231e", border: "1px solid #a99373", fontWeight: 700 }}>
                   {isCreatingCheckout ? "Redirection vers Stripe..." : "Continuer vers le paiement"}
                 </button>
                 <button type="button" className="secondary-button"
                   disabled={isCreatingCheckout}
                   onClick={() => setShowCheckoutPlanModal(false)}
-                  style={{ flex: "1 1 120px" }}>Annuler</button>
+                  style={{ flex: "1 1 120px", background: "#fffaf3", color: "#29231e", border: "1px solid #a99373", fontWeight: 700 }}>Annuler</button>
               </div>
             </div>
           </div>
@@ -4387,12 +4387,12 @@ const goNext = () => {
     <div className="container">
 {isGracePeriod && !graceNoticeDismissed && (
   <div role="dialog" aria-modal="true" aria-label="Paiement en attente" style={{position:"fixed",inset:0,zIndex:10000,background:"rgba(0,0,0,.88)",display:"flex",alignItems:"center",justifyContent:"center",padding:18}}>
-    <div style={{width:"100%",maxWidth:560,background:"linear-gradient(145deg,#181818,#070707)",border:"1px solid #d6a529",borderRadius:24,padding:"32px 24px",textAlign:"center",color:"#f1c15b",boxShadow:"0 15px 55px #000"}}>
-      <h1 style={{color:"#f5b938",fontSize:"clamp(25px,5vw,38px)",margin:"0 0 20px"}}>Paiement de votre abonnement en attente</h1>
+    <div style={{width:"100%",maxWidth:560,background:"linear-gradient(145deg,#f9f5ee,#e9dfd1)",border:"1px solid #a99373",borderRadius:24,padding:"32px 24px",textAlign:"center",color:"#29231e",boxShadow:"0 15px 55px #000"}}>
+      <h1 style={{color:"#29231e",fontSize:"clamp(25px,5vw,38px)",margin:"0 0 20px"}}>Paiement de votre abonnement en attente</h1>
       <p>Le renouvellement de votre abonnement n'a pas pu être réglé.</p>
       <p>Vous conservez provisoirement l'accès à votre application et à toutes vos données.</p>
       <p style={{marginTop:24}}>Temps restant avant suspension de l'accès :</p>
-      <div aria-live="polite" style={{fontSize:"clamp(26px,6vw,40px)",fontWeight:800,color:"#f5b938",margin:"14px 0 20px"}}>{graceDays} j {String(graceHours).padStart(2,"0")} h {String(graceMinutes).padStart(2,"0")} min</div>
+      <div aria-live="polite" style={{fontSize:"clamp(26px,6vw,40px)",fontWeight:800,color:"#29231e",margin:"14px 0 20px"}}>{graceDays} j {String(graceHours).padStart(2,"0")} h {String(graceMinutes).padStart(2,"0")} min</div>
       <p style={{fontSize:14}}>Après ce délai, l'accès sera suspendu jusqu'à la régularisation. Vos données seront conservées.</p>
       <div style={{display:"flex",gap:12,justifyContent:"center",flexWrap:"wrap",marginTop:25}}>
         
@@ -5315,15 +5315,15 @@ const goNext = () => {
           </div>
 
           <div className="revenue-stats">
-            <div className="revenue-box gold-line-glow">
+            <div className="revenue-box">
               <span>Jour</span>
               <strong>{formatCurrency(revenueStats.dayTotal)}</strong>
             </div>
-            <div className="revenue-box gold-line-glow">
+            <div className="revenue-box">
               <span>Semaine</span>
               <strong>{formatCurrency(revenueStats.weekTotal)}</strong>
             </div>
-            <div className="revenue-box gold-line-glow">
+            <div className="revenue-box">
               <span>Mois</span>
               <strong>{formatCurrency(revenueStats.monthTotal)}</strong>
             </div>
@@ -5737,7 +5737,7 @@ const goNext = () => {
             <h3>Périodes enregistrées</h3>
             {absenceRules.filter((r) => r.rule_type === "leave").length === 0 ? <p className="muted-text">Aucun congé enregistré.</p> :
               absenceRules.filter((r) => r.rule_type === "leave").map((rule) => (
-                <div key={rule.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 12, padding: "12px 0", borderBottom: "1px solid #8c7b60" }}>
+                <div key={rule.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 12, padding: "12px 0", borderBottom: "1px solid #9b8b78" }}>
                   <span><strong>{rule.label || "Congés"}</strong> — {formatDateOnly(rule.start_date)} au {formatDateOnly(rule.end_date)}<br/>
                     {rule.artist_id == null ? "Tous les membres de l’équipe" : artists.find((a) => String(a.id) === String(rule.artist_id))?.name || "Membre de l’équipe supprimé"}
                   </span>
@@ -5908,9 +5908,9 @@ const goNext = () => {
                       width: "32px",
                       height: "32px",
                       borderRadius: "5px",
-                      border: "1px solid rgba(255, 190, 40, 0.9)",
+                      border: "1px solid rgba(169, 147, 115, 0.9)",
                       backgroundColor: artist.color || "#111111",
-                      boxShadow: "0 0 8px rgba(255, 190, 40, 0.18)",
+                      boxShadow: "0 0 8px rgba(169, 147, 115, 0.18)",
                       flexShrink: 0,
                     }}
                   />
