@@ -367,6 +367,40 @@ function ConditionsGeneralesContent() {
   );
 }
 
+
+function PolitiqueConfidentialiteContent() {
+  return (
+    <div style={{ maxHeight: "65vh", overflowY: "auto", lineHeight: 1.7, paddingRight: 8 }}>
+      <p className="muted-text">Politique de confidentialité LOGILYA — version du 11 octobre 2026.</p>
+      <h4>1. Responsable du traitement et contact</h4>
+      <p>Pour la création des comptes professionnels, l'administration du service, la facturation et l'assistance, le responsable du traitement est l'EURL LOGILYA, représentée par Angélique THILL, 9, Grande Rue, Les Ombraies, 55260 Lignières-sur-Aire, France, SIREN 108 539 420. Contact : <a href="mailto:contact@logilya.fr">contact@logilya.fr</a>.</p>
+      <h4>2. Répartition des responsabilités</h4>
+      <p>Chaque professionnel utilisant l'application détermine les finalités et les moyens essentiels du traitement des données de ses propres clients, rendez-vous et membres de l'équipe : il est en principe responsable de ces traitements. LOGILYA intervient alors comme sous-traitant technique, sur instruction du professionnel. Un accord de sous-traitance conforme à l'article 28 du RGPD doit encadrer ces opérations. Cette politique informe principalement les titulaires de comptes LOGILYA ; les professionnels doivent informer séparément leurs propres clients et collaborateurs.</p>
+      <h4>3. Catégories de données</h4>
+      <p>Selon l'utilisation du service, peuvent être traitées : adresse électronique et identifiants de compte, informations de connexion et de sécurité, données de souscription et de facturation, demandes au support, preuves d'acceptation des conditions générales, ainsi que les informations professionnelles saisies par les utilisateurs (noms, coordonnées, rendez-vous, prestations, notes, membres de l'équipe et indisponibilités). Les informations de paiement sont traitées via le prestataire de paiement ; LOGILYA n'a pas vocation à conserver les numéros complets de carte bancaire.</p>
+      <h4>4. Finalités et bases juridiques</h4>
+      <p>La gestion des comptes, l'accès au logiciel, l'exécution des abonnements et le support reposent principalement sur l'exécution du contrat ou les mesures précontractuelles. Les factures et pièces comptables sont traitées pour respecter les obligations légales. La prévention des abus, la sécurité du service et la défense des droits de LOGILYA reposent, selon les cas, sur l'intérêt légitime. Les communications commerciales facultatives, si elles sont mises en place, feront l'objet des informations et choix requis par la réglementation. Pour les données des clients du professionnel, la base juridique est déterminée par ce dernier.</p>
+      <h4>5. Destinataires et prestataires</h4>
+      <p>Les données sont accessibles aux personnes habilitées dans la limite de leurs fonctions et aux prestataires nécessaires à l'exploitation du service, notamment Supabase (authentification et base de données), Vercel (hébergement et déploiement) et Stripe (gestion des paiements et abonnements), selon les services effectivement utilisés. Les données ne sont pas vendues. Les engagements et sous-traitants ultérieurs de ces prestataires doivent être vérifiés dans leurs documents contractuels.</p>
+      <h4>6. Hébergement et transferts internationaux</h4>
+      <p>La localisation effective des traitements dépend des régions et configurations choisies chez les prestataires. Certains accès ou transferts hors de l'Espace économique européen peuvent exister. LOGILYA doit vérifier les pays concernés et, le cas échéant, les mécanismes de transfert applicables (notamment décision d'adéquation ou clauses contractuelles types), ainsi que les mesures complémentaires nécessaires. Aucune localisation exclusivement européenne n'est garantie par le présent document.</p>
+      <h4>7. Durées de conservation</h4>
+      <p>Les données de compte sont conservées pendant la relation contractuelle, puis pendant les délais nécessaires au respect des obligations légales ou à la défense des droits. Les documents comptables sont conservés pendant les durées légalement imposées, généralement dix ans pour les pièces comptables. Les preuves d'acceptation des conditions sont conservées aussi longtemps que nécessaire pour établir les droits et obligations contractuels. Les données métier hébergées pour le compte des professionnels sont soumises aux instructions contractuelles et aux modalités de restitution et de suppression qui doivent être précisées dans l'accord de sous-traitance. Les délais techniques exacts de suppression et de sauvegarde restent à documenter.</p>
+      <h4>8. Sécurité</h4>
+      <p>LOGILYA met en œuvre des mesures organisationnelles et techniques adaptées aux risques, notamment la gestion des accès et les mécanismes de sécurité proposés par ses prestataires. Aucun système ne pouvant garantir une sécurité absolue, les utilisateurs doivent protéger leurs identifiants, limiter les accès et signaler rapidement toute anomalie à contact@logilya.fr. Les procédures de notification des violations de données sont régies par les obligations du RGPD et l'accord de sous-traitance.</p>
+      <h4>9. Droits des personnes</h4>
+      <p>Dans les conditions prévues par le RGPD, les personnes concernées disposent de droits d'accès, de rectification, d'effacement, de limitation, d'opposition et, dans certains cas, de portabilité. Elles peuvent également retirer leur consentement lorsqu'un traitement repose sur celui-ci. Pour les données de compte LOGILYA, les demandes peuvent être adressées à <a href="mailto:contact@logilya.fr">contact@logilya.fr</a>. Pour les données enregistrées par un professionnel concernant ses clients ou son équipe, il convient de contacter prioritairement ce professionnel, responsable du traitement. Une vérification d'identité proportionnée peut être demandée.</p>
+      <h4>10. Réclamation auprès de la CNIL</h4>
+      <p>Toute personne concernée peut introduire une réclamation auprès de la Commission nationale de l'informatique et des libertés (CNIL), autorité française de contrôle, si elle estime que ses droits ne sont pas respectés.</p>
+      <h4>11. Cookies et traceurs</h4>
+      <p>Le service peut utiliser des mécanismes techniques nécessaires à l'authentification, à la sécurité et au maintien de la session. Si des traceurs non essentiels (mesure d'audience non exemptée, publicité, etc.) sont ajoutés, une information spécifique et, lorsque requis, un recueil préalable du consentement seront mis en place. Un inventaire technique des traceurs effectivement utilisés doit être maintenu.</p>
+      <h4>12. Mise à jour de la politique</h4>
+      <p>LOGILYA peut modifier cette politique pour refléter les évolutions du service, de ses prestataires ou de la réglementation. La version actualisée est rendue accessible dans l'application et les changements importants sont signalés par un moyen approprié.</p>
+      <p className="muted-text" style={{ borderTop: "1px solid rgba(180,155,105,0.35)", paddingTop: 12, fontSize: "0.9em" }}><strong>Avant publication définitive :</strong> confirmer les régions d'hébergement et transferts, la liste des sous-traitants, les durées de conservation/suppression et les traceurs réellement utilisés ; conclure l'accord de sous-traitance RGPD avec les professionnels. Ce document ne remplace pas cet accord.</p>
+    </div>
+  );
+}
+
 export default function App() {
   const [session, setSession] = useState(null);
   const [cgvStatus, setCgvStatus] = useState("loading");
@@ -5358,6 +5392,7 @@ const goNext = () => {
               <a className="button-link" href="mailto:contact@logilya.fr?subject=Support%20application%20LOGILYA">Contacter le support</a>
               <button type="button" onClick={() => setSettingsLegalPanel("Mentions légales")}>Mentions légales</button>
               <button type="button" onClick={() => setSettingsLegalPanel("Conditions générales")}>Conditions générales</button>
+              <button type="button" onClick={() => setSettingsLegalPanel("Politique de confidentialité")}>Politique de confidentialité</button>
             </div>
           </div>
           {settingsLegalPanel && (
@@ -5406,6 +5441,8 @@ const goNext = () => {
                       les coordonnées légales des hébergeurs et les informations sur le traitement des données.
                     </p>
                   </div>
+                ) : settingsLegalPanel === "Politique de confidentialité" ? (
+                  <PolitiqueConfidentialiteContent />
                 ) : (
                   <ConditionsGeneralesContent />
                 )}
