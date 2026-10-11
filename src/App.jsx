@@ -1922,7 +1922,7 @@ const saveClient = async () => {
 
     await loadSupabaseData();
 
-    showMessage("✔ Cliente modifiée.");
+    showMessage("✔ Client(e) modifié(e).");
     resetClientForm();
     setSelectedClientId(updatedClient.id);
     navigateTo("client-details");
