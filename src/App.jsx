@@ -255,8 +255,9 @@ const ACOMPTE_TYPE = "ACOMPTE";
 
 // Professions : identifiants stables enregistrés dans profiles.profession.
 const PROFESSIONS = [
-  { id: "tatouage", label: "Tatouage", suggestions: ["TATOUAGE", "RETOUCHE", "CONSULTATION"] },
-  { id: "piercing", label: "Piercing", suggestions: ["PIERCING", "CHANGEMENT DE BIJOU", "VENTE"] },
+  { id: "tatouage", label: "Tatouage", suggestions: ["TATOUAGE", "RETOUCHE", "CONSULTATION", "ACOMPTE"] },
+  { id: "piercing", label: "Piercing", suggestions: ["PIERCING", "CHANGEMENT DE BIJOU", "VENTE DE BIJOUX", "CONSULTATION"] },
+  { id: "tatouage_piercing", label: "Tatouage + Piercing", suggestions: ["TATOUAGE", "RETOUCHE", "PIERCING", "CHANGEMENT DE BIJOU", "VENTE DE BIJOUX", "CONSULTATION", "ACOMPTE"] },
   { id: "coiffure", label: "Coiffure", suggestions: ["COUPE FEMME", "COUPE HOMME", "BRUSHING", "COLORATION"] },
   { id: "barbier", label: "Barbier", suggestions: ["COUPE", "TAILLE DE BARBE", "RASAGE"] },
   { id: "esthetique", label: "Esthétique", suggestions: ["EPILATION", "SOIN DU VISAGE", "SOIN DU CORPS"] },
@@ -6394,7 +6395,7 @@ const goNext = () => {
 
       <input
         type="text"
-        placeholder="Description / motif (facultatif)"
+        placeholder={(["tatouage", "tatouage_piercing"].includes(accessProfile?.profession)) ? "Nom du projet (facultatif)" : "Description / motif (facultatif)"}
         value={appointmentForm.project}
         onChange={(e) =>
           setAppointmentForm({
@@ -6743,7 +6744,6 @@ const goNext = () => {
         </section>
       )}
     </div>
-    
   );
   
 }
