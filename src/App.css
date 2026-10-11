@@ -2914,3 +2914,140 @@ body,
     flex-direction: column;
   }
 }
+/* ================================================================
+   ORGANISYA / TATTOO — DESIGN NOIR & BEIGE CONTEMPORAIN
+   Couche visuelle uniquement : aucune modification JSX nécessaire.
+   Les couleurs métier des rendez-vous sont préservées.
+   ================================================================ */
+:root {
+  --ui-black:#141310;
+  --ui-dark:#211f1b;
+  --ui-beige:#e8ddc9;
+  --ui-cream:#f6f1e8;
+  --ui-sand:#c7b69b;
+  --ui-line:#d8cbb7;
+  --ui-text:#24211d;
+  --ui-muted:#776e62;
+  --ui-accent:#a68b65;
+  --ui-shadow:0 12px 34px rgba(32,26,18,.09);
+}
+body {
+  font-family: Inter, "Segoe UI", Arial, sans-serif;
+  background:#f0ebe2;
+  color:var(--ui-text);
+  -webkit-font-smoothing:antialiased;
+}
+h1,h2 {color:var(--ui-black);letter-spacing:-.035em;line-height:1.12;}
+h1 {font-size:clamp(32px,4.5vw,52px);}
+h2 {font-size:clamp(28px,4vw,43px);}
+h3,h4 {color:var(--ui-black);}
+.subtitle,.muted-text,.home-page-intro p,.stats-box span {color:var(--ui-muted);}
+.card,.home-screen-card,.inner-card,.revenue-box,.stats-box,
+.client-box,.history-box,.agenda-item,.subscription-modal,.success-box {
+  background:var(--ui-cream);
+  color:var(--ui-text);
+  border:1px solid var(--ui-line);
+  border-radius:20px;
+  box-shadow:var(--ui-shadow);
+}
+.card {padding:clamp(18px,3vw,30px);}
+.card::before,.card::after,.revenue-box::before {content:none;}
+.inner-card {background:#fffdf9;border-radius:14px;box-shadow:none;}
+.revenue-box,.stats-box {background:#fffdf9;border-radius:16px;}
+.revenue-box span,.stats-box span {color:var(--ui-muted);}
+.revenue-box strong,.stats-box strong {color:var(--ui-black);}
+.home-section-title,.home-menu-title,.input-label,.field-header-label,
+.input-suffix,.subscription-modal h2 {color:var(--ui-black);}
+.field-header,.field-header label,.field-header span,.field-header p {
+  color:var(--ui-text) !important;
+}
+.field-header button,.field-header a {color:#806747 !important;}
+.field-header button:hover,.field-header a:hover {color:var(--ui-black) !important;}
+input:not([type="checkbox"]):not([type="radio"]):not([type="color"]),
+textarea,select {
+  background:#fffdf9;
+  color:var(--ui-text);
+  border:1px solid #cfc3b1;
+  border-radius:12px;
+  box-shadow:none;
+}
+input::placeholder,textarea::placeholder {color:#958b7d;}
+input:focus,textarea:focus,select:focus {
+  border-color:#9b805b;
+  outline:2px solid rgba(166,139,101,.20);
+  outline-offset:1px;
+  box-shadow:none;
+}
+select,select option {background-color:#fffdf9;color:var(--ui-text);}
+input[type="date"]::-webkit-calendar-picker-indicator {filter:none;}
+button {
+  background:var(--ui-black);
+  color:var(--ui-cream);
+  border:1px solid var(--ui-black);
+  border-radius:12px;
+  box-shadow:0 5px 12px rgba(25,22,18,.12);
+  font-weight:650;
+  transition:background .18s ease,border-color .18s ease,transform .18s ease;
+}
+button::before {content:none;}
+button:hover {background:#38332c;color:#fff;box-shadow:0 8px 18px rgba(25,22,18,.14);filter:none;}
+button:focus-visible {outline:3px solid #b69d79;outline-offset:2px;}
+.secondary-button,.back-button,.logout-button,.subscription-modal-cancel {
+  background:#e7ddce;
+  border:1px solid #cfc0aa;
+  color:var(--ui-black);
+  box-shadow:none;
+}
+.secondary-button:hover,.back-button:hover,.logout-button:hover,.subscription-modal-cancel:hover {
+  background:#d9cbb7;color:var(--ui-black);border-color:#bba98d;
+}
+.home-menu-button,.home-menu-primary {
+  background:#1d1b18;
+  color:#f7f0e4;
+  border:1px solid #6d6252;
+  border-radius:18px;
+  box-shadow:0 10px 25px rgba(20,18,15,.16);
+}
+.home-menu-button:hover,.home-menu-primary:hover {
+  background:#302b25;border-color:#aa9677;
+  box-shadow:0 14px 28px rgba(20,18,15,.20);
+}
+.home-menu-button .home-menu-title {color:#f4ead8;}
+.home-menu-icon-image img,.home-menu-full-logo {filter:none;}
+.gold-line-glow::before {content:none;}
+.btn-add-rdv {background:var(--ui-black);color:var(--ui-cream);border:1px solid #4c4438;}
+.btn-add-plus {color:var(--ui-cream);}
+.artist-row,.week-day-card {background:#fffdf9;border:1px solid var(--ui-line);}
+.week-day-header,.week-column-header {background:#e4d8c5;border-color:var(--ui-line);color:var(--ui-black);}
+.week-time-slot,.week-column-header strong,.week-column-header span {color:var(--ui-text);}
+.week-day-column,.week-planner-scroll,.week-planner-header,.week-time-header,
+.week-time-column {background:#fffdf9;border-color:#ded3c3;}
+.week-time-slot {background:#fffdf9;}
+.week-hour-line {border-color:rgba(95,80,59,.18);}
+.week-half-line {border-color:rgba(95,80,59,.08);}
+.month-cell {background:#fffdf9;color:var(--ui-text);border:1px solid var(--ui-line);box-shadow:none;}
+.month-cell:hover {background:#f0e7d9;color:var(--ui-black);}
+.month-day-name,.month-special-label,.month-mini-item {color:#776e62;}
+.month-count {background:var(--ui-black);color:#fff;}
+.month-weekday-cell {color:var(--ui-muted);}
+.active-view {background:#a58a66;color:#fff;border-color:#a58a66;}
+.public-holiday-badge,.public-holiday-cell {background:#eee4d6;color:#514432;border-color:#d9c7aa;}
+.school-holiday-badge,.school-holiday-cell {background:#f1ede6;color:#5d564c;border-color:#dcd4c8;}
+.special-day-text,.empty-text,.week-empty-text {color:var(--ui-muted);}
+.projects-history {background:#eee6da;}
+.subscription-modal-price {background:#fffdf9;border:1px solid var(--ui-line);}
+.subscription-modal p,.subscription-modal-price strong {color:var(--ui-text);}
+.subscription-modal-price span {color:var(--ui-muted);}
+.success-box {color:var(--ui-black);}
+/* Garder lisibles les événements dont le fond est défini par le JSX. */
+.week-appointment-block,.week-appointment-chip {background-image:none;}
+.week-appointment-block::before,.week-appointment-chip::before,
+.month-cell::before,.month-mini-item::before,.agenda-item::before {content:none;}
+/* Préserver les codes couleur des praticiens et des événements. */
+.artist-color-dot {background-color:inherit;}
+@media(max-width:768px){
+  .card,.home-screen-card {border-radius:16px;padding:18px;}
+  .home-menu-button {border-radius:14px;}
+  h1 {font-size:34px;}
+  h2 {font-size:29px;}
+}
