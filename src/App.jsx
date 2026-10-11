@@ -223,38 +223,15 @@ function getFrenchPublicHolidays(year) {
   ];
 }
 
-function isDateBetween(dateKey, startKey, endKey) {
-  return dateKey >= startKey && dateKey <= endKey;
-}
-
-function getSpecialDayInfo(dateKey, schoolHolidays) {
+function getSpecialDayInfo(dateKey) {
   const year = Number(dateKey.slice(0, 4));
   const publicHolidays = [
     ...getFrenchPublicHolidays(year - 1),
     ...getFrenchPublicHolidays(year),
     ...getFrenchPublicHolidays(year + 1),
   ];
-
   const matchedHoliday = publicHolidays.find((item) => item.date === dateKey);
-  if (matchedHoliday) {
-    return {
-      type: "publicHoliday",
-      label: matchedHoliday.label,
-    };
-  }
-
-  const matchedSchoolHoliday = schoolHolidays.find((item) =>
-    isDateBetween(dateKey, item.start, item.end)
-  );
-
-  if (matchedSchoolHoliday) {
-    return {
-      type: "schoolHoliday",
-      label: matchedSchoolHoliday.label,
-    };
-  }
-
-  return null;
+  return matchedHoliday ? { type: "publicHoliday", label: matchedHoliday.label } : null;
 }
 
 function getAppointmentDurationInMinutes(appointmentItem) {
@@ -430,8 +407,6 @@ const evaluateSetup = (artistsList, servicesList) => {
   const [agendaView, setAgendaView] = useState("month");
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
   const [showMobileWeek, setShowMobileWeek] = useState(false);
-  const [schoolZone, setSchoolZone] = useState("B");
-  const [schoolHolidays, setSchoolHolidays] = useState([]);
   const [revenueArtistFilter, setRevenueArtistFilter] = useState("all");
   const [agendaArtistFilter, setAgendaArtistFilter] = useState("all");
 
@@ -712,83 +687,6 @@ const updateStripeArtistPlan = async () => {
   setPage("home");
   setPageHistory([]);
 };
-
-const loadSchoolHolidays = async () => {
-  try {
-    const zoneValue = `Zone ${schoolZone}`;
-
-    const where = encodeURIComponent(`zones="${zoneValue}"`);
-
-    const apiUrl =
-      "https://data.education.gouv.fr/api/explore/v2.1/catalog/datasets/" +
-      "fr-en-calendrier-scolaire/records" +
-      `?where=${where}` +
-      "&order_by=start_date" +
-      "&limit=100";
-
-    const response = await fetch(apiUrl);
-
-    if (!response.ok) {
-      throw new Error(
-        `Impossible de charger les vacances scolaires : ${response.status}`
-      );
-    }
-
-    const result = await response.json();
-
-    console.log("RÉPONSE API VACANCES :", result);
-
-    const holidays = (result.results || [])
-      .filter((item) => {
-        const description = String(item.description || "").toLowerCase();
-
-        return (
-          description.includes("vacances") ||
-          description.includes("pont")
-        );
-      })
-      .map((item) => {
-        const startDate = String(item.start_date || "").slice(0, 10);
-        const officialEndDate = String(item.end_date || "").slice(0, 10);
-
-        if (!startDate || !officialEndDate) {
-          return null;
-        }
-
-        // La date de fin officielle correspond au jour de la reprise.
-        // On retire donc un jour pour colorer uniquement les jours sans cours.
-        const endDate = toDate(officialEndDate);
-
-        if (!endDate) {
-          return null;
-        }
-
-        endDate.setDate(endDate.getDate() - 1);
-
-        return {
-          label: item.description || "Vacances scolaires",
-          start: startDate,
-          end: formatDateKey(endDate),
-          type: "holiday",
-        };
-      })
-      .filter(Boolean);
-
-    console.log(
-      `VACANCES CHARGÉES POUR LA ZONE ${schoolZone} :`,
-      holidays
-    );
-
-    setSchoolHolidays(holidays);
-  } catch (error) {
-    console.error("ERREUR VACANCES SCOLAIRES :", error);
-    setSchoolHolidays([]);
-  }
-};
-
-useEffect(() => {
-  loadSchoolHolidays();
-}, [schoolZone]);
 
 useEffect(() => {
   supabase.auth.getSession().then(({ data }) => {
@@ -3808,13 +3706,13 @@ const goNext = () => {
 };
 
   const renderSpecialDayBadge = (dateKey) => {
-    const info = getSpecialDayInfo(dateKey, schoolHolidays);
+    const info = getSpecialDayInfo(dateKey);
     if (!info) return null;
 
     return (
       <div
         className={`special-day-badge ${
-          info.type === "publicHoliday" ? "public-holiday-badge" : "school-holiday-badge"
+          "public-holiday-badge"
         }`}
       >
         {info.label}
@@ -4727,7 +4625,7 @@ const goNext = () => {
                       {weekDays.map((day) => {
                         const key = formatDateKey(day);
                         const isSelected = key === selectedDate;
-                        const specialDayInfo = getSpecialDayInfo(key, schoolHolidays);
+                        const specialDayInfo = getSpecialDayInfo(key);
                         const isToday = key === getTodayDateOnly();
                         const items = appointmentsByDate[key] || [];
                         const closed = isClosedDay(key);
@@ -4743,8 +4641,6 @@ const goNext = () => {
                             } ${
                               specialDayInfo?.type === "publicHoliday"
                                 ? "public-holiday-cell"
-                                : specialDayInfo?.type === "schoolHoliday"
-                                ? "school-holiday-cell"
                                 : ""
                             }`}
                             onClick={() => setSelectedDate(key)}
@@ -4893,7 +4789,7 @@ const goNext = () => {
                         const key = formatDateKey(cell);
                         const items = appointmentsByDate[key] || [];
                         const isSelected = key === selectedDate;
-                        const specialDayInfo = getSpecialDayInfo(key, schoolHolidays);
+                        const specialDayInfo = getSpecialDayInfo(key);
                         const isToday = key === getTodayDateOnly();
                         const closed = isClosedDay(key);
 
@@ -4908,8 +4804,6 @@ const goNext = () => {
                             } ${
                               specialDayInfo?.type === "publicHoliday"
                                 ? "public-holiday-cell"
-                                : specialDayInfo?.type === "schoolHoliday"
-                                ? "school-holiday-cell"
                                 : ""
                             }`}
                             onClick={() => setSelectedDate(key)}
@@ -5071,22 +4965,7 @@ const goNext = () => {
             )}
           </div>
 
-          <div className="card inner-card" style={{ marginBottom: "16px" }}>
-            <h3>Vacances scolaires</h3>
-            <p className="muted-text">
-              Sélectionnez la zone scolaire utilisée dans l’agenda
-            </p>
 
-            <select
-              value={schoolZone}
-              onChange={(e) => setSchoolZone(e.target.value)}
-              className="zone-select"
-            >
-              <option value="A">Zone scolaire A</option>
-              <option value="B">Zone scolaire B</option>
-              <option value="C">Zone scolaire C</option>
-            </select>
-          </div>
 
                     <div className="card inner-card" style={{ marginBottom: "16px" }}>
                       <h3>Import des rendez-vous</h3>
