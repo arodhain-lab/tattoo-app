@@ -49,7 +49,7 @@ export default function Auth() {
   async function handleSignUp() {
     setSignUpMessage("");
 
-    const cleanEmail = signUpEmail.trim();
+    const cleanEmail = signUpEmail.trim().toLowerCase();
 
     if (!cleanEmail) {
       setSignUpMessage("Veuillez renseigner votre adresse email.");
@@ -61,10 +61,8 @@ export default function Auth() {
       return;
     }
 
-    if (signUpPassword.length < 6) {
-      setSignUpMessage(
-        "Le mot de passe doit contenir au minimum 6 caractères."
-      );
+    if (signUpPassword.length < 8 || !/[A-Za-z]/.test(signUpPassword) || !/[0-9]/.test(signUpPassword)) {
+      setSignUpMessage("Le mot de passe doit contenir au moins 8 caractères, dont des lettres et des chiffres.");
       return;
     }
 
@@ -82,36 +80,21 @@ export default function Auth() {
 
     setLoading(true);
 
-    // Vérifie côté Supabase Auth si l'adresse est déjà enregistrée.
-    const { data: emailAlreadyExists, error: emailCheckError } =
-      await supabase.rpc("email_exists", {
-        check_email: cleanEmail,
-      });
-
-    if (emailCheckError) {
-      console.error("Erreur vérification email :", emailCheckError);
-      setSignUpMessage(
-        "Impossible de vérifier cette adresse email pour le moment. Veuillez réessayer."
-      );
-      setLoading(false);
-      return;
-    }
-
-    if (emailAlreadyExists === true) {
-      setSignUpMessage(
-        "Cette adresse email est déjà enregistrée. Connectez-vous avec votre compte existant."
-      );
-      setLoading(false);
-      return;
-    }
-
-    const { data, error } = await supabase.auth.signUp({
+    // Ne pas interroger email_exists : cette RPC exposerait l'existence des comptes.
+    // Supabase Auth gère l'inscription et, si la confirmation email est activée,
+    // peut renvoyer une réponse non révélatrice pour une adresse déjà utilisée.
+    const { error } = await supabase.auth.signUp({
       email: cleanEmail,
       password: signUpPassword,
     });
 
     if (error) {
-      setSignUpMessage(error.message);
+      // Ne pas exposer les erreurs signalant explicitement qu'un compte existe.
+      const detail = String(error.message || "");
+      const duplicate = /already registered|already exists|user already|email.*registered|email.*exists/i.test(detail);
+      setSignUpMessage(duplicate
+        ? "Si cette adresse peut être utilisée, un email de confirmation vous sera envoyé. Si vous possédez déjà un compte, connectez-vous."
+        : detail);
       setLoading(false);
       return;
     }
@@ -175,19 +158,25 @@ export default function Auth() {
     maxWidth: "520px",
     maxHeight: "90vh",
     overflowY: "auto",
-    background: "linear-gradient(145deg, #161616 0%, #050505 100%)",
-    border: "2px solid #d6a514",
+    background: "linear-gradient(145deg, #242321 0%, #151515 100%)",
+    border: "1px solid #bca784",
     borderRadius: "28px",
     padding: "38px 30px",
     boxSizing: "border-box",
     boxShadow:
-      "0 0 25px rgba(214, 165, 20, 0.45), 0 20px 60px rgba(0, 0, 0, 0.8)",
+      "0 20px 60px rgba(0, 0, 0, 0.55)",
   };
 
   const modalInputStyle = {
     width: "100%",
     boxSizing: "border-box",
     marginBottom: "14px",
+    background: "#f5f0e8",
+    color: "#26231f",
+    border: "1px solid #bca784",
+    borderRadius: "10px",
+    padding: "12px 14px",
+    fontSize: "16px",
   };
 
   const passwordWrapperStyle = {
@@ -201,6 +190,12 @@ export default function Auth() {
     boxSizing: "border-box",
     marginBottom: 0,
     paddingRight: "50px",
+    background: "#f5f0e8",
+    color: "#26231f",
+    border: "1px solid #bca784",
+    borderRadius: "10px",
+    padding: "12px 50px 12px 14px",
+    fontSize: "16px",
   };
 
   const eyeButtonStyle = {
@@ -215,7 +210,7 @@ export default function Auth() {
     border: "none",
     background: "transparent",
     boxShadow: "none",
-    color: "#333333",
+    color: "#5a4b38",
     cursor: "pointer",
     display: "flex",
     alignItems: "center",
@@ -224,14 +219,14 @@ export default function Auth() {
   };
 
   const offerStyle = {
-    border: "1px solid #d6a514",
+    border: "1px solid #bca784",
     borderRadius: "16px",
     padding: "18px",
     marginBottom: "24px",
     textAlign: "center",
     background:
-      "linear-gradient(145deg, rgba(214,165,20,0.14), rgba(214,165,20,0.04))",
-    boxShadow: "0 0 14px rgba(214, 165, 20, 0.12)",
+      "linear-gradient(145deg, rgba(188,167,132,0.12), rgba(188,167,132,0.035))",
+    boxShadow: "0 0 14px rgba(188,167,132,0.09)",
   };
 
   return (
@@ -239,8 +234,8 @@ export default function Auth() {
       {/* =========================
           CONNEXION
       ========================== */}
-      <div className="card" style={{ maxWidth: 420, margin: "40px auto" }}>
-        <h2>Connexion</h2>
+      <div className="card" style={{ maxWidth: 420, margin: "40px auto", background: "linear-gradient(145deg, #242321, #151515)", border: "1px solid #bca784", color: "#f3eadc", borderRadius: 18, boxShadow: "0 16px 42px rgba(0,0,0,0.23)" }}>
+        <h2 style={{ color: "#dfcba8", textAlign: "center", letterSpacing: "0.04em" }}>Connexion</h2>
 
         <input
           type="email"
@@ -275,7 +270,7 @@ export default function Auth() {
           Créer un compte
         </button>
 
-        {message ? <p style={{ marginTop: 12 }}>{message}</p> : null}
+        {message ? <p style={{ marginTop: 12, color: "#f3eadc" }} role="status">{message}</p> : null}
       </div>
 
       {/* =========================
@@ -286,7 +281,7 @@ export default function Auth() {
           <div style={modalStyle}>
             <h2
               style={{
-                color: "#f5b82e",
+                color: "#dfcba8",
                 fontSize: "32px",
                 margin: "0 0 10px 0",
                 textAlign: "center",
@@ -299,7 +294,7 @@ export default function Auth() {
             <div style={offerStyle}>
               <div
                 style={{
-                  color: "#f5b82e",
+                  color: "#dfcba8",
                   fontSize: "23px",
                   fontWeight: "bold",
                   marginBottom: "8px",
@@ -330,7 +325,7 @@ export default function Auth() {
                 Puis à partir de{" "}
                 <strong
                   style={{
-                    color: "#f5b82e",
+                    color: "#dfcba8",
                     fontSize: "21px",
                   }}
                 >
@@ -340,18 +335,18 @@ export default function Auth() {
 
               <div
                 style={{
-                  color: "#bbbbbb",
+                  color: "#c5beb3",
                   fontSize: "13px",
                   marginTop: "5px",
                 }}
               >
-                Formule Solo : 1 tatoueur — 9,90 € / mois
+                Formule Solo : 1 membre de l’équipe — 9,90 € / mois
                 <br />
-                Tatoueur supplémentaire : +8 € / mois
+                Membre supplémentaire : +8 € / mois
                 <br />
                 Abonnement annuel Solo : 99 € / an
                 <br />
-                Remise annuelle équivalente pour les formules multi-tatoueurs
+                Remise annuelle équivalente pour les formules multi-membres
                 <br />
                 <span style={{ display: "inline-block", marginTop: "7px" }}>
                   Tarifs TTC · Sans engagement
@@ -361,20 +356,20 @@ export default function Auth() {
 
             <p
               style={{
-                color: "#cccccc",
+                color: "#e0d8ca",
                 fontSize: "15px",
                 lineHeight: "1.5",
                 textAlign: "center",
                 margin: "0 0 28px 0",
               }}
             >
-              Renseignez votre adresse email et choisissez votre mot de passe.
+              Renseignez votre adresse email et choisissez un mot de passe de 8 caractères minimum, avec des lettres et des chiffres.
             </p>
 
             <label
               style={{
                 display: "block",
-                color: "#f5b82e",
+                color: "#dfcba8",
                 fontWeight: "bold",
                 marginBottom: "7px",
               }}
@@ -395,7 +390,7 @@ export default function Auth() {
             <label
               style={{
                 display: "block",
-                color: "#f5b82e",
+                color: "#dfcba8",
                 fontWeight: "bold",
                 marginBottom: "7px",
               }}
@@ -462,7 +457,7 @@ export default function Auth() {
             <label
               style={{
                 display: "block",
-                color: "#f5b82e",
+                color: "#dfcba8",
                 fontWeight: "bold",
                 marginBottom: "7px",
               }}
@@ -539,10 +534,10 @@ export default function Auth() {
                   marginTop: "8px",
                   marginBottom: "18px",
                   padding: "12px 14px",
-                  border: "1px solid #d6a514",
+                  border: "1px solid #bca784",
                   borderRadius: "10px",
-                  backgroundColor: "rgba(214, 165, 20, 0.1)",
-                  color: "#f5b82e",
+                  backgroundColor: "rgba(188,167,132,0.10)",
+                  color: "#dfcba8",
                   fontSize: "14px",
                   lineHeight: "1.4",
                 }}
@@ -561,13 +556,13 @@ export default function Auth() {
                 border: "none",
                 borderRadius: "14px",
                 background:
-                  "linear-gradient(180deg, #f7c64b 0%, #d99d08 100%)",
+                  "linear-gradient(180deg, #e4d4b8 0%, #bda783 100%)",
                 color: "#000000",
                 fontSize: "17px",
                 fontWeight: "bold",
                 cursor: loading ? "default" : "pointer",
                 opacity: loading ? 0.7 : 1,
-                boxShadow: "0 4px 12px rgba(218, 157, 8, 0.35)",
+                boxShadow: "0 4px 12px rgba(188,167,132,0.20)",
               }}
             >
               {loading
@@ -605,7 +600,7 @@ export default function Auth() {
               style={{
                 fontSize: "52px",
                 marginBottom: "10px",
-                color: "#f5b82e",
+                color: "#dfcba8",
               }}
             >
               ✓
@@ -613,37 +608,37 @@ export default function Auth() {
 
             <h2
               style={{
-                color: "#f5b82e",
+                color: "#dfcba8",
                 fontSize: "32px",
                 margin: "0 0 15px 0",
               }}
             >
-              Compte créé !
+              Demande enregistrée
             </h2>
 
             <div
               style={{
-                border: "1px solid #d6a514",
+                border: "1px solid #bca784",
                 borderRadius: "14px",
                 padding: "15px",
                 marginBottom: "22px",
-                backgroundColor: "rgba(214, 165, 20, 0.1)",
+                backgroundColor: "rgba(188,167,132,0.10)",
               }}
             >
               <div
                 style={{
-                  color: "#f5b82e",
+                  color: "#dfcba8",
                   fontSize: "21px",
                   fontWeight: "bold",
                   marginBottom: "5px",
                 }}
               >
-                Votre essai gratuit de 30 jours est prêt
+                Découvrez votre essai gratuit de 30 jours
               </div>
 
               <div
                 style={{
-                  color: "#cccccc",
+                  color: "#e0d8ca",
                   fontSize: "14px",
                 }}
               >
@@ -652,7 +647,7 @@ export default function Auth() {
                   9,90 € TTC / mois en Solo
                 </strong>
                 <br />
-                +8 € / mois par tatoueur supplémentaire
+                +8 € / mois par membre supplémentaire
                 <br />
                 ou 99 € / an pour la formule Solo
               </div>
@@ -667,20 +662,19 @@ export default function Auth() {
               }}
             >
               <strong>
-                Activez maintenant votre compte grâce à l&apos;email reçu.
+                Consultez votre messagerie pour poursuivre votre inscription.
               </strong>
             </p>
 
             <p
               style={{
-                color: "#cccccc",
+                color: "#e0d8ca",
                 fontSize: "16px",
                 lineHeight: "1.5",
                 marginBottom: "30px",
               }}
             >
-              Cliquez sur le lien présent dans l&apos;email pour confirmer votre
-              adresse et activer votre compte.
+              Si un email de confirmation vous est adressé, cliquez sur le lien pour activer votre compte. Si vous possédez déjà un compte, utilisez la connexion.
               <br />
               <br />
               Pensez à vérifier vos courriers indésirables si vous ne trouvez
@@ -695,12 +689,12 @@ export default function Auth() {
                 border: "none",
                 borderRadius: "14px",
                 background:
-                  "linear-gradient(180deg, #f7c64b 0%, #d99d08 100%)",
+                  "linear-gradient(180deg, #e4d4b8 0%, #bda783 100%)",
                 color: "#000000",
                 fontSize: "17px",
                 fontWeight: "bold",
                 cursor: "pointer",
-                boxShadow: "0 4px 12px rgba(218, 157, 8, 0.35)",
+                boxShadow: "0 4px 12px rgba(188,167,132,0.20)",
               }}
             >
               J&apos;ai compris
