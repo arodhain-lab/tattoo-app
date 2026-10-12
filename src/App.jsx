@@ -637,7 +637,7 @@ export default function App() {
   const [settingsPasswordSaving, setSettingsPasswordSaving] = useState(false);
   const [settingsLegalPanel, setSettingsLegalPanel] = useState(null);
   // Audit 5/16 : interface de suppression. Le serveur reste en simulation.
-  const DELETION_PHRASE = "SUPPRIMER DÉFINITIVEMENT MON COMPTE";
+  const DELETION_PHRASE = "SUPPRIMER DEFINITIVEMENT MON COMPTE";
   const [accountDeletionStep, setAccountDeletionStep] = useState(0);
   const [accountDeletionPhrase, setAccountDeletionPhrase] = useState("");
   const [accountDeletionRunning, setAccountDeletionRunning] = useState(false);
