@@ -636,7 +636,7 @@ export default function App() {
   const [settingsConfirmPassword, setSettingsConfirmPassword] = useState("");
   const [settingsPasswordSaving, setSettingsPasswordSaving] = useState(false);
   const [settingsLegalPanel, setSettingsLegalPanel] = useState(null);
-  // Audit 5/16 : interface de suppression. Le serveur reste en simulation.
+  // Suppression de compte : simulation ou suppression réelle selon la réponse du serveur.
   const DELETION_PHRASE = "SUPPRIMER DEFINITIVEMENT MON COMPTE";
   const [accountDeletionStep, setAccountDeletionStep] = useState(0);
   const [accountDeletionPhrase, setAccountDeletionPhrase] = useState("");
@@ -649,7 +649,9 @@ export default function App() {
   const submitAccountDeletionSimulation = async () => {
     if (accountDeletionRunning || accountDeletionStep !== 3 ||
         accountDeletionPhrase !== DELETION_PHRASE || accessProfile?.is_admin === true) return;
+
     setAccountDeletionRunning(true);
+    let deletionSucceeded = false;
     try {
       const { data: result, error } = await supabase.functions.invoke("delete-account", {
         body: { confirmation: DELETION_PHRASE, finalConfirmation: true },
@@ -658,20 +660,47 @@ export default function App() {
       if (error?.context?.json) {
         try { response = await error.context.json(); } catch { /* réponse non JSON */ }
       }
-      if (error) {
-        await showLogilyaAlert("Demande non exécutée : " + (response?.error || error.message));
+
+      // Seule une réponse explicite de suppression réelle autorise la déconnexion.
+      if (response?.success === true && response?.deleted === true &&
+          response?.simulation === false) {
+        deletionSucceeded = true;
+        // Après suppression Auth, la révocation distante peut échouer :
+        // une déconnexion locale retire néanmoins la session de ce navigateur.
+        try {
+          const { error: signOutError } = await supabase.auth.signOut({ scope: "local" });
+          if (signOutError) console.warn("Déconnexion locale :", signOutError);
+        } catch (signOutError) {
+          console.warn("Déconnexion après suppression :", signOutError);
+        }
+        setSession(null);
+        setAccessProfile(null);
+        setAccessAllowed(false);
+        setAccountDeletionStep(0);
+        setAccountDeletionPhrase("");
+        // Recharge pour réinitialiser tous les états métier du compte supprimé.
+        window.location.replace("/");
+        return;
+      }
+
+      if (error || response?.success === false) {
+        await showLogilyaAlert("Demande non exécutée : " +
+          (response?.error || error?.message || "Erreur inconnue"));
       } else if (response?.simulation === true && response?.success === true) {
-        await showLogilyaAlert("TEST RÉUSSI : les vérifications ont été effectuées. Aucune donnée ni aucun abonnement n'a été supprimé. La suppression réelle reste désactivée.");
-        closeAccountDeletion();
+        await showLogilyaAlert("TEST RÉUSSI : aucune donnée ni aucun abonnement n'a été supprimé. La suppression réelle reste désactivée côté serveur.");
       } else {
-        await showLogilyaAlert("Réponse inattendue du serveur. Vérifiez le compte et contactez LOGILYA avant de recommencer.");
+        await showLogilyaAlert("Réponse inattendue du serveur. Vérifiez le compte avant de recommencer.");
       }
     } catch (error) {
-      await showLogilyaAlert("Vérification impossible : " + (error?.message || "Erreur inconnue"));
+      if (!deletionSucceeded) {
+        await showLogilyaAlert("Vérification impossible : " + (error?.message || "Erreur inconnue"));
+      }
     } finally {
-      setAccountDeletionRunning(false);
-      setAccountDeletionStep(0);
-      setAccountDeletionPhrase("");
+      if (!deletionSucceeded) {
+        setAccountDeletionRunning(false);
+        setAccountDeletionStep(0);
+        setAccountDeletionPhrase("");
+      }
     }
   };
 
@@ -1055,18 +1084,74 @@ const updateStripeArtistPlan = async () => {
 };
 
 useEffect(() => {
-  supabase.auth.getSession().then(({ data }) => {
-    setSession(data.session ?? null);
+  let active = true;
+  let validationSequence = 0;
+
+  const validateSession = async (candidate) => {
+    const sequence = ++validationSequence;
+    if (!candidate?.access_token) {
+      if (active && sequence === validationSequence) {
+        setSession(null);
+        setLoadingSession(false);
+      }
+      return;
+    }
+
+    // getUser contacte Auth et vérifie que le compte existe encore.
+    const { data: verified, error } = await supabase.auth.getUser(candidate.access_token);
+    if (!active || sequence !== validationSequence) return;
+
+    if (error || !verified?.user || verified.user.id !== candidate.user?.id) {
+      console.warn("Session non valide : déconnexion locale.");
+      try {
+        await supabase.auth.signOut({ scope: "local" });
+      } catch (signOutError) {
+        console.warn("Nettoyage de session :", signOutError);
+      }
+      if (!active || sequence !== validationSequence) return;
+      setSession(null);
+      setLoadingSession(false);
+      return;
+    }
+
+    setSession({ ...candidate, user: verified.user });
+    setLoadingSession(false);
+  };
+
+  // On n'expose pas les données métier avant vérification du compte côté serveur.
+  supabase.auth.getSession().then(({ data, error }) => {
+    if (!active) return;
+    if (error) {
+      console.error("Lecture de session :", error);
+      setSession(null);
+      setLoadingSession(false);
+      return;
+    }
+    void validateSession(data?.session ?? null);
+  }).catch((error) => {
+    if (!active) return;
+    console.error("Initialisation de session :", error);
+    setSession(null);
     setLoadingSession(false);
   });
 
-  const {
-    data: { subscription },
-  } = supabase.auth.onAuthStateChange((_event, newSession) => {
-    setSession(newSession ?? null);
+  const { data: { subscription } } = supabase.auth.onAuthStateChange((event, newSession) => {
+    // Ne pas appeler les méthodes Auth synchroniquement dans ce callback.
+    if (event === "SIGNED_OUT") {
+      ++validationSequence;
+      setSession(null);
+      setLoadingSession(false);
+    } else if (event === "SIGNED_IN" || event === "TOKEN_REFRESHED" || event === "USER_UPDATED") {
+      setLoadingSession(true);
+      setTimeout(() => { if (active) void validateSession(newSession); }, 0);
+    }
   });
 
-  return () => subscription.unsubscribe();
+  return () => {
+    active = false;
+    ++validationSequence;
+    subscription.unsubscribe();
+  };
 }, []);
 
 useEffect(() => {
@@ -5728,7 +5813,7 @@ const goNext = () => {
                 </>}
                 {accountDeletionStep === 3 && <>
                   <p><strong>Dernière confirmation.</strong> Vous avez confirmé vouloir supprimer définitivement votre compte et les données associées.</p>
-                  <p style={{ color: "#e5c99a" }}>Pendant cette phase de test, le serveur vérifie seulement la demande : il ne supprime rien.</p>
+                  <p style={{ color: "#e5c99a" }}>Si la suppression réelle est activée sur le serveur, votre compte sera supprimé et votre session sera fermée automatiquement. Sinon, seule une simulation sera effectuée.</p>
                 </>}
                 <div className="action-buttons" style={{ display: "flex", flexWrap: "wrap", gap: 12, marginTop: 20 }}>
                   <button type="button" onClick={closeAccountDeletion} disabled={accountDeletionRunning}>Annuler</button>
@@ -5736,7 +5821,7 @@ const goNext = () => {
                   {accountDeletionStep === 2 && <button type="button" disabled={accountDeletionPhrase !== DELETION_PHRASE} onClick={() => setAccountDeletionStep(3)}>Continuer</button>}
                   {accountDeletionStep === 3 && <button type="button" disabled={accountDeletionRunning || accountDeletionPhrase !== DELETION_PHRASE}
                     onClick={submitAccountDeletionSimulation} style={{ background: "#d8bc8c", color: "#111", fontWeight: 700 }}>
-                    {accountDeletionRunning ? "Vérification en cours…" : "Confirmer — TEST SANS SUPPRESSION"}
+                    {accountDeletionRunning ? "Traitement en cours…" : "Confirmer la demande de suppression"}
                   </button>}
                 </div>
               </section>
