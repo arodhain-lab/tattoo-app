@@ -807,6 +807,62 @@ const evaluateSetup = (artistsList, servicesList) => {
 
   const [clientSearch, setClientSearch] = useState("");
   const [appointmentSearch, setAppointmentSearch] = useState("");
+  const [fullExportRunning, setFullExportRunning] = useState(false);
+
+  // Export complet : lecture directe de Supabase (pas seulement des données affichées).
+  // Un CSV unique évite le blocage des téléchargements multiples sur mobile.
+  const exportAllMyDataCsv = async () => {
+    if (fullExportRunning) return;
+    setFullExportRunning(true);
+    try {
+      const { data: authData, error: authError } = await supabase.auth.getUser();
+      if (authError || !authData?.user?.id) throw new Error("Reconnectez-vous avant d'exporter vos données.");
+      const userId = authData.user.id;
+      const tables = ["clients", "appointments", "artists", "services", "closed_days", "absence_rules"];
+      const allRows = [];
+      for (const table of tables) {
+        let start = 0;
+        const pageSize = 500;
+        while (true) {
+          const { data: rows, error } = await supabase
+            .from(table).select("*").eq("user_id", userId)
+            .range(start, start + pageSize - 1);
+          if (error) throw new Error(`Lecture ${table} impossible : ${error.message}`);
+          if (!rows?.length) break;
+          rows.forEach((row) => allRows.push({ type_enregistrement: table, ...row }));
+          if (rows.length < pageSize) break;
+          start += pageSize;
+        }
+      }
+      // Informations de compte non sensibles ; ne jamais exporter les identifiants Stripe.
+      const { data: profile, error: profileError } = await supabase
+        .from("profiles").select("id,email,profession,created_at")
+        .eq("id", userId).single();
+      if (profileError) throw new Error(`Lecture du profil impossible : ${profileError.message}`);
+      allRows.unshift({ type_enregistrement: "profil", ...profile });
+
+      const columns = ["type_enregistrement", ...new Set(allRows.flatMap((row) => Object.keys(row)).filter((key) => key !== "type_enregistrement"))];
+      const csv = Papa.unparse({ fields: columns, data: allRows.map((row) => columns.map((key) => {
+        const value = row[key];
+        return value == null ? "" : typeof value === "object" ? JSON.stringify(value) : String(value);
+      })) }, { delimiter: ";", newline: "\r\n", escapeFormulae: true });
+      const blob = new Blob(["\uFEFF", csv], { type: "text/csv;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `organisya-pro-export-complet-${getTodayDateOnly()}.csv`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.setTimeout(() => URL.revokeObjectURL(url), 60000);
+      await showLogilyaAlert(`Export terminé : ${allRows.length} enregistrements téléchargés. Conservez ce fichier en lieu sûr : il contient des données personnelles.`);
+    } catch (error) {
+      await showLogilyaAlert("Export impossible : " + (error?.message || "Erreur inconnue"));
+    } finally {
+      setFullExportRunning(false);
+    }
+  };
+
   const [exportStartDate, setExportStartDate] = useState("");
   const [exportEndDate, setExportEndDate] = useState("");
   const [showExportArtistModal, setShowExportArtistModal] = useState(false);
@@ -5535,6 +5591,20 @@ const goNext = () => {
               </div>
             </button>
           </div>
+
+                    <div className="card inner-card" style={{ marginBottom: "16px" }}>
+                      <h3>Exporter toutes mes données</h3>
+                      <p className="muted-text">
+                        Téléchargez un fichier CSV complet contenant vos clients, rendez-vous,
+                        prestations, membres de l’équipe, congés et fermetures.
+                        Le fichier contient des données personnelles : conservez-le en lieu sûr.
+                      </p>
+                      <div className="action-buttons">
+                        <button type="button" onClick={exportAllMyDataCsv} disabled={fullExportRunning}>
+                          {fullExportRunning ? "Préparation de l’export…" : "Exporter toutes mes données (CSV)"}
+                        </button>
+                      </div>
+                    </div>
 
                     <div className="card inner-card" style={{ marginBottom: "16px" }}>
                       <h3>Export des rendez-vous</h3>
