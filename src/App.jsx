@@ -636,33 +636,42 @@ export default function App() {
   const [settingsConfirmPassword, setSettingsConfirmPassword] = useState("");
   const [settingsPasswordSaving, setSettingsPasswordSaving] = useState(false);
   const [settingsLegalPanel, setSettingsLegalPanel] = useState(null);
-  // TEMPORAIRE — audit 5/16 : vérification du refus de suppression du compte administrateur.
-  const [adminDeletionTestRunning, setAdminDeletionTestRunning] = useState(false);
-  const testAdminDeletionProtection = async () => {
-    if (adminDeletionTestRunning || accessProfile?.is_admin !== true) return;
-    setAdminDeletionTestRunning(true);
+  // Audit 5/16 : interface de suppression. Le serveur reste en simulation.
+  const DELETION_PHRASE = "SUPPRIMER DÉFINITIVEMENT MON COMPTE";
+  const [accountDeletionStep, setAccountDeletionStep] = useState(0);
+  const [accountDeletionPhrase, setAccountDeletionPhrase] = useState("");
+  const [accountDeletionRunning, setAccountDeletionRunning] = useState(false);
+  const closeAccountDeletion = () => {
+    if (accountDeletionRunning) return;
+    setAccountDeletionStep(0);
+    setAccountDeletionPhrase("");
+  };
+  const submitAccountDeletionSimulation = async () => {
+    if (accountDeletionRunning || accountDeletionStep !== 3 ||
+        accountDeletionPhrase !== DELETION_PHRASE || accessProfile?.is_admin === true) return;
+    setAccountDeletionRunning(true);
     try {
-      const { data, error } = await supabase.functions.invoke("delete-account", {
-        body: {
-          confirmation: "SUPPRIMER DÉFINITIVEMENT MON COMPTE",
-          finalConfirmation: true,
-        },
+      const { data: result, error } = await supabase.functions.invoke("delete-account", {
+        body: { confirmation: DELETION_PHRASE, finalConfirmation: true },
       });
-      let status = error?.context?.status ?? null;
-      let response = data;
-      if (error?.context && typeof error.context.json === "function") {
+      let response = result;
+      if (error?.context?.json) {
         try { response = await error.context.json(); } catch { /* réponse non JSON */ }
       }
-      const message = response?.error || response?.message || error?.message || "Réponse inconnue";
-      if (status === 403 && message === "La suppression du compte administrateur est interdite.") {
-        await showLogilyaAlert("TEST RÉUSSI : HTTP 403 — suppression du compte administrateur interdite.");
+      if (error) {
+        await showLogilyaAlert("Demande non exécutée : " + (response?.error || error.message));
+      } else if (response?.simulation === true && response?.success === true) {
+        await showLogilyaAlert("TEST RÉUSSI : les vérifications ont été effectuées. Aucune donnée ni aucun abonnement n'a été supprimé. La suppression réelle reste désactivée.");
+        closeAccountDeletion();
       } else {
-        await showLogilyaAlert(`TEST NON VALIDÉ — statut : ${status ?? "200 ou inconnu"}. Réponse : ${message}`);
+        await showLogilyaAlert("Réponse inattendue du serveur. Vérifiez le compte et contactez LOGILYA avant de recommencer.");
       }
     } catch (error) {
-      await showLogilyaAlert("Échec du test : " + (error?.message || "Erreur inconnue"));
+      await showLogilyaAlert("Vérification impossible : " + (error?.message || "Erreur inconnue"));
     } finally {
-      setAdminDeletionTestRunning(false);
+      setAccountDeletionRunning(false);
+      setAccountDeletionStep(0);
+      setAccountDeletionPhrase("");
     }
   };
 
@@ -5646,13 +5655,15 @@ const goNext = () => {
                     )}
 
 
-          {accessProfile?.is_admin === true && (
+          {accessProfile?.is_admin !== true && (
             <div className="card inner-card" style={{ marginBottom: "16px", border: "1px solid #bda982" }}>
-              <h3>Audit de sécurité — temporaire</h3>
-              <p className="muted-text">Vérifier que le serveur refuse la suppression du compte administrateur. Suppression réelle désactivée côté serveur.</p>
-              <button type="button" onClick={testAdminDeletionProtection} disabled={adminDeletionTestRunning}>
-                {adminDeletionTestRunning ? "Test en cours…" : "TEST SÉCURITÉ ADMIN"}
+              <h3>Mon compte</h3>
+              <p className="muted-text">Suppression du compte et de ses données professionnelles. Exportez vos données avant toute demande.</p>
+              <button type="button" onClick={() => setAccountDeletionStep(1)}
+                style={{ border: "1px solid #bda982", background: "#171717", color: "#ead4ac", padding: "12px 18px", borderRadius: 10, fontWeight: 700 }}>
+                Supprimer définitivement mon compte
               </button>
+              <p className="muted-text" style={{ fontSize: "0.85em", marginTop: 10 }}>Fonction en cours de test : aucune suppression réelle n'est actuellement possible.</p>
             </div>
           )}
 
@@ -5698,6 +5709,39 @@ const goNext = () => {
               <button type="button" onClick={() => setSettingsLegalPanel("Accord de sous-traitance (DPA)")}>Accord de sous-traitance (DPA)</button>
             </div>
           </div>
+          {accountDeletionStep > 0 && accessProfile?.is_admin !== true && (
+            <div className="modal-overlay" style={{ position: "fixed", inset: 0, zIndex: 10020, background: "rgba(0,0,0,0.82)", display: "flex", alignItems: "center", justifyContent: "center", padding: 16 }}>
+              <section className="card" role="dialog" aria-modal="true" aria-labelledby="account-deletion-heading"
+                style={{ width: "100%", maxWidth: 540, maxHeight: "90vh", overflowY: "auto", background: "#111", color: "#f4e9d8", border: "1px solid #bda982", borderRadius: 18, padding: 24 }}>
+                <h3 id="account-deletion-heading" style={{ color: "#e5c99a" }}>Suppression de compte — étape {accountDeletionStep}/3</h3>
+                {accountDeletionStep === 1 && <>
+                  <p><strong>Attention : cette action sera irréversible une fois activée.</strong></p>
+                  <p>Votre compte, vos fiches clients, vos rendez-vous, vos prestations et vos données d'équipe seront supprimés. L'abonnement Stripe devra être résilié. Certaines pièces de facturation peuvent être conservées pour respecter les obligations légales.</p>
+                  <p>Avant de continuer, exportez les données dont vous avez besoin.</p>
+                </>}
+                {accountDeletionStep === 2 && <>
+                  <p>Pour confirmer votre intention, recopiez exactement cette phrase :</p>
+                  <p style={{ padding: 12, background: "#25221d", borderRadius: 8, color: "#f2d9ab", fontWeight: 700, overflowWrap: "anywhere" }}>{DELETION_PHRASE}</p>
+                  <input aria-label="Phrase de confirmation de suppression" type="text" autoComplete="off" spellCheck={false}
+                    value={accountDeletionPhrase} onChange={(e) => setAccountDeletionPhrase(e.target.value)}
+                    placeholder="Recopiez la phrase exacte" style={{ width: "100%", boxSizing: "border-box", marginTop: 8 }} />
+                </>}
+                {accountDeletionStep === 3 && <>
+                  <p><strong>Dernière confirmation.</strong> Vous avez confirmé vouloir supprimer définitivement votre compte et les données associées.</p>
+                  <p style={{ color: "#e5c99a" }}>Pendant cette phase de test, le serveur vérifie seulement la demande : il ne supprime rien.</p>
+                </>}
+                <div className="action-buttons" style={{ display: "flex", flexWrap: "wrap", gap: 12, marginTop: 20 }}>
+                  <button type="button" onClick={closeAccountDeletion} disabled={accountDeletionRunning}>Annuler</button>
+                  {accountDeletionStep === 1 && <button type="button" onClick={() => setAccountDeletionStep(2)}>J'ai compris, continuer</button>}
+                  {accountDeletionStep === 2 && <button type="button" disabled={accountDeletionPhrase !== DELETION_PHRASE} onClick={() => setAccountDeletionStep(3)}>Continuer</button>}
+                  {accountDeletionStep === 3 && <button type="button" disabled={accountDeletionRunning || accountDeletionPhrase !== DELETION_PHRASE}
+                    onClick={submitAccountDeletionSimulation} style={{ background: "#d8bc8c", color: "#111", fontWeight: 700 }}>
+                    {accountDeletionRunning ? "Vérification en cours…" : "Confirmer — TEST SANS SUPPRESSION"}
+                  </button>}
+                </div>
+              </section>
+            </div>
+          )}
           {settingsLegalPanel && (
             <div className="modal-overlay" onClick={() => setSettingsLegalPanel(null)} style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.7)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 9999, padding: "20px" }}>
               <div className="card" onClick={(e) => e.stopPropagation()} style={{ width: "100%", maxWidth: "760px", maxHeight: "90vh", overflowY: "auto" }}>
@@ -6904,4 +6948,5 @@ const goNext = () => {
       )}
     </div>
   );
+  
 }
