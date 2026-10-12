@@ -636,6 +636,36 @@ export default function App() {
   const [settingsConfirmPassword, setSettingsConfirmPassword] = useState("");
   const [settingsPasswordSaving, setSettingsPasswordSaving] = useState(false);
   const [settingsLegalPanel, setSettingsLegalPanel] = useState(null);
+  // TEMPORAIRE — audit 5/16 : vérification du refus de suppression du compte administrateur.
+  const [adminDeletionTestRunning, setAdminDeletionTestRunning] = useState(false);
+  const testAdminDeletionProtection = async () => {
+    if (adminDeletionTestRunning || accessProfile?.is_admin !== true) return;
+    setAdminDeletionTestRunning(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("delete-account", {
+        body: {
+          confirmation: "SUPPRIMER DÉFINITIVEMENT MON COMPTE",
+          finalConfirmation: true,
+        },
+      });
+      let status = error?.context?.status ?? null;
+      let response = data;
+      if (error?.context && typeof error.context.json === "function") {
+        try { response = await error.context.json(); } catch { /* réponse non JSON */ }
+      }
+      const message = response?.error || response?.message || error?.message || "Réponse inconnue";
+      if (status === 403 && message === "La suppression du compte administrateur est interdite.") {
+        await showLogilyaAlert("TEST RÉUSSI : HTTP 403 — suppression du compte administrateur interdite.");
+      } else {
+        await showLogilyaAlert(`TEST NON VALIDÉ — statut : ${status ?? "200 ou inconnu"}. Réponse : ${message}`);
+      }
+    } catch (error) {
+      await showLogilyaAlert("Échec du test : " + (error?.message || "Erreur inconnue"));
+    } finally {
+      setAdminDeletionTestRunning(false);
+    }
+  };
+
   const saveSettingsPreference = (key, value) => {
     localStorage.setItem(`logilya_${key}`, value);
     if (key === "language") setSettingsLanguage(value);
@@ -5615,6 +5645,16 @@ const goNext = () => {
                       </div>
                     )}
 
+
+          {accessProfile?.is_admin === true && (
+            <div className="card inner-card" style={{ marginBottom: "16px", border: "1px solid #bda982" }}>
+              <h3>Audit de sécurité — temporaire</h3>
+              <p className="muted-text">Vérifier que le serveur refuse la suppression du compte administrateur. Suppression réelle désactivée côté serveur.</p>
+              <button type="button" onClick={testAdminDeletionProtection} disabled={adminDeletionTestRunning}>
+                {adminDeletionTestRunning ? "Test en cours…" : "TEST SÉCURITÉ ADMIN"}
+              </button>
+            </div>
+          )}
 
           <div className="card inner-card" style={{ marginBottom: "16px" }}>
             <h3>Préférences et informations</h3>
