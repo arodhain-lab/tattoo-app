@@ -3598,3 +3598,135 @@ body:has(.subscription-modal) .subscription-modal-overlay {
   color: #e7d2ad !important;
   text-shadow: 0 1px 3px rgba(210, 189, 157, 0.18) !important;
 }
+
+/* ORGANIZYA PRO — contraste des surfaces et contrôles.
+   Couleurs regroupées ici pour éviter les conflits avec le JSX et les modales.
+   Les dimensions, la typographie et les couleurs des membres restent inchangées. */
+:root {
+  --org-text-on-light: #211b15;
+  --org-muted-on-light: #514536;
+  --org-text-on-dark: #f4e6d0;
+  --org-muted-on-dark: #d4bea0;
+}
+
+/* Tous les boutons champagne, y compris ceux ayant une couleur inline dans JSX. */
+:is(#root, .logilya-dialog-overlay) button,
+#root .button-link {
+  color: var(--org-text-on-light) !important;
+  -webkit-text-fill-color: currentColor !important;
+  text-shadow: none !important;
+}
+
+/* Les libellés imbriqués suivent leur bouton, même dans une modale. */
+:is(#root, .logilya-dialog-overlay) button :where(*),
+#root .button-link :where(*) {
+  color: inherit !important;
+  -webkit-text-fill-color: currentColor !important;
+  text-shadow: none !important;
+}
+
+/* Contrôles volontairement sombres : fond et texte forment une paire. */
+#root :is(.secondary-button, .logout-button, .home-menu-button,
+  .home-menu-primary, .subscription-modal-cancel),
+#root .view-switch button:not(.active-view),
+:is(#root, .logilya-dialog-overlay) .logilya-dialog-actions button.logilya-dialog-secondary {
+  background: linear-gradient(180deg, #171819, #090a0b) !important;
+  color: var(--org-text-on-dark) !important;
+  -webkit-text-fill-color: currentColor !important;
+}
+
+/* Liens sur les panneaux sombres : ne pas leur appliquer le texte des boutons beiges. */
+#root .field-header button,
+#root .field-header a,
+#root .inline-link-button {
+  background: transparent !important;
+  color: var(--org-text-on-dark) !important;
+  -webkit-text-fill-color: currentColor !important;
+}
+
+/* Boutons désactivés : distinguer l'état sans rendre le texte transparent.
+   disabled continue à empêcher le clic ; aucun changement de logique. */
+:is(#root, .logilya-dialog-overlay) button:disabled,
+:is(#root, .logilya-dialog-overlay) button[aria-disabled="true"] {
+  opacity: 1 !important;
+  filter: none !important;
+  cursor: not-allowed !important;
+  box-shadow: none !important;
+  transform: none !important;
+  border-style: dashed !important;
+}
+:is(#root, .logilya-dialog-overlay) button:disabled::before,
+:is(#root, .logilya-dialog-overlay) button:disabled::after {
+  background: none !important;
+}
+
+/* Calendrier : textes foncés sur les cellules claires ; compteurs sombres conservés. */
+#root .month-cell:not(.empty-cell),
+#root .month-cell:not(.empty-cell) :is(h1, h2, h3, h4, p, label, span, strong,
+  small, .muted-text, .empty-text, .month-mini-item, .month-mini-item *,
+  .week-day-label, .month-day-name, .month-special-label) {
+  color: var(--org-text-on-light) !important;
+  -webkit-text-fill-color: currentColor !important;
+  text-shadow: none !important;
+}
+#root .month-cell:not(.empty-cell) :is(.month-count, .month-day-dot-count) {
+  background: #191919 !important;
+  color: var(--org-text-on-dark) !important;
+  -webkit-text-fill-color: currentColor !important;
+}
+#root .month-cell:not(.empty-cell) :is(.month-count, .month-day-dot-count) :where(*) {
+  color: inherit !important;
+  -webkit-text-fill-color: currentColor !important;
+}
+#root .month-cell.closed-day-cell {
+  opacity: 1 !important;
+  color: var(--org-text-on-light) !important;
+}
+
+/* Textes auxiliaires sur les fonds sombres du thème. */
+#root :is(.color-label, .special-day-text, .empty-text, .week-empty-text,
+  .month-weekday-cell) {
+  color: var(--org-muted-on-dark);
+}
+#root .school-holiday-badge {
+  color: var(--org-text-on-dark);
+}
+#root .public-holiday-badge,
+#root .public-holiday-badge :is(span, strong, small) {
+  color: var(--org-text-on-light);
+}
+
+/* Checkout champagne (les formulaires restent sombres selon le thème global). */
+#root .logilya-checkout-champagne,
+#root .logilya-checkout-champagne :is(h1, h2, h3, h4, p, label, span, small, strong) {
+  color: var(--org-text-on-light) !important;
+  -webkit-text-fill-color: currentColor !important;
+  text-shadow: none !important;
+  opacity: 1;
+}
+#root .logilya-checkout-champagne :is(input, textarea, select, option) {
+  background: #101112 !important;
+  color: var(--org-text-on-dark) !important;
+  -webkit-text-fill-color: currentColor !important;
+}
+#root .logilya-checkout-champagne .logilya-checkout-cancel {
+  background: linear-gradient(180deg, #171819, #090a0b) !important;
+  color: var(--org-text-on-dark) !important;
+  -webkit-text-fill-color: currentColor !important;
+}
+
+/* Saisie : champs désactivés, placeholders et remplissage automatique lisibles. */
+#root :is(input, textarea, select):disabled {
+  opacity: 1;
+  color: var(--org-muted-on-dark) !important;
+  -webkit-text-fill-color: currentColor !important;
+}
+#root :is(input, textarea)::placeholder {
+  color: var(--org-muted-on-dark);
+  opacity: 1;
+}
+#root input:-webkit-autofill {
+  -webkit-text-fill-color: var(--org-text-on-dark) !important;
+  -webkit-box-shadow: 0 0 0 1000px #101112 inset !important;
+  caret-color: var(--org-text-on-dark);
+}
