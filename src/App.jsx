@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import Papa from "papaparse";
+import { Capacitor } from "@capacitor/core";
 import { supabase } from "./supabaseClient";
 import Auth from "./Auth";
 import "./App.css";
@@ -595,6 +596,12 @@ export default function App() {
   const [checkingAccess, setCheckingAccess] = useState(true);
   const [accessAllowed, setAccessAllowed] = useState(false);
   const [accessProfile, setAccessProfile] = useState(null);
+  // Le navigateur Android reste sur le parcours web ; seul Android natif est restreint.
+  const isAndroidCapacitor = Capacitor.isNativePlatform() &&
+    Capacitor.getPlatform() === "android";
+  const isTrialAccount = ["trial", "trialing"].includes(accessProfile?.subscription_status);
+  const canManageStripeSubscription = !isAndroidCapacitor && !isTrialAccount &&
+    Boolean(accessProfile?.stripe_subscription_id) && Boolean(accessProfile?.stripe_customer_id);
   const [professionChoice, setProfessionChoice] = useState("");
   const [professionSaving, setProfessionSaving] = useState(false);
   const [professionError, setProfessionError] = useState("");
@@ -946,7 +953,7 @@ const [checkoutArtistCount, setCheckoutArtistCount] = useState(1);
 const [isCreatingCheckout, setIsCreatingCheckout] = useState(false);
 const [isOpeningBillingPortal, setIsOpeningBillingPortal] = useState(false);
 const openBillingPortal = async () => {
-  if (isOpeningBillingPortal) return;
+  if (!canManageStripeSubscription || isOpeningBillingPortal) return;
   setIsOpeningBillingPortal(true);
   try {
     const { data, error } = await supabase.functions.invoke("create-billing-portal-live");
@@ -984,7 +991,7 @@ const showMessage = (message, duration = 1800) => {
 };
 
 const testStripeCheckout = async () => {
-  if (isCreatingCheckout) return;
+  if (isAndroidCapacitor || isCreatingCheckout) return;
   setIsCreatingCheckout(true);
   try {
     const { data, error } = await supabase.functions.invoke(
@@ -1036,6 +1043,7 @@ useEffect(() => {
 }, [session?.user?.id, accessProfile?.stripe_subscription_id]);
 
 const updateStripeArtistPlan = async () => {
+  if (isAndroidCapacitor) return;
   if (!subscriptionBillingInterval) {
     showLogilyaAlert("Impossible de vérifier le forfait. Réessayez après rechargement.");
     return;
@@ -3018,6 +3026,10 @@ const saveArtist = async () => {
     const maxArtists = Math.max(1, Number(accessProfile?.max_artists) || 1);
 
     if (artists.length >= maxArtists) {
+      if (isAndroidCapacitor) {
+        showLogilyaAlert("La limite de membres de l’équipe autorisés pour votre compte est atteinte.");
+        return;
+      }
       const nextArtistCount = artists.length + 1;
       const nextMonthlyPrice = getSubscriptionPrice(nextArtistCount);
 
@@ -4366,6 +4378,7 @@ const goNext = () => {
             {accessIntro}
           </p>
 
+          {!isAndroidCapacitor && (<>
           <p style={{ fontSize: "17px", lineHeight: 1.6 }}>
             Pour continuer à utiliser l'application et retrouver vos données,{" "}
             {accessActionText} à partir de{" "}
@@ -4384,6 +4397,10 @@ const goNext = () => {
             <span style={{ opacity: 0.75 }}>Sans engagement</span>
           </p>
 
+          </>)}
+          {isAndroidCapacitor && (
+            <p>Votre accès est suspendu. Vos données sont conservées.</p>
+          )}
           {accessEndDate ? (
             <p style={{ opacity: 0.75, marginTop: "18px" }}>
               {accessEndDateLabel}{" "}
@@ -4394,13 +4411,13 @@ const goNext = () => {
           ) : null}
 
           <div style={{ marginTop: "28px" }}>
-            <button onClick={() => {
+            {!isAndroidCapacitor && (<button onClick={() => {
               setCheckoutBillingInterval("month");
               setCheckoutArtistCount(Math.max(1, Number(accessProfile?.max_artists) || 1));
               setShowCheckoutPlanModal(true);
             }}>
               {accessButtonText}
-            </button>
+            </button>)}
 
             <button
               className="secondary-button"
@@ -4437,7 +4454,7 @@ const goNext = () => {
             opacity: 1 !important;
           }
         `}</style>
-        {showCheckoutPlanModal && (
+        {!isAndroidCapacitor && showCheckoutPlanModal && (
           <div style={{
             position: "fixed", inset: 0, zIndex: 9999,
             background: "rgba(0,0,0,0.86)", display: "flex",
@@ -4725,7 +4742,7 @@ const goNext = () => {
   );
 })()}
 
-{showSubscriptionModal && (
+{!isAndroidCapacitor && showSubscriptionModal && (
   <div
     className="subscription-modal-overlay"
     onClick={() => {
@@ -5665,24 +5682,24 @@ const goNext = () => {
 
           <div className="card inner-card" style={{ marginBottom: "16px" }}>
             <h3>Abonnement</h3>
-            <p className="muted-text">
-              Consultez vos factures, vos paiements et vos moyens de paiement,
-              ou gérez votre abonnement depuis l’espace sécurisé Stripe.
-            </p>
-            <p><strong>Statut :</strong> {accessProfile?.subscription_status === "active" ? "Actif" : accessProfile?.subscription_status === "past_due" ? "Paiement en attente" : accessProfile?.subscription_status || "Non renseigné"}</p>
+            {canManageStripeSubscription && (
+              <p className="muted-text">
+                Consultez vos factures, vos paiements et vos moyens de paiement,
+                ou gérez votre abonnement depuis l’espace sécurisé Stripe.
+              </p>
+            )}
+            <p><strong>Statut :</strong> {isTrialAccount ? "Essai gratuit en cours" : accessProfile?.subscription_status === "active" ? "Actif" : accessProfile?.subscription_status === "past_due" ? "Paiement en attente" : accessProfile?.subscription_status || "Non renseigné"}</p>
+            {isTrialAccount && (
+              <p><strong>Fin de l’essai gratuit :</strong> {formatDateOnly(accessProfile?.trial_ends_at)}</p>
+            )}
             <p><strong>Membres de l’équipe inclus :</strong> {accessProfile?.max_artists || 1}</p>
-            {accessProfile?.subscription_ends_at && (
+            {!isTrialAccount && accessProfile?.subscription_ends_at && (
               <p><strong>Échéance indiquée :</strong> {formatDateOnly(accessProfile.subscription_ends_at)}</p>
             )}
-            <button
-              type="button"
-              disabled={isOpeningBillingPortal || !accessProfile?.stripe_customer_id}
-              onClick={openBillingPortal}
-            >
-              {isOpeningBillingPortal ? "Ouverture…" : "Gérer mon abonnement"}
-            </button>
-            {!accessProfile?.stripe_customer_id && (
-              <p className="muted-text">Aucun compte de facturation Stripe associé pour le moment.</p>
+            {canManageStripeSubscription && (
+              <button type="button" disabled={isOpeningBillingPortal} onClick={openBillingPortal}>
+                {isOpeningBillingPortal ? "Ouverture…" : "Gérer mon abonnement"}
+              </button>
             )}
           </div>
 
