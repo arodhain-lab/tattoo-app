@@ -3730,3 +3730,29 @@ body:has(.subscription-modal) .subscription-modal-overlay {
   -webkit-box-shadow: 0 0 0 1000px #101112 inset !important;
   caret-color: var(--org-text-on-dark);
 }
+
+
+/* ORGANISYA PRO — Écran d'abonnement expiré */
+/* Adaptation aux petits écrans Android */
+
+@media (max-width: 768px) {
+  .container {
+    max-width: 100%;
+    min-width: 0;
+  }
+
+  .container > .card {
+    max-width: 100%;
+    min-width: 0;
+  }
+
+  .container > .card h1 {
+    max-width: 100%;
+    font-size: clamp(25px, 7vw, 36px);
+    line-height: 1.2;
+    letter-spacing: -0.5px;
+    text-align: center;
+    overflow-wrap: anywhere;
+    word-break: normal;
+  }
+}
