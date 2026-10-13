@@ -5,6 +5,11 @@ import { supabase } from "./supabaseClient";
 import Auth from "./Auth";
 import "./App.css";
 
+// Contrôle natif uniquement : le navigateur Android conserve le paiement web.
+function isNativeAndroid() {
+  return Capacitor.isNativePlatform() && Capacitor.getPlatform() === "android";
+}
+
 
 
 // LOGILYA — fenêtres de dialogue personnalisées, communes à tous les métiers.
@@ -597,8 +602,7 @@ export default function App() {
   const [accessAllowed, setAccessAllowed] = useState(false);
   const [accessProfile, setAccessProfile] = useState(null);
   // Le navigateur Android reste sur le parcours web ; seul Android natif est restreint.
-  const isAndroidCapacitor = Capacitor.isNativePlatform() &&
-    Capacitor.getPlatform() === "android";
+  const isAndroidCapacitor = isNativeAndroid();
   const isTrialAccount = ["trial", "trialing"].includes(accessProfile?.subscription_status);
   const canManageStripeSubscription = !isAndroidCapacitor && !isTrialAccount &&
     Boolean(accessProfile?.stripe_subscription_id) && Boolean(accessProfile?.stripe_customer_id);
@@ -953,7 +957,7 @@ const [checkoutArtistCount, setCheckoutArtistCount] = useState(1);
 const [isCreatingCheckout, setIsCreatingCheckout] = useState(false);
 const [isOpeningBillingPortal, setIsOpeningBillingPortal] = useState(false);
 const openBillingPortal = async () => {
-  if (!canManageStripeSubscription || isOpeningBillingPortal) return;
+  if (isNativeAndroid() || !canManageStripeSubscription || isOpeningBillingPortal) return;
   setIsOpeningBillingPortal(true);
   try {
     const { data, error } = await supabase.functions.invoke("create-billing-portal-live");
@@ -961,6 +965,8 @@ const openBillingPortal = async () => {
     if (!data?.url || !data.url.startsWith("https://billing.stripe.com/")) {
       throw new Error(data?.error || "Lien de gestion de facturation indisponible.");
     }
+    // Vérifier aussi la plateforme juste avant de quitter l’application.
+    if (isNativeAndroid()) return;
     window.location.assign(data.url);
   } catch (error) {
     console.error("PORTAIL DE FACTURATION :", error);
@@ -991,7 +997,7 @@ const showMessage = (message, duration = 1800) => {
 };
 
 const testStripeCheckout = async () => {
-  if (isAndroidCapacitor || isCreatingCheckout) return;
+  if (isNativeAndroid() || isCreatingCheckout) return;
   setIsCreatingCheckout(true);
   try {
     const { data, error } = await supabase.functions.invoke(
@@ -1016,6 +1022,8 @@ const testStripeCheckout = async () => {
       return;
     }
 
+    // Aucun renvoi vers le paiement depuis Android natif.
+    if (isNativeAndroid()) return;
     window.location.href = data.url;
   } catch (error) {
     console.error("ERREUR STRIPE :", error);
@@ -1043,7 +1051,7 @@ useEffect(() => {
 }, [session?.user?.id, accessProfile?.stripe_subscription_id]);
 
 const updateStripeArtistPlan = async () => {
-  if (isAndroidCapacitor) return;
+  if (isNativeAndroid()) return;
   if (!subscriptionBillingInterval) {
     showLogilyaAlert("Impossible de vérifier le forfait. Réessayez après rechargement.");
     return;
