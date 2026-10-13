@@ -3785,3 +3785,29 @@ body:has(.subscription-modal) .subscription-modal-overlay {
 .cancelled-appointment * {
   opacity: 0.65;
 }
+
+
+/* CORRECTION DEFINITIVE — CARTES RENDEZ-VOUS */
+
+/* Vue jour : boutons RDV sur fond noir */
+#root button.agenda-item,
+#root button.agenda-item *,
+#root .agenda-panel button.agenda-item,
+#root .agenda-panel button.agenda-item * {
+  color: #F4E9D8 !important;
+  -webkit-text-fill-color: #F4E9D8 !important;
+  text-shadow: none !important;
+}
+
+/* Conserver les rendez-vous annules barres */
+#root button.agenda-item.cancelled-appointment,
+#root button.agenda-item.cancelled-appointment * {
+  text-decoration: line-through;
+}
+
+/* Vue semaine : conserver un texte lisible */
+#root button.week-appointment-block,
+#root button.week-appointment-block * {
+  color: #F4E9D8 !important;
+  -webkit-text-fill-color: #F4E9D8 !important;
+}
