@@ -3730,3 +3730,34 @@ body:has(.subscription-modal) .subscription-modal-overlay {
   -webkit-box-shadow: 0 0 0 1000px #101112 inset !important;
   caret-color: var(--org-text-on-dark);
 }
+
+
+/* ORGANISYA PRO — Lisibilité des rendez-vous */
+
+.agenda-item,
+.agenda-item h3,
+.agenda-item h4,
+.agenda-item p,
+.agenda-item span,
+.agenda-item strong,
+.agenda-item small {
+  color: #f4e9d8 !important;
+}
+
+/* Rendez-vous dans la vue semaine */
+.week-appointment-block,
+.week-appointment-block .week-chip-hour,
+.week-appointment-block .week-chip-title,
+.week-appointment-block .week-chip-price {
+  color: #f4e9d8 !important;
+}
+
+/* Rendez-vous dans la vue mois */
+.month-mini-item,
+.month-mini-item span,
+.month-mini-item strong,
+.month-mini-project,
+.month-mini-time,
+.month-mini-client {
+  color: #f4e9d8 !important;
+}
