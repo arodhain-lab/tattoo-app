@@ -3761,3 +3761,27 @@ body:has(.subscription-modal) .subscription-modal-overlay {
 .month-mini-client {
   color: #f4e9d8 !important;
 }
+
+
+/* CORRECTION LISIBILITE RDV — ORGANISYA PRO */
+
+.agenda-item,
+.agenda-item *,
+.agenda-panel .agenda-item,
+.agenda-panel .agenda-item *,
+.client-box.agenda-item,
+.client-box.agenda-item *,
+.week-appointment-block,
+.week-appointment-block *,
+.month-mini-item,
+.month-mini-item * {
+  color: #F4E9D8 !important;
+  -webkit-text-fill-color: #F4E9D8 !important;
+  opacity: 1;
+}
+
+/* Les rendez-vous annules restent barres */
+.cancelled-appointment,
+.cancelled-appointment * {
+  opacity: 0.65;
+}
