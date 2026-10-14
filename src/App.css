@@ -3922,3 +3922,16 @@ body:has(.subscription-modal) .subscription-modal-overlay {
   filter: none !important;
   opacity: 1 !important;
 }
+
+/* Jour fermé : le gris a priorité, même si le jour est sélectionné */
+#root .month-cell.closed-day-cell,
+#root .month-cell.closed-day-cell.selected-cell {
+  background: linear-gradient(
+    180deg,
+    #d0d0d0 0%,
+    #bdbdbd 100%
+  ) !important;
+  border: 2px solid #8a8a8a !important;
+  filter: grayscale(100%) !important;
+  opacity: 1 !important;
+}

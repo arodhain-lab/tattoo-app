@@ -4145,7 +4145,15 @@ const serviceHasAppointments = (serviceName) => {
 };
 
 const isClosedDay = (dateKey) => {
-  return closedDays.some((item) => item.day === dateKey) || dateHasAbsence(dateKey, agendaArtistFilter);
+  const wholeTeamAbsent =
+    artists.length > 0 &&
+    artists.every((artist) => dateHasAbsence(dateKey, artist.id));
+
+  return (
+    closedDays.some((item) => item.day === dateKey) ||
+    dateHasAbsence(dateKey, agendaArtistFilter) ||
+    wholeTeamAbsent
+  );
 };
 
 const toggleClosedDay = async (dateKey) => {
