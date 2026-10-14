@@ -4520,5 +4520,11 @@ input.agenda-date-input::-webkit-datetime-edit-year-field {
   font-size: 18px !important;
   font-weight: 400 !important;
   letter-spacing: 0.4px !important;
-  color: #D2B58B !important;
+  color: #DFC7A3 !important;
+}
+
+/* Vue semaine : espace au-dessus et au-dessous du titre */
+.month-top-section:has(.week-day-cell) > .month-view-title {
+  margin-top: 24px !important;
+  margin-bottom: 24px !important;
 }
