@@ -5171,16 +5171,6 @@ const goNext = () => {
                     </div>
                   ) : null}
                 </div>
-                 <div className="closed-day-toggle">
-                 <label>
-                   <input
-                     type="checkbox"
-                     checked={closedDays.some((item) => item.day === selectedDate)}
-                     onChange={() => toggleClosedDay(selectedDate)}
-                   />
-                   Journée en congés
-                </label>
-               </div>
               </div>
 
               {agendaView === "day" && renderLeaveNotice(selectedDate)}
@@ -5197,7 +5187,18 @@ const goNext = () => {
                   {selectedDayAppointments.length === 0 ? (
                     <>
                       <p>Aucun rendez-vous pour cette date.</p>
-                      {selectedDayRevenueBox}
+                      <div className="closed-day-toggle">
+  <label>
+    <input
+      type="checkbox"
+      checked={closedDays.some((item) => item.day === selectedDate)}
+      onChange={() => toggleClosedDay(selectedDate)}
+    />
+    Journée en congés
+  </label>
+</div>
+
+{selectedDayRevenueBox}
                     </>
                   ) : (
                     <>
@@ -5238,7 +5239,18 @@ const goNext = () => {
                         </button>
                       ))}
 
-                      {selectedDayRevenueBox}
+                      <div className="closed-day-toggle">
+  <label>
+    <input
+      type="checkbox"
+      checked={closedDays.some((item) => item.day === selectedDate)}
+      onChange={() => toggleClosedDay(selectedDate)}
+    />
+    Journée en congés
+  </label>
+</div>
+
+{selectedDayRevenueBox}
                     </>
                   )}
                 </div>
@@ -5306,7 +5318,18 @@ const goNext = () => {
                       {selectedDayAppointments.length === 0 ? (
                         <>
                           <p>Aucun rendez-vous pour cette date.</p>
-                          {selectedDayRevenueBox}
+                          <div className="closed-day-toggle">
+  <label>
+    <input
+      type="checkbox"
+      checked={closedDays.some((item) => item.day === selectedDate)}
+      onChange={() => toggleClosedDay(selectedDate)}
+    />
+    Journée en congés
+  </label>
+</div>
+
+{selectedDayRevenueBox}
                         </>
                       ) : (
                         <>
@@ -5351,7 +5374,18 @@ const goNext = () => {
                             </button>
                           ))}
 
-                          {selectedDayRevenueBox}
+                          <div className="closed-day-toggle">
+  <label>
+    <input
+      type="checkbox"
+      checked={closedDays.some((item) => item.day === selectedDate)}
+      onChange={() => toggleClosedDay(selectedDate)}
+    />
+    Journée en congés
+  </label>
+</div>
+
+{selectedDayRevenueBox}
                         </>
                       )}
                     </div>
@@ -5462,7 +5496,18 @@ const goNext = () => {
                       {selectedDayAppointments.length === 0 ? (
                         <>
                           <p>Aucun rendez-vous pour cette date.</p>
-                          {selectedDayRevenueBox}
+                          <div className="closed-day-toggle">
+  <label>
+    <input
+      type="checkbox"
+      checked={closedDays.some((item) => item.day === selectedDate)}
+      onChange={() => toggleClosedDay(selectedDate)}
+    />
+    Journée en congés
+  </label>
+</div>
+
+{selectedDayRevenueBox}
                         </>
                       ) : (
                         <>
@@ -5507,7 +5552,18 @@ const goNext = () => {
                             </button>
                           ))}
 
-                          {selectedDayRevenueBox}
+                          <div className="closed-day-toggle">
+  <label>
+    <input
+      type="checkbox"
+      checked={closedDays.some((item) => item.day === selectedDate)}
+      onChange={() => toggleClosedDay(selectedDate)}
+    />
+    Journée en congés
+  </label>
+</div>
+
+{selectedDayRevenueBox}
                         </>
                       )}
                     </div>
