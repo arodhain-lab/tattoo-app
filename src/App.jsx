@@ -903,6 +903,7 @@ const evaluateSetup = (artistsList, servicesList) => {
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
   const [showMobileWeek, setShowMobileWeek] = useState(false);
   const [revenueArtistFilter, setRevenueArtistFilter] = useState("all");
+  const [statisticsArtistFilter, setStatisticsArtistFilter] = useState("all");
   const [agendaArtistFilter, setAgendaArtistFilter] = useState("all");
 
   const [clientSearch, setClientSearch] = useState("");
@@ -2098,45 +2099,66 @@ const revenueStats = useMemo(() => {
 
 const statisticsToday = new Date();
 const statisticsMonthKey = `${statisticsToday.getFullYear()}-${statisticsToday.getMonth()}`;
+const statisticsAppointments = useMemo(() => statisticsArtistFilter === "all"
+  ? appointments
+  : appointments.filter((item) => String(item.artistId) === statisticsArtistFilter),
+  [appointments, statisticsArtistFilter]);
+const statisticsClients = useMemo(() => {
+  if (statisticsArtistFilter === "all") return clients;
+  const ids = new Set(statisticsAppointments.map((item) => String(item.clientId)));
+  return clients.filter((client) => ids.has(String(client.id)));
+}, [clients, statisticsAppointments, statisticsArtistFilter]);
+
 const newClientsThisMonth = useMemo(() => {
   const [year, month] = statisticsMonthKey.split("-").map(Number);
-  const monthStart = new Date(year, month, 1);
-  const nextMonthStart = new Date(year, month + 1, 1);
+  const start = new Date(year, month, 1);
+  const end = new Date(year, month + 1, 1);
   let count = 0;
   let missingDates = 0;
-
-  clients.forEach((client) => {
-    const createdAt = client.createdAt ? new Date(client.createdAt) : null;
-    if (!createdAt || Number.isNaN(createdAt.getTime())) {
-      missingDates += 1;
-      return;
-    }
-    if (createdAt >= monthStart && createdAt < nextMonthStart) count += 1;
+  statisticsClients.forEach((client) => {
+    const date = client.createdAt ? new Date(client.createdAt) : null;
+    if (!date || Number.isNaN(date.getTime())) { missingDates += 1; return; }
+    if (date >= start && date < end) count += 1;
   });
-
   return { count, missingDates };
-}, [clients, statisticsMonthKey]);
+}, [statisticsClients, statisticsMonthKey]);
 
 const globalStats = useMemo(() => {
-  const activeAppointments = appointments.filter((item) => !item.cancelled);
-  const activeAppointmentsWithDate = activeAppointments.filter((item) => item.appointment);
-
-  const totalRevenue = activeAppointmentsWithDate.reduce(
-    (sum, item) => sum + getDisplayedPrice(item, appointments),
-    0
-  );
-
+  const activeAppointments = statisticsAppointments.filter((item) => !item.cancelled);
+  const dated = activeAppointments.filter((item) => item.appointment);
+  const [year, month] = statisticsMonthKey.split("-").map(Number);
+  const start = new Date(year, month, 1);
+  const end = new Date(year, month + 1, 1);
+  const previousStart = new Date(year, month - 1, 1);
+  let currentMonthRevenue = 0;
+  let previousMonthRevenue = 0;
+  dated.forEach((item) => {
+    const date = new Date(item.appointment);
+    const amount = getDisplayedPrice(item, appointments);
+    if (date >= start && date < end) currentMonthRevenue += amount;
+    else if (date >= previousStart && date < start) previousMonthRevenue += amount;
+  });
+  const usedNames = new Set(statisticsAppointments.map((item) => item.title));
+  const revenueChangePercent = previousMonthRevenue === 0
+    ? (currentMonthRevenue === 0 ? 0 : null)
+    : (currentMonthRevenue - previousMonthRevenue) / previousMonthRevenue * 100;
   return {
-    clientsCount: clients.length,
-    artistsCount: artists.length,
-    appointmentsCount: appointments.length,
+    clientsCount: statisticsClients.length,
+    artistsCount: statisticsArtistFilter === "all" ? artists.length
+      : artists.filter((artist) => String(artist.id) === statisticsArtistFilter).length,
+    appointmentsCount: statisticsAppointments.length,
     activeAppointmentsCount: activeAppointments.length,
-    servicesCount: appointmentTypes.filter(
-      (type) => getAppointmentTypeName(type) !== ACOMPTE_TYPE
-    ).length,
-    totalRevenue,
-   };
-}, [clients, artists, appointments, appointmentTypes]);
+    servicesCount: appointmentTypes.filter((type) => {
+      const name = getAppointmentTypeName(type);
+      return name !== ACOMPTE_TYPE && (statisticsArtistFilter === "all" || usedNames.has(name));
+    }).length,
+    totalRevenue: dated.reduce((sum, item) => sum + getDisplayedPrice(item, appointments), 0),
+    currentMonthRevenue,
+    previousMonthRevenue,
+    revenueChangePercent,
+  };
+}, [statisticsClients, artists, statisticsAppointments, appointments, appointmentTypes, statisticsArtistFilter, statisticsMonthKey]);
+
 
   const resetClientForm = () => {
     setClientForm({
@@ -6504,7 +6526,22 @@ if (cgvStatus !== "accepted") {
       {page === "stats" && setupComplete && (
         <section className="card">
           <h2>Statistiques</h2>
-          <p className="muted-text">Vue globale de l’activité</p>
+          <p className="muted-text">
+            {statisticsArtistFilter === "all" ? "Vue globale de l’activité"
+              : `Activité de ${artists.find((artist) => String(artist.id) === statisticsArtistFilter)?.name || "ce membre"}`}
+          </p>
+          <select className="compact-select"
+            aria-label="Filtrer les statistiques par membre de l’équipe"
+            value={statisticsArtistFilter}
+            onChange={(e) => setStatisticsArtistFilter(e.target.value)}>
+            <option value="all">Tous les membres de l’équipe</option>
+            {artists.map((artist) => (
+              <option key={artist.id} value={String(artist.id)}>{artist.name}</option>
+            ))}
+          </select>
+          {statisticsArtistFilter !== "all" && (
+            <p className="muted-text">Clients liés aux rendez-vous de ce membre et types de prestations utilisés.</p>
+          )}
 
           <div className="stats-grid">
             <div className="stats-box">
@@ -6515,7 +6552,7 @@ if (cgvStatus !== "accepted") {
             <div className="stats-box">
               <span>Nouveaux clients ce mois-ci</span>
               <strong>
-                {clients.length > 0 && newClientsThisMonth.missingDates === clients.length
+                {statisticsClients.length > 0 && newClientsThisMonth.missingDates === statisticsClients.length
                   ? "Date indisponible"
                   : newClientsThisMonth.count}
               </strong>
@@ -6549,6 +6586,21 @@ if (cgvStatus !== "accepted") {
             <div className="stats-box">
               <span>CA total enregistré</span>
               <strong>{formatCurrency(globalStats.totalRevenue)}</strong>
+            </div>
+
+            <div className="stats-box">
+              <span>Évolution du CA : mois en cours / mois précédent</span>
+              <strong>
+                {globalStats.revenueChangePercent === null ? "Non calculable"
+                  : `${globalStats.revenueChangePercent > 0 ? "+" : ""}${globalStats.revenueChangePercent.toLocaleString("fr-FR", { maximumFractionDigits: 1 })} %`}
+              </strong>
+              <small>
+                Mois en cours : {formatCurrency(globalStats.currentMonthRevenue)}
+                {" · "}Mois précédent : {formatCurrency(globalStats.previousMonthRevenue)}
+              </small>
+              {globalStats.revenueChangePercent === null && (
+                <small>Le CA du mois précédent est nul.</small>
+              )}
             </div>
           </div>
         </section>
