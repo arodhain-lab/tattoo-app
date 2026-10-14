@@ -3834,3 +3834,14 @@ body:has(.subscription-modal) .subscription-modal-overlay {
 #root .agenda-controls {
   flex-wrap: wrap;
 }
+
+/* Agenda : largeur adaptée au texte sélectionné */
+#root select.agenda-artist-filter {
+  field-sizing: content;
+  width: auto !important;
+  min-width: 0 !important;
+  max-width: 100% !important;
+  flex: 0 0 auto !important;
+  white-space: nowrap;
+  padding-inline-end: 2.5em;
+}
