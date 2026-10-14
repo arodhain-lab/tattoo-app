@@ -1573,6 +1573,7 @@ console.log("ERREUR RDV =", appointmentsError);
       firstName: client.first_name,
       phone: client.phone,
       notes: client.notes,
+      createdAt: client.created_at ?? client.createdAt ?? null,
     })),
     artists: (artists || []).map((artist) => ({
       id: artist.id,
@@ -2095,6 +2096,27 @@ const revenueStats = useMemo(() => {
   };
 }, [appointmentsWithClient, appointments, selectedDate, revenueArtistFilter, currentRevenueYear]);
 
+const statisticsToday = new Date();
+const statisticsMonthKey = `${statisticsToday.getFullYear()}-${statisticsToday.getMonth()}`;
+const newClientsThisMonth = useMemo(() => {
+  const [year, month] = statisticsMonthKey.split("-").map(Number);
+  const monthStart = new Date(year, month, 1);
+  const nextMonthStart = new Date(year, month + 1, 1);
+  let count = 0;
+  let missingDates = 0;
+
+  clients.forEach((client) => {
+    const createdAt = client.createdAt ? new Date(client.createdAt) : null;
+    if (!createdAt || Number.isNaN(createdAt.getTime())) {
+      missingDates += 1;
+      return;
+    }
+    if (createdAt >= monthStart && createdAt < nextMonthStart) count += 1;
+  });
+
+  return { count, missingDates };
+}, [clients, statisticsMonthKey]);
+
 const globalStats = useMemo(() => {
   const activeAppointments = appointments.filter((item) => !item.cancelled);
   const activeAppointmentsWithDate = activeAppointments.filter((item) => item.appointment);
@@ -2264,6 +2286,7 @@ const saveClient = async () => {
     firstName: insertedClient.first_name,
     phone: insertedClient.phone,
     notes: insertedClient.notes,
+    createdAt: insertedClient.created_at ?? insertedClient.createdAt ?? null,
   };
 
   setData((prev) => ({
@@ -6487,6 +6510,20 @@ if (cgvStatus !== "accepted") {
             <div className="stats-box">
               <span>Clients</span>
               <strong>{globalStats.clientsCount}</strong>
+            </div>
+
+            <div className="stats-box">
+              <span>Nouveaux clients ce mois-ci</span>
+              <strong>
+                {clients.length > 0 && newClientsThisMonth.missingDates === clients.length
+                  ? "Date indisponible"
+                  : newClientsThisMonth.count}
+              </strong>
+              {newClientsThisMonth.missingDates > 0 && (
+                <small>
+                  {newClientsThisMonth.missingDates} fiche(s) sans date de création exclue(s)
+                </small>
+              )}
             </div>
 
             <div className="stats-box">
