@@ -6194,13 +6194,13 @@ if (cgvStatus !== "accepted") {
             <button type="button"
               className="home-menu-button home-menu-primary home-menu-logo-button"
               onClick={() => navigateTo("import-export")}>
-              <div className="home-menu-logo-wrap" style={{ flexDirection: "column", gap: "12px", padding: "12px" }}>
-                <svg width="64" height="64" viewBox="0 0 64 64" fill="none" aria-hidden="true">
-                  <path d="M12 22h40m-12-12 12 12-12 12M52 44H12m12-12L12 44l12 12"
-                    stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-                <span className="home-menu-title" style={{ fontSize: "clamp(16px, 3vw, 24px)", textAlign: "center" }}>Import / Export</span>
-              </div>
+<div className="home-menu-logo-wrap">
+  <img
+    src="/icons/import-export.png"
+    alt="Import / Export"
+    className="home-menu-full-logo"
+  />
+</div>
             </button>
           </div>
 
