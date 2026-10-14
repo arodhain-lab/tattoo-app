@@ -3910,3 +3910,15 @@ body:has(.subscription-modal) .subscription-modal-overlay {
   box-sizing: border-box;
   cursor: pointer;
 }
+
+/* Jour sélectionné : champagne dès le premier affichage */
+#root .month-cell.selected-cell {
+  background: linear-gradient(
+    180deg,
+    #f1dfc1 0%,
+    #cda66e 100%
+  ) !important;
+  border: 2px solid #a98858 !important;
+  filter: none !important;
+  opacity: 1 !important;
+}
