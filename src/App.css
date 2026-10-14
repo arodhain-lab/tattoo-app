@@ -4509,3 +4509,16 @@ button.agenda-item.month-day-appointment-card:not(.cancelled-appointment) .month
   color: #D2B58B !important;
   -webkit-text-fill-color: #D2B58B !important;
 }
+
+/* Vue jour : typographie de la date uniquement */
+input.agenda-date-input,
+input.agenda-date-input::-webkit-datetime-edit,
+input.agenda-date-input::-webkit-datetime-edit-day-field,
+input.agenda-date-input::-webkit-datetime-edit-month-field,
+input.agenda-date-input::-webkit-datetime-edit-year-field {
+  font-family: Georgia, "Times New Roman", serif !important;
+  font-size: 18px !important;
+  font-weight: 400 !important;
+  letter-spacing: 0.4px !important;
+  color: #D2B58B !important;
+}
