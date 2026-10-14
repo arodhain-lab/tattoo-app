@@ -6204,6 +6204,51 @@ if (cgvStatus !== "accepted") {
             </button>
           </div>
 
+          <nav aria-label="Informations et gestion du compte" style={{ marginTop: "24px", border: "1px solid #B79B6B", borderRadius: "16px", overflow: "hidden" }}>
+            {[
+              { title: "Abonnement", page: "settings-subscription" },
+              { title: "Préférences et sécurité", page: "settings-security" },
+              { title: "Contacter le support", page: "settings-support" },
+              { title: "Mentions légales", page: "settings-legal", legal: "Mentions légales" },
+              { title: "Conditions générales", page: "settings-legal", legal: "Conditions générales" },
+              { title: "Politique de confidentialité", page: "settings-legal", legal: "Politique de confidentialité" },
+              { title: "Accord de sous-traitance", page: "settings-legal", legal: "Accord de sous-traitance (DPA)" },
+              { title: "Supprimer mon compte", page: "settings-delete", disabled: accessProfile?.is_admin === true },
+            ].map((item, index) => (
+              <button key={item.title} type="button" className="secondary-button" disabled={item.disabled}
+                onClick={() => {
+                  if (item.legal) setSettingsLegalPanel(item.legal);
+                  navigateTo(item.page);
+                }}
+                style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "16px",
+                  width: "100%", margin: 0, borderRadius: 0, padding: "18px 20px", textAlign: "left",
+                  borderTop: 0, borderLeft: 0, borderRight: 0,
+                  borderBottom: index === 7 ? 0 : "1px solid rgba(183,155,107,0.35)",
+                  fontSize: "16px", fontWeight: 600 }}>
+                <span>{item.title}</span><span aria-hidden="true">›</span>
+              </button>
+            ))}
+          </nav>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "flex-end",
+              marginTop: "24px",
+            }}
+          >
+            <button
+              className="logout-button"
+              onClick={() => supabase.auth.signOut()}
+            >
+              Déconnexion
+            </button>
+          </div>
+        </section>
+      )}
+
+      {page === "settings-subscription" && setupComplete && (
+        <section className="card">
+          <h2>Abonnement</h2>
           <div className="card inner-card" style={{ marginBottom: "16px" }}>
             <h3>Abonnement</h3>
             {canManageStripeSubscription && (
@@ -6229,20 +6274,15 @@ if (cgvStatus !== "accepted") {
 
 
 
-          {accessProfile?.is_admin !== true && (
-            <div className="card inner-card" style={{ marginBottom: "16px", border: "1px solid #bda982" }}>
-              <h3>Mon compte</h3>
-              <p className="muted-text">Suppression du compte et de ses données professionnelles. Exportez vos données avant toute demande.</p>
-              <button type="button" onClick={() => setAccountDeletionStep(1)}
-                style={{ border: "1px solid #bda982", background: "#171717", color: "#ead4ac", padding: "12px 18px", borderRadius: 10, fontWeight: 700 }}>
-                Supprimer définitivement mon compte
-              </button>
-              <p className="muted-text" style={{ fontSize: "0.85em", marginTop: 10 }}>Fonction en cours de test : aucune suppression réelle n'est actuellement possible.</p>
-            </div>
-          )}
+          <button type="button" className="secondary-button" onClick={() => navigateTo("settings")}>Retour aux paramètres</button>
+        </section>
+      )}
 
+      {page === "settings-security" && setupComplete && (
+        <section className="card">
+          <h2>Préférences et sécurité</h2>
           <div className="card inner-card" style={{ marginBottom: "16px" }}>
-            <h3>Préférences et informations</h3>
+            <h3>Préférences et sécurité</h3>
             <p className="muted-text" style={{ marginBottom: "12px" }}>
               Pour sécuriser votre compte, indiquez votre mot de passe actuel puis choisissez un nouveau mot de passe d'au moins 8 caractères contenant des lettres et des chiffres.
             </p>
@@ -6275,51 +6315,27 @@ if (cgvStatus !== "accepted") {
               </label>
             </div>
             <p className="muted-text">La traduction de l'interface et la conversion des montants ne sont pas encore disponibles : français et euro uniquement.</p>
-            <div className="action-buttons" style={{ flexWrap: "wrap", marginTop: "16px" }}>
-              <a className="button-link" href="mailto:contact@logilya.fr?subject=Support%20application%20LOGILYA">Contacter le support</a>
-              <button type="button" onClick={() => setSettingsLegalPanel("Mentions légales")}>Mentions légales</button>
-              <button type="button" onClick={() => setSettingsLegalPanel("Conditions générales")}>Conditions générales</button>
-              <button type="button" onClick={() => setSettingsLegalPanel("Politique de confidentialité")}>Politique de confidentialité</button>
-              <button type="button" onClick={() => setSettingsLegalPanel("Accord de sous-traitance (DPA)")}>Accord de sous-traitance (DPA)</button>
-            </div>
+
           </div>
-          {accountDeletionStep > 0 && accessProfile?.is_admin !== true && (
-            <div className="modal-overlay" style={{ position: "fixed", inset: 0, zIndex: 10020, background: "rgba(0,0,0,0.82)", display: "flex", alignItems: "center", justifyContent: "center", padding: 16 }}>
-              <section className="card" role="dialog" aria-modal="true" aria-labelledby="account-deletion-heading"
-                style={{ width: "100%", maxWidth: 540, maxHeight: "90vh", overflowY: "auto", background: "#111", color: "#f4e9d8", border: "1px solid #bda982", borderRadius: 18, padding: 24 }}>
-                <h3 id="account-deletion-heading" style={{ color: "#e5c99a" }}>Suppression de compte — étape {accountDeletionStep}/3</h3>
-                {accountDeletionStep === 1 && <>
-                  <p><strong>Attention : cette action sera irréversible une fois activée.</strong></p>
-                  <p>Votre compte, vos fiches clients, vos rendez-vous, vos prestations et vos données d'équipe seront supprimés. L'abonnement Stripe devra être résilié. Certaines pièces de facturation peuvent être conservées pour respecter les obligations légales.</p>
-                  <p>Avant de continuer, exportez les données dont vous avez besoin.</p>
-                </>}
-                {accountDeletionStep === 2 && <>
-                  <p>Pour confirmer votre intention, recopiez exactement cette phrase :</p>
-                  <p style={{ padding: 12, background: "#25221d", borderRadius: 8, color: "#f2d9ab", fontWeight: 700, overflowWrap: "anywhere" }}>{DELETION_PHRASE}</p>
-                  <input aria-label="Phrase de confirmation de suppression" type="text" autoComplete="off" spellCheck={false}
-                    value={accountDeletionPhrase} onChange={(e) => setAccountDeletionPhrase(e.target.value)}
-                    placeholder="Recopiez la phrase exacte" style={{ width: "100%", boxSizing: "border-box", marginTop: 8 }} />
-                </>}
-                {accountDeletionStep === 3 && <>
-                  <p><strong>Dernière confirmation.</strong> Vous avez confirmé vouloir supprimer définitivement votre compte et les données associées.</p>
-                  <p style={{ color: "#e5c99a" }}>Si la suppression réelle est activée sur le serveur, votre compte sera supprimé et votre session sera fermée automatiquement. Sinon, seule une simulation sera effectuée.</p>
-                </>}
-                <div className="action-buttons" style={{ display: "flex", flexWrap: "wrap", gap: 12, marginTop: 20 }}>
-                  <button type="button" onClick={closeAccountDeletion} disabled={accountDeletionRunning}>Annuler</button>
-                  {accountDeletionStep === 1 && <button type="button" onClick={() => setAccountDeletionStep(2)}>J'ai compris, continuer</button>}
-                  {accountDeletionStep === 2 && <button type="button" disabled={accountDeletionPhrase !== DELETION_PHRASE} onClick={() => setAccountDeletionStep(3)}>Continuer</button>}
-                  {accountDeletionStep === 3 && <button type="button" disabled={accountDeletionRunning || accountDeletionPhrase !== DELETION_PHRASE}
-                    onClick={submitAccountDeletionSimulation} style={{ background: "#d8bc8c", color: "#111", fontWeight: 700 }}>
-                    {accountDeletionRunning ? "Traitement en cours…" : "Confirmer la demande de suppression"}
-                  </button>}
-                </div>
-              </section>
-            </div>
-          )}
-          {settingsLegalPanel && (
-            <div className="modal-overlay" onClick={() => setSettingsLegalPanel(null)} style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.7)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 9999, padding: "20px" }}>
-              <div className="card" onClick={(e) => e.stopPropagation()} style={{ width: "100%", maxWidth: "760px", maxHeight: "90vh", overflowY: "auto" }}>
-                <h3>{settingsLegalPanel}</h3>
+          <button type="button" className="secondary-button" onClick={() => navigateTo("settings")}>Retour aux paramètres</button>
+        </section>
+      )}
+
+      {page === "settings-support" && setupComplete && (
+        <section className="card">
+          <h2>Contacter le support</h2>
+          <div className="card inner-card">
+            <p>Pour contacter le support LOGILYA :</p>
+            <a className="button-link" href="mailto:contact@logilya.fr?subject=Support%20application%20LOGILYA">Contacter le support</a>
+            <p className="muted-text">contact@logilya.fr</p>
+          </div>
+          <button type="button" className="secondary-button" onClick={() => navigateTo("settings")}>Retour aux paramètres</button>
+        </section>
+      )}
+
+      {page === "settings-legal" && setupComplete && (
+        <section className="card">
+          <h2>{settingsLegalPanel}</h2>
                 {settingsLegalPanel === "Mentions légales" ? (
                   <div style={{ maxHeight: "65vh", overflowY: "auto", lineHeight: 1.65, paddingRight: "8px" }}>
                     <h4>1. Éditeur de l'application</h4>
@@ -6369,24 +6385,59 @@ if (cgvStatus !== "accepted") {
                 ) : (
                   <ConditionsGeneralesContent />
                 )}
-                <button type="button" onClick={() => setSettingsLegalPanel(null)}>Fermer</button>
-              </div>
+          <button type="button" className="secondary-button" onClick={() => navigateTo("settings")}>Retour aux paramètres</button>
+        </section>
+      )}
+
+      {page === "settings-delete" && setupComplete && (
+        <section className="card">
+          <h2>Supprimer mon compte</h2>
+          {accessProfile?.is_admin !== true && (
+            <div className="card inner-card" style={{ marginBottom: "16px", border: "1px solid #bda982" }}>
+              <h3>Supprimer mon compte</h3>
+              <p className="muted-text">Suppression du compte et de ses données professionnelles. Exportez vos données avant toute demande.</p>
+              <button type="button" onClick={() => setAccountDeletionStep(1)}
+                style={{ border: "1px solid #bda982", background: "#171717", color: "#ead4ac", padding: "12px 18px", borderRadius: 10, fontWeight: 700 }}>
+                Supprimer définitivement mon compte
+              </button>
+              <p className="muted-text" style={{ fontSize: "0.85em", marginTop: 10 }}>Fonction en cours de test : aucune suppression réelle n'est actuellement possible.</p>
             </div>
           )}
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "flex-end",
-              marginTop: "24px",
-            }}
-          >
-            <button
-              className="logout-button"
-              onClick={() => supabase.auth.signOut()}
-            >
-              Déconnexion
-            </button>
-          </div>
+
+          {accountDeletionStep > 0 && accessProfile?.is_admin !== true && (
+            <div className="modal-overlay" style={{ position: "fixed", inset: 0, zIndex: 10020, background: "rgba(0,0,0,0.82)", display: "flex", alignItems: "center", justifyContent: "center", padding: 16 }}>
+              <section className="card" role="dialog" aria-modal="true" aria-labelledby="account-deletion-heading"
+                style={{ width: "100%", maxWidth: 540, maxHeight: "90vh", overflowY: "auto", background: "#111", color: "#f4e9d8", border: "1px solid #bda982", borderRadius: 18, padding: 24 }}>
+                <h3 id="account-deletion-heading" style={{ color: "#e5c99a" }}>Suppression de compte — étape {accountDeletionStep}/3</h3>
+                {accountDeletionStep === 1 && <>
+                  <p><strong>Attention : cette action sera irréversible une fois activée.</strong></p>
+                  <p>Votre compte, vos fiches clients, vos rendez-vous, vos prestations et vos données d'équipe seront supprimés. L'abonnement Stripe devra être résilié. Certaines pièces de facturation peuvent être conservées pour respecter les obligations légales.</p>
+                  <p>Avant de continuer, exportez les données dont vous avez besoin.</p>
+                </>}
+                {accountDeletionStep === 2 && <>
+                  <p>Pour confirmer votre intention, recopiez exactement cette phrase :</p>
+                  <p style={{ padding: 12, background: "#25221d", borderRadius: 8, color: "#f2d9ab", fontWeight: 700, overflowWrap: "anywhere" }}>{DELETION_PHRASE}</p>
+                  <input aria-label="Phrase de confirmation de suppression" type="text" autoComplete="off" spellCheck={false}
+                    value={accountDeletionPhrase} onChange={(e) => setAccountDeletionPhrase(e.target.value)}
+                    placeholder="Recopiez la phrase exacte" style={{ width: "100%", boxSizing: "border-box", marginTop: 8 }} />
+                </>}
+                {accountDeletionStep === 3 && <>
+                  <p><strong>Dernière confirmation.</strong> Vous avez confirmé vouloir supprimer définitivement votre compte et les données associées.</p>
+                  <p style={{ color: "#e5c99a" }}>Si la suppression réelle est activée sur le serveur, votre compte sera supprimé et votre session sera fermée automatiquement. Sinon, seule une simulation sera effectuée.</p>
+                </>}
+                <div className="action-buttons" style={{ display: "flex", flexWrap: "wrap", gap: 12, marginTop: 20 }}>
+                  <button type="button" onClick={closeAccountDeletion} disabled={accountDeletionRunning}>Annuler</button>
+                  {accountDeletionStep === 1 && <button type="button" onClick={() => setAccountDeletionStep(2)}>J'ai compris, continuer</button>}
+                  {accountDeletionStep === 2 && <button type="button" disabled={accountDeletionPhrase !== DELETION_PHRASE} onClick={() => setAccountDeletionStep(3)}>Continuer</button>}
+                  {accountDeletionStep === 3 && <button type="button" disabled={accountDeletionRunning || accountDeletionPhrase !== DELETION_PHRASE}
+                    onClick={submitAccountDeletionSimulation} style={{ background: "#d8bc8c", color: "#111", fontWeight: 700 }}>
+                    {accountDeletionRunning ? "Traitement en cours…" : "Confirmer la demande de suppression"}
+                  </button>}
+                </div>
+              </section>
+            </div>
+          )}
+          <button type="button" className="secondary-button" onClick={() => navigateTo("settings")}>Retour aux paramètres</button>
         </section>
       )}
 
