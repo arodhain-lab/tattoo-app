@@ -4414,3 +4414,15 @@ select.agenda-artist-filter option:checked {
 .agenda-custom-select .agenda-custom-option {
   text-align: left !important;
 }
+
+
+/* LOGILYA - Texte des rendez-vous beige champagne */
+/* Agenda : vues Jour, Semaine et Mois */
+
+.agenda-item,
+.month-day-appointment-card,
+.month-rdv-card-content,
+.month-rdv-card-content span,
+.month-rdv-card-content div {
+  color: #DCC6A3 !important;
+}

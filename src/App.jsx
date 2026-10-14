@@ -5288,7 +5288,7 @@ if (cgvStatus !== "accepted") {
                     isClosedDay(selectedDate) ? "closed-day-panel" : ""
                   }`}
                 >
-                  <h3>Planning du jour</h3>
+
 
                   {renderSpecialDayBadge(selectedDate)}
 
