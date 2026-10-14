@@ -4476,8 +4476,8 @@ button.agenda-item.month-day-appointment-card:not(.cancelled-appointment) .month
 button.agenda-item.month-day-appointment-card:not(.cancelled-appointment) .month-rdv-price,
 button.agenda-item.month-day-appointment-card:not(.cancelled-appointment) .month-rdv-description,
 button.agenda-item.month-day-appointment-card:not(.cancelled-appointment) .month-rdv-client {
-  color: #C4A477 !important;
-  -webkit-text-fill-color: #C4A477 !important;
+  color: #D2B58B !important;
+  -webkit-text-fill-color: #D2B58B !important;
 }
 
 /* LOGILYA - Correction finale : textes des rendez-vous uniquement.
@@ -4501,6 +4501,6 @@ button.agenda-item.month-day-appointment-card:not(.cancelled-appointment) .month
 #root .month-day-appointment-card *,
 #root button.agenda-item.month-day-appointment-card,
 #root button.agenda-item.month-day-appointment-card * {
-  color: #C4A477 !important;
-  -webkit-text-fill-color: #C4A477 !important;
+  color: #D2B58B !important;
+  -webkit-text-fill-color: #D2B58B !important;
 }
