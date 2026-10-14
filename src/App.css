@@ -4464,3 +4464,18 @@ input.agenda-date-input::-webkit-calendar-picker-indicator {
   cursor: pointer;
   opacity: 0.85;
 }
+
+
+/* LOGILYA - Couleur beige des RDV */
+/* Vues Jour, Semaine et Mois */
+
+button.agenda-item.month-day-appointment-card:not(.cancelled-appointment),
+button.agenda-item.month-day-appointment-card:not(.cancelled-appointment) .month-rdv-card-content,
+button.agenda-item.month-day-appointment-card:not(.cancelled-appointment) .month-rdv-card-content *,
+button.agenda-item.month-day-appointment-card:not(.cancelled-appointment) .month-rdv-time,
+button.agenda-item.month-day-appointment-card:not(.cancelled-appointment) .month-rdv-price,
+button.agenda-item.month-day-appointment-card:not(.cancelled-appointment) .month-rdv-description,
+button.agenda-item.month-day-appointment-card:not(.cancelled-appointment) .month-rdv-client {
+  color: #DCC6A3 !important;
+  -webkit-text-fill-color: #DCC6A3 !important;
+}
