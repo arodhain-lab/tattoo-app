@@ -2124,40 +2124,86 @@ const newClientsThisMonth = useMemo(() => {
 }, [statisticsClients, statisticsMonthKey]);
 
 const globalStats = useMemo(() => {
-  const activeAppointments = statisticsAppointments.filter((item) => !item.cancelled);
-  const dated = activeAppointments.filter((item) => item.appointment);
   const [year, month] = statisticsMonthKey.split("-").map(Number);
   const start = new Date(year, month, 1);
   const end = new Date(year, month + 1, 1);
   const previousStart = new Date(year, month - 1, 1);
+  const servicesStart = new Date(year, month - 2, 1);
+  const monthlyRevenue = Array.from({ length: 12 }, (_, index) => {
+    const date = new Date(year, month - 11 + index, 1);
+    return {
+      key: date.getFullYear() + "-" + date.getMonth(),
+      label: date.toLocaleDateString("fr-FR", { month: "short", year: "2-digit" }),
+      total: 0,
+    };
+  });
+  const monthIndexes = new Map(monthlyRevenue.map((item, index) => [item.key, index]));
+  const serviceCounts = new Map();
   let currentMonthRevenue = 0;
   let previousMonthRevenue = 0;
-  dated.forEach((item) => {
+  let currentMonthAppointments = 0;
+  let currentMonthCancellations = 0;
+  let previousMonthCancellations = 0;
+  let totalServiceRequests = 0;
+
+  statisticsAppointments.forEach((item) => {
+    if (!item.appointment) return;
     const date = new Date(item.appointment);
+    if (Number.isNaN(date.getTime())) return;
+    const inCurrentMonth = date >= start && date < end;
+    const inPreviousMonth = date >= previousStart && date < start;
+    if (item.cancelled) {
+      if (inCurrentMonth) currentMonthCancellations += 1;
+      if (inPreviousMonth) previousMonthCancellations += 1;
+      return;
+    }
     const amount = getDisplayedPrice(item, appointments);
-    if (date >= start && date < end) currentMonthRevenue += amount;
-    else if (date >= previousStart && date < start) previousMonthRevenue += amount;
+    if (inCurrentMonth) {
+      currentMonthRevenue += amount;
+      if (!isAcompteAppointment(item)) currentMonthAppointments += 1;
+    }
+    if (inPreviousMonth) previousMonthRevenue += amount;
+    const chartIndex = monthIndexes.get(date.getFullYear() + "-" + date.getMonth());
+    if (chartIndex !== undefined) monthlyRevenue[chartIndex].total += amount;
+    if (date >= servicesStart && date < end && !isAcompteAppointment(item)) {
+      const name = String(item.title || "").trim();
+      if (name) {
+        serviceCounts.set(name, (serviceCounts.get(name) || 0) + 1);
+        totalServiceRequests += 1;
+      }
+    }
   });
-  const usedNames = new Set(statisticsAppointments.map((item) => item.title));
-  const revenueChangePercent = previousMonthRevenue === 0
-    ? (currentMonthRevenue === 0 ? 0 : null)
-    : (currentMonthRevenue - previousMonthRevenue) / previousMonthRevenue * 100;
+
+  const percentageChange = (current, previous) => previous === 0
+    ? (current === 0 ? 0 : null)
+    : ((current - previous) / previous) * 100;
+  const popularServices = Array.from(serviceCounts, ([name, count]) => ({
+    name,
+    count,
+    percentage: (count / totalServiceRequests) * 100,
+  })).sort((a, b) => b.count - a.count || a.name.localeCompare(b.name, "fr"));
+
   return {
-    clientsCount: statisticsClients.length,
-    artistsCount: statisticsArtistFilter === "all" ? artists.length
-      : artists.filter((artist) => String(artist.id) === statisticsArtistFilter).length,
-    appointmentsCount: statisticsAppointments.length,
-    activeAppointmentsCount: activeAppointments.length,
-    servicesCount: appointmentTypes.filter((type) => {
-      const name = getAppointmentTypeName(type);
-      return name !== ACOMPTE_TYPE && (statisticsArtistFilter === "all" || usedNames.has(name));
-    }).length,
-    totalRevenue: dated.reduce((sum, item) => sum + getDisplayedPrice(item, appointments), 0),
     currentMonthRevenue,
     previousMonthRevenue,
-    revenueChangePercent,
+    revenueChangePercent: percentageChange(currentMonthRevenue, previousMonthRevenue),
+    averageBasket: currentMonthAppointments > 0 ? currentMonthRevenue / currentMonthAppointments : null,
+    currentMonthCancellations,
+    previousMonthCancellations,
+    cancellationChangePercent: percentageChange(currentMonthCancellations, previousMonthCancellations),
+    monthlyRevenue,
+    popularServices,
+    servicesPeriodLabel: servicesStart.toLocaleDateString("fr-FR", { month: "long", year: "numeric" })
+      + " à " + start.toLocaleDateString("fr-FR", { month: "long", year: "numeric" }),
   };
-}, [statisticsClients, artists, statisticsAppointments, appointments, appointmentTypes, statisticsArtistFilter, statisticsMonthKey]);
+}, [statisticsAppointments, appointments, statisticsMonthKey]);
+
+const statisticsChartMax = Math.max(1, ...globalStats.monthlyRevenue.map((item) => item.total));
+const statisticsChartPoints = globalStats.monthlyRevenue.map((item, index) => ({
+  ...item,
+  x: 82 + index * (680 / 11),
+  y: 246 - (item.total / statisticsChartMax) * 190,
+}));
 
 
   const resetClientForm = () => {
@@ -6545,63 +6591,103 @@ if (cgvStatus !== "accepted") {
 
           <div className="stats-grid">
             <div className="stats-box">
-              <span>Clients</span>
-              <strong>{globalStats.clientsCount}</strong>
+              <span>Évolution du CA : mois en cours / mois précédent</span>
+              <strong>
+                {globalStats.revenueChangePercent === null ? "Non calculable"
+                  : (globalStats.revenueChangePercent > 0 ? "+" : "") + globalStats.revenueChangePercent.toLocaleString("fr-FR", { maximumFractionDigits: 1 }) + " %"}
+              </strong>
+              <small>Mois en cours : {formatCurrency(globalStats.currentMonthRevenue)}{" · "}Mois précédent : {formatCurrency(globalStats.previousMonthRevenue)}</small>
+              {globalStats.revenueChangePercent === null && <small>Le CA du mois précédent est nul.</small>}
             </div>
 
             <div className="stats-box">
               <span>Nouveaux clients ce mois-ci</span>
               <strong>
                 {statisticsClients.length > 0 && newClientsThisMonth.missingDates === statisticsClients.length
-                  ? "Date indisponible"
-                  : newClientsThisMonth.count}
+                  ? "Date indisponible" : newClientsThisMonth.count}
               </strong>
               {newClientsThisMonth.missingDates > 0 && (
-                <small>
-                  {newClientsThisMonth.missingDates} fiche(s) sans date de création exclue(s)
-                </small>
+                <small>{newClientsThisMonth.missingDates} fiche(s) sans date de création exclue(s)</small>
               )}
             </div>
 
             <div className="stats-box">
-              <span>Membres de l’équipe</span>
-              <strong>{globalStats.artistsCount}</strong>
+              <span>Panier moyen ce mois-ci</span>
+              <strong>{globalStats.averageBasket === null ? "Non calculable" : formatCurrency(globalStats.averageBasket)}</strong>
+              <small>CA du mois / rendez-vous non annulés, hors rendez-vous d’acompte.</small>
             </div>
 
             <div className="stats-box">
-              <span>Prestations</span>
-              <strong>{globalStats.servicesCount}</strong>
+              <span>Annulations ce mois-ci</span>
+              <strong>{globalStats.currentMonthCancellations}</strong>
+              <small>Selon la date prévue du rendez-vous.</small>
             </div>
 
             <div className="stats-box">
-              <span>Rendez-vous</span>
-              <strong>{globalStats.appointmentsCount}</strong>
-            </div>
-
-            <div className="stats-box">
-              <span>Rendez-vous actifs</span>
-              <strong>{globalStats.activeAppointmentsCount}</strong>
-            </div>
-
-            <div className="stats-box">
-              <span>CA total enregistré</span>
-              <strong>{formatCurrency(globalStats.totalRevenue)}</strong>
-            </div>
-
-            <div className="stats-box">
-              <span>Évolution du CA : mois en cours / mois précédent</span>
+              <span>Évolution des annulations : mois en cours / mois précédent</span>
               <strong>
-                {globalStats.revenueChangePercent === null ? "Non calculable"
-                  : `${globalStats.revenueChangePercent > 0 ? "+" : ""}${globalStats.revenueChangePercent.toLocaleString("fr-FR", { maximumFractionDigits: 1 })} %`}
+                {globalStats.cancellationChangePercent === null ? "Non calculable"
+                  : (globalStats.cancellationChangePercent > 0 ? "+" : "") + globalStats.cancellationChangePercent.toLocaleString("fr-FR", { maximumFractionDigits: 1 }) + " %"}
               </strong>
-              <small>
-                Mois en cours : {formatCurrency(globalStats.currentMonthRevenue)}
-                {" · "}Mois précédent : {formatCurrency(globalStats.previousMonthRevenue)}
-              </small>
-              {globalStats.revenueChangePercent === null && (
-                <small>Le CA du mois précédent est nul.</small>
-              )}
+              <small>Mois précédent : {globalStats.previousMonthCancellations} annulation(s)</small>
+              {globalStats.cancellationChangePercent === null && <small>Aucune annulation le mois précédent.</small>}
             </div>
+          </div>
+
+          <div className="inner-card" style={{ marginTop: "24px", minWidth: 0 }}>
+            <h3>Évolution du CA sur les 12 derniers mois</h3>
+            <p className="muted-text">CA mensuel, hors rendez-vous annulés. Le dernier point correspond au mois en cours.</p>
+            <div style={{ overflowX: "auto", maxWidth: "100%" }}>
+              <svg viewBox="0 0 800 320" role="img" aria-label="Évolution mensuelle du chiffre d’affaires sur les douze derniers mois"
+                style={{ display: "block", width: "100%", minWidth: "560px", height: "auto", color: "#DFC7A3" }}>
+                {[0, 0.25, 0.5, 0.75, 1].map((fraction) => {
+                  const y = 246 - fraction * 190;
+                  return (
+                    <g key={fraction}>
+                      <line x1="82" x2="762" y1={y} y2={y} stroke="currentColor" strokeOpacity="0.18" />
+                      <text x="72" y={y + 4} textAnchor="end" fill="currentColor" fontSize="11">
+                        {formatCurrency(statisticsChartMax * fraction)}
+                      </text>
+                    </g>
+                  );
+                })}
+                <polyline points={statisticsChartPoints.map((point) => point.x + "," + point.y).join(" ")}
+                  fill="none" stroke="currentColor" strokeWidth="3" strokeLinejoin="round" />
+                {statisticsChartPoints.map((point) => (
+                  <g key={point.key}>
+                    <circle cx={point.x} cy={point.y} r="4" fill="currentColor">
+                      <title>{point.label + " : " + formatCurrency(point.total)}</title>
+                    </circle>
+                    <text x={point.x} y={point.y - 12} textAnchor="middle" fill="currentColor" fontSize="10">
+                      {formatCurrency(point.total)}
+                    </text>
+                    <text x={point.x} y="270" textAnchor="end" fill="currentColor" fontSize="11"
+                      transform={"rotate(-35 " + point.x + " 270)"}>{point.label}</text>
+                  </g>
+                ))}
+              </svg>
+            </div>
+          </div>
+
+          <div className="inner-card" style={{ marginTop: "24px" }}>
+            <h3>Prestations les plus demandées sur les 3 derniers mois</h3>
+            <p className="muted-text">{globalStats.servicesPeriodLabel} · hors rendez-vous annulés et acomptes.</p>
+            {globalStats.popularServices.length === 0 ? (
+              <p>Aucune prestation enregistrée sur cette période.</p>
+            ) : (
+              <ol style={{ paddingLeft: "24px", marginBottom: 0 }}>
+                {globalStats.popularServices.map((service) => (
+                  <li key={service.name} style={{ marginTop: "12px", paddingLeft: "4px" }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: "12px" }}>
+                      <span style={{ minWidth: 0, overflowWrap: "anywhere" }}>{service.name}</span>
+                      <strong style={{ whiteSpace: "nowrap", flexShrink: 0 }}>
+                        {service.percentage.toLocaleString("fr-FR", { minimumFractionDigits: 1, maximumFractionDigits: 1 })} %
+                      </strong>
+                    </div>
+                  </li>
+                ))}
+              </ol>
+            )}
           </div>
         </section>
       )}
