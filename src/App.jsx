@@ -6576,15 +6576,11 @@ if (cgvStatus !== "accepted") {
             {statisticsArtistFilter === "all" ? "Vue globale de l’activité"
               : `Activité de ${artists.find((artist) => String(artist.id) === statisticsArtistFilter)?.name || "ce membre"}`}
           </p>
-          <select className="compact-select"
-            aria-label="Filtrer les statistiques par membre de l’équipe"
+          <AgendaArtistSelector
+            artists={artists}
             value={statisticsArtistFilter}
-            onChange={(e) => setStatisticsArtistFilter(e.target.value)}>
-            <option value="all">Tous les membres de l’équipe</option>
-            {artists.map((artist) => (
-              <option key={artist.id} value={String(artist.id)}>{artist.name}</option>
-            ))}
-          </select>
+            onChange={(value) => setStatisticsArtistFilter(String(value))}
+          />
           {statisticsArtistFilter !== "all" && (
             <p className="muted-text">Clients liés aux rendez-vous de ce membre et types de prestations utilisés.</p>
           )}

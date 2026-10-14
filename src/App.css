@@ -4590,3 +4590,66 @@ input.agenda-date-input::-webkit-datetime-edit-year-field {
     background-position: right 8px center !important;
   }
 }
+/* LOGILYA - Filtre equipe de Statistiques uniquement.
+   Reprend le style champagne du menu Agenda.
+   La liste native ouverte reste geree par le navigateur. */
+#root select.compact-select[aria-label="Filtrer les statistiques par membre de l’équipe"] {
+  appearance: none !important;
+  -webkit-appearance: none !important;
+  display: block !important;
+  width: 100% !important;
+  max-width: 300px !important;
+  min-width: 0 !important;
+  min-height: 46px !important;
+  margin: 0 auto !important;
+  padding: 12px 34px !important;
+  box-sizing: border-box !important;
+  background-color: #DCC6A3 !important;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='17' height='17' viewBox='0 0 24 24' fill='none' stroke='%23211B15' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") !important;
+  background-repeat: no-repeat !important;
+  background-position: right 14px center !important;
+  background-size: 17px !important;
+  color: #211B15 !important;
+  -webkit-text-fill-color: #211B15 !important;
+  border: 1px solid #B79B6B !important;
+  border-radius: 11px !important;
+  box-shadow: none !important;
+  text-shadow: none !important;
+  font-family: Arial, sans-serif !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  line-height: 1.4 !important;
+  text-align: center !important;
+  text-align-last: center !important;
+  cursor: pointer !important;
+  transform: none !important;
+}
+
+#root select.compact-select[aria-label="Filtrer les statistiques par membre de l’équipe"]:focus-visible {
+  outline: 2px solid #997747 !important;
+  outline-offset: 2px !important;
+}
+
+#root select.compact-select[aria-label="Filtrer les statistiques par membre de l’équipe"] option {
+  background: #F4EADD !important;
+  color: #292117 !important;
+  -webkit-text-fill-color: #292117 !important;
+  font-family: Arial, sans-serif !important;
+  font-size: 13px !important;
+  font-weight: 400 !important;
+  text-align: left !important;
+  text-align-last: left !important;
+}
+
+#root select.compact-select[aria-label="Filtrer les statistiques par membre de l’équipe"] option:checked {
+  background: #D2B587 !important;
+  color: #211B15 !important;
+  -webkit-text-fill-color: #211B15 !important;
+  font-weight: 600 !important;
+}
+
+@media (max-width: 768px) {
+  #root select.compact-select[aria-label="Filtrer les statistiques par membre de l’équipe"] {
+    max-width: 100% !important;
+  }
+}
