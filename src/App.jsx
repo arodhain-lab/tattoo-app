@@ -5959,55 +5959,9 @@ if (cgvStatus !== "accepted") {
         </section>
       )}
 
-      {page === "settings" && setupComplete && (
+      {page === "import-export" && setupComplete && (
         <section className="card">
-          <h2>Paramètres</h2>
-          <p className="muted-text">Activité professionnelle : <strong>{currentProfession?.label || "Non renseignée"}</strong></p>
-          <p className="muted-text">Gérez les données principales de l’application</p>
-
-          <div className="home-menu-grid">
-            <button
-              className="home-menu-button settings-tattoo-button"
-              onClick={() => navigateTo("services")}
-            >
-              <div className="settings-tattoo-logo-wrap">
-                <img
-                  src="/icons/prestations.png"
-                  alt="Prestations"
-                  className="settings-tattoo-logo"
-                />
-              </div>
-            </button>
-
-<button
-  className="home-menu-button settings-tattoo-button"
-  onClick={() => navigateTo("artists")}
->
-
-
-  <div className="settings-tattoo-logo-wrap">
-    <img
-      src="/icons/membres_equipe.png"
-      alt="Membres de l’équipe"
-      className="settings-tattoo-logo"
-    />
-  </div>
-</button>
-            <button
-              className="home-menu-button settings-tattoo-button"
-              type="button"
-              onClick={() => navigateTo("absences")}
-            >
-              <div className="settings-tattoo-logo-wrap">
-                <img
-                  src="/icons/conges.png"
-                  alt="Congés"
-                  className="settings-tattoo-logo"
-                />
-              </div>
-            </button>
-          </div>
-
+          <h2>Import / Export</h2>
                     <div className="card inner-card" style={{ marginBottom: "16px" }}>
                       <h3>Exporter toutes mes données</h3>
                       <p className="muted-text">
@@ -6078,31 +6032,6 @@ if (cgvStatus !== "accepted") {
                         </label>
                       </div>
                     </div>
-
-          <div className="card inner-card" style={{ marginBottom: "16px" }}>
-            <h3>Abonnement</h3>
-            {canManageStripeSubscription && (
-              <p className="muted-text">
-                Consultez vos factures, vos paiements et vos moyens de paiement,
-                ou gérez votre abonnement depuis l’espace sécurisé Stripe.
-              </p>
-            )}
-            <p><strong>Statut :</strong> {isTrialAccount ? "Essai gratuit en cours" : accessProfile?.subscription_status === "active" ? "Actif" : accessProfile?.subscription_status === "past_due" ? "Paiement en attente" : accessProfile?.subscription_status || "Non renseigné"}</p>
-            {isTrialAccount && (
-              <p><strong>Fin de l’essai gratuit :</strong> {formatDateOnly(accessProfile?.trial_ends_at)}</p>
-            )}
-            <p><strong>Membres de l’équipe inclus :</strong> {accessProfile?.max_artists || 1}</p>
-            {!isTrialAccount && accessProfile?.subscription_ends_at && (
-              <p><strong>Échéance indiquée :</strong> {formatDateOnly(accessProfile.subscription_ends_at)}</p>
-            )}
-            {canManageStripeSubscription && (
-              <button type="button" disabled={isOpeningBillingPortal} onClick={openBillingPortal}>
-                {isOpeningBillingPortal ? "Ouverture…" : "Gérer mon abonnement"}
-              </button>
-            )}
-          </div>
-
-
 
                     {showExportArtistModal && (
                       <div
@@ -6224,6 +6153,80 @@ if (cgvStatus !== "accepted") {
                         </div>
                       </div>
                     )}
+
+
+          <button type="button" onClick={() => navigateTo("settings")}>Retour aux paramètres</button>
+        </section>
+      )}
+
+      {page === "settings" && setupComplete && (
+        <section className="card">
+          <h2>Paramètres</h2>
+          <p className="muted-text">Activité professionnelle : <strong>{currentProfession?.label || "Non renseignée"}</strong></p>
+          <p className="muted-text">Gérez les données principales de l’application</p>
+
+          <div className="home-menu-grid"
+            style={isMobile ? { display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" } : undefined}>
+            <button type="button"
+              className="home-menu-button home-menu-primary home-menu-logo-button"
+              onClick={() => navigateTo("services")}>
+              <div className="home-menu-logo-wrap">
+                <img src="/icons/prestations.png" alt="Prestations" className="home-menu-full-logo" />
+              </div>
+            </button>
+
+            <button type="button"
+              className="home-menu-button home-menu-primary home-menu-logo-button"
+              onClick={() => navigateTo("artists")}>
+              <div className="home-menu-logo-wrap">
+                <img src="/icons/membres_equipe.png" alt="Membres de l’équipe" className="home-menu-full-logo" />
+              </div>
+            </button>
+
+            <button type="button"
+              className="home-menu-button home-menu-primary home-menu-logo-button"
+              onClick={() => navigateTo("absences")}>
+              <div className="home-menu-logo-wrap">
+                <img src="/icons/conges.png" alt="Congés" className="home-menu-full-logo" />
+              </div>
+            </button>
+
+            <button type="button"
+              className="home-menu-button home-menu-primary home-menu-logo-button"
+              onClick={() => navigateTo("import-export")}>
+              <div className="home-menu-logo-wrap" style={{ flexDirection: "column", gap: "12px", padding: "12px" }}>
+                <svg width="64" height="64" viewBox="0 0 64 64" fill="none" aria-hidden="true">
+                  <path d="M12 22h40m-12-12 12 12-12 12M52 44H12m12-12L12 44l12 12"
+                    stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+                <span className="home-menu-title" style={{ fontSize: "clamp(16px, 3vw, 24px)", textAlign: "center" }}>Import / Export</span>
+              </div>
+            </button>
+          </div>
+
+          <div className="card inner-card" style={{ marginBottom: "16px" }}>
+            <h3>Abonnement</h3>
+            {canManageStripeSubscription && (
+              <p className="muted-text">
+                Consultez vos factures, vos paiements et vos moyens de paiement,
+                ou gérez votre abonnement depuis l’espace sécurisé Stripe.
+              </p>
+            )}
+            <p><strong>Statut :</strong> {isTrialAccount ? "Essai gratuit en cours" : accessProfile?.subscription_status === "active" ? "Actif" : accessProfile?.subscription_status === "past_due" ? "Paiement en attente" : accessProfile?.subscription_status || "Non renseigné"}</p>
+            {isTrialAccount && (
+              <p><strong>Fin de l’essai gratuit :</strong> {formatDateOnly(accessProfile?.trial_ends_at)}</p>
+            )}
+            <p><strong>Membres de l’équipe inclus :</strong> {accessProfile?.max_artists || 1}</p>
+            {!isTrialAccount && accessProfile?.subscription_ends_at && (
+              <p><strong>Échéance indiquée :</strong> {formatDateOnly(accessProfile.subscription_ends_at)}</p>
+            )}
+            {canManageStripeSubscription && (
+              <button type="button" disabled={isOpeningBillingPortal} onClick={openBillingPortal}>
+                {isOpeningBillingPortal ? "Ouverture…" : "Gérer mon abonnement"}
+              </button>
+            )}
+          </div>
+
 
 
           {accessProfile?.is_admin !== true && (
