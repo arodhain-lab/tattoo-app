@@ -3987,3 +3987,214 @@ body:has(.subscription-modal) .subscription-modal-overlay {
   outline: 2px solid #BCA57C;
   outline-offset: 3px;
 }
+
+
+/* LOGILYA - Sélecteur des membres de l'équipe */
+/* Agenda jour, semaine et mois */
+
+select.agenda-artist-filter {
+  appearance: none;
+  -webkit-appearance: none;
+
+  background-color: #DCC9A7 !important;
+  color: #211B15 !important;
+
+  border: 1px solid #B79B6B !important;
+  border-radius: 12px !important;
+
+  padding: 12px 42px 12px 18px !important;
+
+  font-family: inherit;
+  font-size: 14px !important;
+  font-weight: 600 !important;
+
+  min-height: 46px;
+  max-width: 100%;
+  box-sizing: border-box;
+
+  cursor: pointer;
+
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23211B15' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") !important;
+  background-repeat: no-repeat !important;
+  background-position: right 15px center !important;
+  background-size: 16px !important;
+
+  box-shadow: 0 2px 8px rgba(0,0,0,0.18);
+
+  transition: background-color 0.2s ease,
+              border-color 0.2s ease,
+              box-shadow 0.2s ease;
+}
+
+/* Survol */
+select.agenda-artist-filter:hover {
+  background-color: #EAD9BD !important;
+  border-color: #C5A675 !important;
+}
+
+/* Sélecteur actif */
+select.agenda-artist-filter:focus {
+  outline: none !important;
+  border-color: #E5C68C !important;
+  box-shadow: 0 0 0 3px rgba(220,201,167,0.25);
+}
+
+/* Liste ouverte : couleurs de base */
+select.agenda-artist-filter option {
+  background-color: #F5EBDD;
+  color: #211B15;
+  font-size: 14px;
+  font-weight: 500;
+  padding: 12px;
+}
+
+/* Sélection, lorsque prise en charge */
+select.agenda-artist-filter option:checked {
+  background-color: #DCC9A7;
+  color: #211B15;
+}
+
+
+/* LOGILYA - Menu équipe agenda personnalisé */
+
+.agenda-custom-select {
+  position: relative;
+  width: 100%;
+  max-width: 320px;
+  margin: 0 auto;
+  z-index: 5;
+}
+
+.agenda-custom-select:has(.agenda-custom-options) {
+  z-index: 100;
+}
+
+.agenda-custom-trigger {
+  width: 100%;
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+
+  background: linear-gradient(180deg, #EADBC0, #D6BD93);
+  color: #201A13;
+
+  border: 1px solid #B99C70;
+  border-radius: 12px;
+  padding: 11px 15px;
+
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+
+  box-shadow: 0 3px 10px rgba(0,0,0,0.22);
+}
+
+.agenda-custom-trigger:hover {
+  background: #EAD9B9;
+  color: #201A13;
+}
+
+.agenda-custom-trigger:focus-visible {
+  outline: 2px solid #F0D3A2;
+  outline-offset: 3px;
+}
+
+.agenda-custom-label {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.agenda-custom-chevron {
+  font-size: 21px;
+  line-height: 1;
+  transition: transform 0.2s ease;
+}
+
+.agenda-custom-chevron.is-open {
+  transform: rotate(180deg);
+}
+
+/* Menu ouvert */
+.agenda-custom-options {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  z-index: 1000;
+
+  background: #F4EADD;
+  border: 1px solid #BCA57F;
+  border-radius: 12px;
+
+  padding: 5px;
+  max-height: 260px;
+  overflow-y: auto;
+
+  box-shadow: 0 10px 26px rgba(0,0,0,0.4);
+}
+
+/* Chaque membre */
+.agenda-custom-option {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+
+  background: transparent;
+  color: #292117;
+
+  border: none;
+  border-radius: 8px;
+  padding: 12px 13px;
+
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  text-align: left;
+  cursor: pointer;
+}
+
+.agenda-custom-option:hover {
+  background: #E5D2B2;
+  color: #201A13;
+}
+
+/* Membre sélectionné */
+.agenda-custom-option.is-selected {
+  background: #D2B587;
+  color: #1E1913;
+  font-weight: 700;
+}
+
+.agenda-custom-option.is-selected:hover {
+  background: #C7A777;
+}
+
+.agenda-custom-option:focus-visible {
+  outline: 2px solid #997747;
+  outline-offset: -2px;
+}
+
+/* Adaptation mobile */
+@media (max-width: 768px) {
+  .agenda-custom-select {
+    max-width: 100%;
+  }
+
+  .agenda-custom-trigger {
+    font-size: 13px;
+    padding: 10px 12px;
+  }
+
+  .agenda-custom-option {
+    font-size: 13px;
+  }
+}

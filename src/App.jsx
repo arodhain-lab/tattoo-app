@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Papa from "papaparse";
 import { Capacitor } from "@capacitor/core";
 import { supabase } from "./supabaseClient";
@@ -545,6 +545,95 @@ function AccordSousTraitanceContent() {
     </div>
   );
 }
+
+
+function AgendaArtistSelector({ artists, value, onChange }) {
+  const [open, setOpen] = useState(false);
+  const containerRef = useRef(null);
+
+  const sortedArtists = useMemo(
+    () => [...artists].sort((a, b) => a.name.localeCompare(b.name)),
+    [artists]
+  );
+
+  const selectedArtist = sortedArtists.find(
+    (artist) => String(artist.id) === String(value)
+  );
+
+  useEffect(() => {
+    if (!open) return;
+
+    const closeOutside = (event) => {
+      if (!containerRef.current?.contains(event.target)) {
+        setOpen(false);
+      }
+    };
+
+    const closeEscape = (event) => {
+      if (event.key === "Escape") setOpen(false);
+    };
+
+    document.addEventListener("pointerdown", closeOutside);
+    document.addEventListener("keydown", closeEscape);
+
+    return () => {
+      document.removeEventListener("pointerdown", closeOutside);
+      document.removeEventListener("keydown", closeEscape);
+    };
+  }, [open]);
+
+  const choose = (nextValue) => {
+    onChange(nextValue);
+    setOpen(false);
+  };
+
+  return (
+    <div className="agenda-custom-select" ref={containerRef}>
+      <button
+        type="button"
+        className="agenda-custom-trigger"
+        aria-expanded={open}
+        aria-haspopup="true"
+        onClick={() => setOpen((previous) => !previous)}
+      >
+        <span className="agenda-custom-label">
+          {selectedArtist?.name || "Tous les membres de l'équipe"}
+        </span>
+        <span className={`agenda-custom-chevron ${open ? "is-open" : ""}`}>
+          ▾
+        </span>
+      </button>
+
+      {open && (
+        <div className="agenda-custom-options">
+          <button
+            type="button"
+            className={`agenda-custom-option ${value === "all" ? "is-selected" : ""}`}
+            onClick={() => choose("all")}
+          >
+            Tous les membres de l'équipe
+            {value === "all" && <span>✓</span>}
+          </button>
+
+          {sortedArtists.map((artist) => (
+            <button
+              type="button"
+              key={artist.id}
+              className={`agenda-custom-option ${
+                String(value) === String(artist.id) ? "is-selected" : ""
+              }`}
+              onClick={() => choose(artist.id)}
+            >
+              {artist.name}
+              {String(value) === String(artist.id) && <span>✓</span>}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 
 export default function App() {
   const [session, setSession] = useState(null);
@@ -5157,21 +5246,13 @@ if (cgvStatus !== "accepted") {
                       </div>
 
                       <div className="agenda-artist-row">
-                        <select
-                          className="agenda-artist-filter"
-                          value={agendaArtistFilter}
-                          onChange={(e) => setAgendaArtistFilter(e.target.value)}
-                        >
-                          <option value="all">Tous les membres de l’équipe</option>
-                          {artists
-                            .slice()
-                            .sort((a, b) => a.name.localeCompare(b.name))
-                            .map((artist) => (
-                              <option key={artist.id} value={artist.id}>
-                                {artist.name}
-                              </option>
-                            ))}
-                        </select>
+
+<AgendaArtistSelector
+  artists={artists}
+  value={agendaArtistFilter}
+  onChange={setAgendaArtistFilter}
+/>
+
                       </div>
                     </>
                   ) : agendaView === "week" ? (
@@ -5184,21 +5265,13 @@ if (cgvStatus !== "accepted") {
                         ←
                       </button>
 
-                      <select
-                        className="agenda-artist-filter"
-                        value={agendaArtistFilter}
-                        onChange={(e) => setAgendaArtistFilter(e.target.value)}
-                      >
-                        <option value="all">Tous les membres de l’équipe</option>
-                        {artists
-                          .slice()
-                          .sort((a, b) => a.name.localeCompare(b.name))
-                          .map((artist) => (
-                            <option key={artist.id} value={artist.id}>
-                              {artist.name}
-                            </option>
-                          ))}
-                      </select>
+
+<AgendaArtistSelector
+  artists={artists}
+  value={agendaArtistFilter}
+  onChange={setAgendaArtistFilter}
+/>
+
 
                       <button type="button" className="nav-arrow-button" onClick={goNext}>
                         →
@@ -5449,21 +5522,13 @@ if (cgvStatus !== "accepted") {
                       </div>
 
                       <div className="month-artist-row">
-                        <select
-                          className="agenda-artist-filter"
-                          value={agendaArtistFilter}
-                          onChange={(e) => setAgendaArtistFilter(e.target.value)}
-                        >
-                          <option value="all">Tous les membres de l’équipe</option>
-                          {artists
-                            .slice()
-                            .sort((a, b) => a.name.localeCompare(b.name))
-                            .map((artist) => (
-                              <option key={artist.id} value={artist.id}>
-                                {artist.name}
-                              </option>
-                            ))}
-                        </select>
+
+<AgendaArtistSelector
+  artists={artists}
+  value={agendaArtistFilter}
+  onChange={setAgendaArtistFilter}
+/>
+
                       </div>
                     </div>
 
