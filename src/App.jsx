@@ -5201,7 +5201,7 @@ if (cgvStatus !== "accepted") {
                         }
                       }}
                     >
-                      {showMobileWeek ? "Masquer semaine" : "Voir semaine"}
+                      Vue semaine
                     </button>
                   )}
 
@@ -5367,10 +5367,17 @@ if (cgvStatus !== "accepted") {
               {agendaView === "week" && (!isMobile || showMobileWeek) && (
                 <div className="month-split-layout">
                   <div className="month-top-section">
-                    <div className="month-view-title">
-                      Semaine du {formatDateOnly(weekDays[0])} au{" "}
-                      {formatDateOnly(weekDays[6])}
-                    </div>
+
+<div className="month-view-title">
+  Semaine du{" "}
+  {weekDays[0].getMonth() === weekDays[6].getMonth() &&
+  weekDays[0].getFullYear() === weekDays[6].getFullYear()
+    ? weekDays[0].getDate()
+    : formatDateOnly(weekDays[0])}
+  {" au "}
+  {formatDateOnly(weekDays[6])}
+</div>
+
 
                     <div className="month-weekdays-row">
                       {weekDays.map((day) => {
