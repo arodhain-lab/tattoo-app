@@ -4504,3 +4504,8 @@ button.agenda-item.month-day-appointment-card:not(.cancelled-appointment) .month
   color: #D2B58B !important;
   -webkit-text-fill-color: #D2B58B !important;
 }
+
+.closed-day-toggle > label {
+  color: #D2B58B !important;
+  -webkit-text-fill-color: #D2B58B !important;
+}
