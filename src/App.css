@@ -3818,3 +3818,19 @@ body:has(.subscription-modal) .subscription-modal-overlay {
   color: var(--lux-beige, #ecd8b7) !important;
   -webkit-text-fill-color: var(--lux-beige, #ecd8b7) !important;
 }
+/* Agenda : largeur des listes déroulantes adaptée au libellé sélectionné.
+   Sans field-sizing, la largeur native suit l'option la plus longue. */
+#root .agenda-controls select {
+  field-sizing: content;
+  width: auto !important;
+  min-width: 0 !important;
+  max-width: 100% !important;
+  flex: 0 0 auto !important;
+  white-space: nowrap;
+  padding-inline-end: 2.5em;
+}
+
+/* Permet aux contrôles de passer à la ligne quand l'espace manque. */
+#root .agenda-controls {
+  flex-wrap: wrap;
+}
