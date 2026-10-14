@@ -1571,6 +1571,25 @@ console.log("ERREUR RDV =", appointmentsError);
     if (agendaArtistFilter !== "all") return null;
     const absent = absentArtistsForDate(dateKey);
     if (!absent.length) return null;
+    if (absent.length === artists.length) {
+  return (
+    <div
+      role="status"
+      style={{
+        textAlign: "center",
+        padding: "9px 12px",
+        margin: "10px 0",
+        border: "1px solid #a99373",
+        borderRadius: 8,
+        background: "rgba(196,170,128,0.10)",
+        color: "inherit",
+        fontSize: "0.92rem",
+      }}
+    >
+      Toute l'équipe en congés
+    </div>
+  );
+}
     const names = absent.map((artist) => artist.name);
     const formattedNames = names.length === 1
       ? names[0]
