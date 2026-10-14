@@ -6557,7 +6557,7 @@ if (cgvStatus !== "accepted") {
               {selectedAppointmentDetails.client ? (
                 <button
                   type="button"
-                  className="inline-link-button"
+                  className="client-details-button"
                   onClick={() => {
                     setSelectedClientId(selectedAppointmentDetails.client.id);
                     navigateTo("client-details");
