@@ -4285,7 +4285,15 @@ const goNext = () => {
     return <Auth />;
   }
 
-  if (cgvStatus !== "accepted") {
+if (cgvStatus === "loading") {
+  return (
+    <div className="container">
+      <div className="card">Chargement...</div>
+    </div>
+  );
+}
+
+if (cgvStatus !== "accepted") {
     return (
       <div className="container" style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center" }}>
         <div className="card" style={{ width: "100%", maxWidth: 850, padding: 24 }}>
