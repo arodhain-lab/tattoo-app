@@ -4198,3 +4198,193 @@ select.agenda-artist-filter option:checked {
     font-size: 13px;
   }
 }
+
+
+/* =========================================
+   LOGILYA - MENU EQUIPE AGENDA
+   STYLE PERSONNALISE UNIQUEMENT
+   ========================================= */
+
+/* Conteneur du menu */
+.agenda-custom-select {
+  position: relative;
+  width: 100%;
+  max-width: 300px;
+  margin: 0 auto;
+  font-family: Arial, sans-serif !important;
+}
+
+/* Bouton principal champagne */
+.agenda-custom-select .agenda-custom-trigger {
+  appearance: none !important;
+  -webkit-appearance: none !important;
+
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+
+  width: 100% !important;
+  min-height: 46px !important;
+  padding: 12px 14px !important;
+  margin: 0 !important;
+
+  background: #DCC6A3 !important;
+  background-image: none !important;
+  color: #211B15 !important;
+
+  border: 1px solid #B79B6B !important;
+  border-radius: 11px !important;
+
+  box-shadow: none !important;
+  text-shadow: none !important;
+
+  font-family: Arial, sans-serif !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  line-height: 1.4 !important;
+  text-align: left !important;
+
+  cursor: pointer !important;
+  transform: none !important;
+}
+
+/* Texte du bouton principal */
+.agenda-custom-select .agenda-custom-label {
+  color: #211B15 !important;
+  font-family: Arial, sans-serif !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  text-shadow: none !important;
+}
+
+/* Flèche */
+.agenda-custom-select .agenda-custom-chevron {
+  color: #211B15 !important;
+  font-size: 17px !important;
+}
+
+/* Liste déroulante */
+.agenda-custom-select .agenda-custom-options {
+  position: absolute !important;
+  top: calc(100% + 6px) !important;
+  left: 0 !important;
+  right: 0 !important;
+  z-index: 9999 !important;
+
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 0 !important;
+
+  background: #F4EADD !important;
+  background-image: none !important;
+
+  border: 1px solid #BCA57F !important;
+  border-radius: 11px !important;
+
+  padding: 5px !important;
+  margin: 0 !important;
+
+  max-height: 260px !important;
+  overflow-y: auto !important;
+
+  box-shadow: 0 8px 20px rgba(0,0,0,0.35) !important;
+}
+
+/* Toutes les lignes des membres */
+.agenda-custom-select .agenda-custom-options .agenda-custom-option {
+  appearance: none !important;
+  -webkit-appearance: none !important;
+
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+
+  width: 100% !important;
+  min-height: 40px !important;
+
+  padding: 10px 12px !important;
+  margin: 0 !important;
+
+  background: transparent !important;
+  background-color: transparent !important;
+  background-image: none !important;
+
+  color: #292117 !important;
+
+  border: none !important;
+  border-radius: 6px !important;
+
+  box-shadow: none !important;
+  text-shadow: none !important;
+
+  font-family: Arial, sans-serif !important;
+  font-size: 13px !important;
+  font-weight: 400 !important;
+  line-height: 1.4 !important;
+  text-align: left !important;
+  text-transform: none !important;
+  letter-spacing: normal !important;
+
+  cursor: pointer !important;
+  transform: none !important;
+  transition: background-color 0.15s ease !important;
+}
+
+/* Survol des membres */
+.agenda-custom-select .agenda-custom-options .agenda-custom-option:hover {
+  background: #E5D2B2 !important;
+  background-image: none !important;
+  color: #211B15 !important;
+  box-shadow: none !important;
+  transform: none !important;
+}
+
+/* Membre sélectionné */
+.agenda-custom-select .agenda-custom-options .agenda-custom-option.is-selected {
+  background: #D2B587 !important;
+  background-image: none !important;
+  color: #211B15 !important;
+
+  border: none !important;
+  border-radius: 6px !important;
+
+  box-shadow: none !important;
+  font-weight: 600 !important;
+  transform: none !important;
+}
+
+/* Survol du membre sélectionné */
+.agenda-custom-select .agenda-custom-options .agenda-custom-option.is-selected:hover {
+  background: #C7A777 !important;
+  background-image: none !important;
+}
+
+/* Supprime les effets généraux au clic */
+.agenda-custom-select .agenda-custom-option:active,
+.agenda-custom-select .agenda-custom-trigger:active {
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+/* Accessibilité clavier */
+.agenda-custom-select .agenda-custom-option:focus-visible,
+.agenda-custom-select .agenda-custom-trigger:focus-visible {
+  outline: 2px solid #997747 !important;
+  outline-offset: 2px !important;
+}
+
+/* Evite les styles hérités sur les coches */
+.agenda-custom-select .agenda-custom-option span {
+  background: transparent !important;
+  background-image: none !important;
+  color: #211B15 !important;
+  box-shadow: none !important;
+  text-shadow: none !important;
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+  .agenda-custom-select {
+    max-width: 100%;
+  }
+}
