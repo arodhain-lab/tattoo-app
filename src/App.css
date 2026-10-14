@@ -3887,3 +3887,26 @@ body:has(.subscription-modal) .subscription-modal-overlay {
           hue-rotate(345deg) brightness(99%) contrast(86%) !important;
   opacity: 1 !important;
 }
+
+/* Alignement de la case « Journée en congés » */
+.closed-day-toggle > label {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+  line-height: 1.4;
+  cursor: pointer;
+}
+
+.closed-day-toggle input[type="checkbox"] {
+  flex: 0 0 20px;
+  width: 20px;
+  height: 20px;
+  min-width: 20px;
+  min-height: 20px;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  cursor: pointer;
+}
