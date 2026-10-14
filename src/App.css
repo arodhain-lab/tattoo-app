@@ -4653,3 +4653,104 @@ input.agenda-date-input::-webkit-datetime-edit-year-field {
     max-width: 100% !important;
   }
 }
+/* LOGILYA - Apparence des listes natives dans toute l'application.
+   Modele : menu equipe personnalise de l'Agenda.
+   Les largeurs, marges et placements existants sont conserves.
+   Le double #root donne priorite sur les anciens styles locaux. */
+select,
+#root#root select {
+  appearance: none !important;
+  -webkit-appearance: none !important;
+  min-height: 46px !important;
+  padding: 12px 34px !important;
+  box-sizing: border-box !important;
+  background-color: #DCC6A3 !important;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='17' height='17' viewBox='0 0 24 24' fill='none' stroke='%23211B15' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") !important;
+  background-repeat: no-repeat !important;
+  background-position: right 14px center !important;
+  background-size: 17px !important;
+  color: #211B15 !important;
+  -webkit-text-fill-color: #211B15 !important;
+  border: 1px solid #B79B6B !important;
+  border-radius: 11px !important;
+  box-shadow: none !important;
+  text-shadow: none !important;
+  font-family: Arial, sans-serif !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  line-height: 1.4 !important;
+  text-align: center !important;
+  text-align-last: center !important;
+  text-transform: none !important;
+  letter-spacing: normal !important;
+  cursor: pointer;
+}
+
+select:hover,
+#root#root select:hover {
+  background-color: #DCC6A3 !important;
+  color: #211B15 !important;
+  border-color: #B79B6B !important;
+  box-shadow: none !important;
+}
+
+select:focus,
+#root#root select:focus {
+  border-color: #B79B6B !important;
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+select:focus-visible,
+#root#root select:focus-visible {
+  outline: 2px solid #997747 !important;
+  outline-offset: 2px !important;
+}
+
+/* Noms a gauche dans la liste ouverte, selon le navigateur. */
+select option,
+select optgroup,
+#root#root select option,
+#root#root select optgroup {
+  background: #F4EADD !important;
+  color: #292117 !important;
+  -webkit-text-fill-color: #292117 !important;
+  font-family: Arial, sans-serif !important;
+  font-size: 13px !important;
+  font-weight: 400 !important;
+  text-shadow: none !important;
+  text-align: left !important;
+  text-align-last: left !important;
+}
+
+select option:checked,
+#root#root select option:checked {
+  background: #D2B587 !important;
+  color: #211B15 !important;
+  -webkit-text-fill-color: #211B15 !important;
+  font-weight: 600 !important;
+}
+
+/* Une liste a selection multiple conserve son fonctionnement. */
+select[multiple],
+#root#root select[multiple] {
+  background-image: none !important;
+  text-align: left !important;
+  text-align-last: left !important;
+  padding: 12px 14px !important;
+}
+
+/* Conservation de la lisibilite des menus desactives. */
+select:disabled,
+#root#root select:disabled {
+  cursor: not-allowed;
+}
+
+/* Conserver la compacite de la ligne avec les fleches sur telephone. */
+@media (max-width: 768px) and (hover: none) and (pointer: coarse) {
+  #root#root .agenda-nav-buttons > select.agenda-artist-filter {
+    font-size: 11px !important;
+    padding: 10px 26px !important;
+    background-position: right 8px center !important;
+  }
+}
