@@ -6202,6 +6202,7 @@ if (cgvStatus !== "accepted") {
   />
 </div>
             </button>
+            
           </div>
 
           <nav aria-label="Informations et gestion du compte" style={{ marginTop: "24px", border: "1px solid #B79B6B", borderRadius: "16px", overflow: "hidden" }}>
