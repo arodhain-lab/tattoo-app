@@ -2046,6 +2046,8 @@ const selectedClientAppointments = useMemo(() => {
     );
 }, [selectedClientId, appointmentsWithClient]);
 
+const currentRevenueYear = new Date().getFullYear();
+
 const revenueStats = useMemo(() => {
   let scopedAppointments = appointmentsWithClient.filter(
     (item) => item.appointment && !item.cancelled
@@ -2079,12 +2081,19 @@ const revenueStats = useMemo(() => {
       : sum;
   }, 0);
 
+  const yearTotal = scopedAppointments.reduce((sum, item) => {
+    return item.appointment.slice(0, 4) === String(currentRevenueYear)
+      ? sum + getDisplayedPrice(item, appointments)
+      : sum;
+  }, 0);
+
   return {
     dayTotal,
     weekTotal,
     monthTotal,
+    yearTotal,
   };
-}, [appointmentsWithClient, appointments, selectedDate, revenueArtistFilter]);
+}, [appointmentsWithClient, appointments, selectedDate, revenueArtistFilter, currentRevenueYear]);
 
 const globalStats = useMemo(() => {
   const activeAppointments = appointments.filter((item) => !item.cancelled);
@@ -5726,6 +5735,10 @@ if (cgvStatus !== "accepted") {
             <div className="revenue-box">
               <span>Mois</span>
               <strong>{formatCurrency(revenueStats.monthTotal)}</strong>
+            </div>
+            <div className="revenue-box">
+              <span>Année civile {currentRevenueYear}</span>
+              <strong>{formatCurrency(revenueStats.yearTotal)}</strong>
             </div>
           </div>
         </section>
