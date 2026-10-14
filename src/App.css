@@ -3879,3 +3879,11 @@ body:has(.subscription-modal) .subscription-modal-overlay {
     max-width: 100% !important;
   }
 }
+
+/* Vue jour : icône calendrier beige champagne */
+#root input.agenda-date-input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: brightness(0) saturate(100%)
+          invert(89%) sepia(18%) saturate(454%)
+          hue-rotate(345deg) brightness(99%) contrast(86%) !important;
+  opacity: 1 !important;
+}
