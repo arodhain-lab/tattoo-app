@@ -4476,6 +4476,6 @@ button.agenda-item.month-day-appointment-card:not(.cancelled-appointment) .month
 button.agenda-item.month-day-appointment-card:not(.cancelled-appointment) .month-rdv-price,
 button.agenda-item.month-day-appointment-card:not(.cancelled-appointment) .month-rdv-description,
 button.agenda-item.month-day-appointment-card:not(.cancelled-appointment) .month-rdv-client {
-  color: #DCC6A3 !important;
-  -webkit-text-fill-color: #DCC6A3 !important;
+  color: #C4A477 !important;
+  -webkit-text-fill-color: #C4A477 !important;
 }
