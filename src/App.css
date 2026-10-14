@@ -3811,3 +3811,10 @@ body:has(.subscription-modal) .subscription-modal-overlay {
   color: #F4E9D8 !important;
   -webkit-text-fill-color: #F4E9D8 !important;
 }
+
+/* Recherche fiche client : texte beige champagne sur les cartes sombres. */
+#root button.client-box,
+#root button.client-box * {
+  color: var(--lux-beige, #ecd8b7) !important;
+  -webkit-text-fill-color: var(--lux-beige, #ecd8b7) !important;
+}
