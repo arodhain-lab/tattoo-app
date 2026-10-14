@@ -4479,3 +4479,28 @@ button.agenda-item.month-day-appointment-card:not(.cancelled-appointment) .month
   color: #C4A477 !important;
   -webkit-text-fill-color: #C4A477 !important;
 }
+
+/* LOGILYA - Correction finale : textes des rendez-vous uniquement.
+   Beige champagne dans les vues jour, semaine et mois.
+   Les dimensions, fonds, bordures et styles des RDV annules sont conserves. */
+#root .agenda-item,
+#root .agenda-item *,
+#root button.agenda-item,
+#root button.agenda-item *,
+#root .agenda-panel button.agenda-item,
+#root .agenda-panel button.agenda-item *,
+#root .week-appointment-block,
+#root .week-appointment-block *,
+#root button.week-appointment-block,
+#root button.week-appointment-block *,
+#root .week-appointment-chip,
+#root .week-appointment-chip *,
+#root .month-mini-item,
+#root .month-mini-item *,
+#root .month-day-appointment-card,
+#root .month-day-appointment-card *,
+#root button.agenda-item.month-day-appointment-card,
+#root button.agenda-item.month-day-appointment-card * {
+  color: #C4A477 !important;
+  -webkit-text-fill-color: #C4A477 !important;
+}
