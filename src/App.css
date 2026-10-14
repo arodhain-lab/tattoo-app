@@ -4874,3 +4874,34 @@ input[type="week"]::-webkit-calendar-picker-indicator,
           hue-rotate(345deg) brightness(99%) contrast(86%) !important;
   opacity: 1 !important;
 }
+
+/* LOGILYA - Centrage du texte des dates uniquement. */
+input[type="date"],
+input[type="date"]::-webkit-datetime-edit,
+#root#root input[type="date"],
+#root#root input[type="date"]::-webkit-datetime-edit,
+input[type="datetime-local"],
+input[type="datetime-local"]::-webkit-datetime-edit,
+#root#root input[type="datetime-local"],
+#root#root input[type="datetime-local"]::-webkit-datetime-edit,
+input[type="month"],
+input[type="month"]::-webkit-datetime-edit,
+#root#root input[type="month"],
+#root#root input[type="month"]::-webkit-datetime-edit,
+input[type="week"],
+input[type="week"]::-webkit-datetime-edit,
+#root#root input[type="week"],
+#root#root input[type="week"]::-webkit-datetime-edit {
+  text-align: center !important;
+}
+
+input[type="date"]::-webkit-datetime-edit-fields-wrapper,
+#root#root input[type="date"]::-webkit-datetime-edit-fields-wrapper,
+input[type="datetime-local"]::-webkit-datetime-edit-fields-wrapper,
+#root#root input[type="datetime-local"]::-webkit-datetime-edit-fields-wrapper,
+input[type="month"]::-webkit-datetime-edit-fields-wrapper,
+#root#root input[type="month"]::-webkit-datetime-edit-fields-wrapper,
+input[type="week"]::-webkit-datetime-edit-fields-wrapper,
+#root#root input[type="week"]::-webkit-datetime-edit-fields-wrapper {
+  text-align: center !important;
+}
