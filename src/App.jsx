@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { Children, isValidElement, useEffect, useId, useMemo, useRef, useState } from "react";
 import Papa from "papaparse";
 import { Capacitor } from "@capacitor/core";
 import { supabase } from "./supabaseClient";
@@ -542,6 +542,130 @@ function AccordSousTraitanceContent() {
       <h4>13. Entrée en vigueur, modifications et contact</h4>
       <p>Le présent accord entre en vigueur à la date de son acceptation expresse par le titulaire du compte, enregistrée avec sa version. Il demeure applicable pendant la durée des opérations de sous-traitance. Toute modification substantielle donne lieu à une information préalable et, lorsqu’elle le nécessite, à une nouvelle acceptation. Les questions et demandes liées à cet accord sont adressées à <a href="mailto:contact@logilya.fr">contact@logilya.fr</a>.</p>
       <p className="muted-text" style={{ borderTop: "1px solid rgba(180,155,105,0.35)", paddingTop: 12 }}><strong>Points à finaliser avant utilisation contractuelle :</strong> inventaire exact des sous-traitants et de leurs DPA, transferts internationaux, mesures de sécurité réellement activées, procédure d’incident, délais de réversibilité/suppression, ainsi que modalités de notification des changements de sous-traitants. Une validation par un professionnel du droit et une vérification technique sont recommandées.</p>
+    </div>
+  );
+}
+
+
+function LogilyaDropdown({ children, value, onChange, disabled = false, id, name, className = "", style, ...attributes }) {
+  const [open, setOpen] = useState(false);
+  const [activeIndex, setActiveIndex] = useState(0);
+  const containerRef = useRef(null);
+  const triggerRef = useRef(null);
+  const optionsRef = useRef(null);
+  const searchRef = useRef({ text: "", time: 0 });
+  const generatedId = useId();
+  const triggerId = id || "logilya-select-" + generatedId;
+  const listId = triggerId + "-options";
+  const textOf = (content) => Children.toArray(content).map((child) =>
+    isValidElement(child) ? textOf(child.props.children) : String(child)
+  ).join("");
+  const options = Children.toArray(children).filter((child) => isValidElement(child) && child.type === "option")
+    .map((child) => ({
+      value: String(child.props.value ?? textOf(child.props.children)),
+      label: child.props.children,
+      text: textOf(child.props.children),
+      disabled: Boolean(child.props.disabled),
+    }));
+  const selectedIndex = options.findIndex((option) => option.value === String(value ?? ""));
+  const selected = options[selectedIndex] || options[0];
+
+  useEffect(() => {
+    if (disabled) setOpen(false);
+  }, [disabled]);
+  useEffect(() => {
+    if (!open) return;
+    const outside = (event) => {
+      if (!containerRef.current?.contains(event.target)) setOpen(false);
+    };
+    const escape = (event) => {
+      if (event.key === "Escape") {
+        setOpen(false);
+        triggerRef.current?.focus();
+      }
+    };
+    document.addEventListener("pointerdown", outside);
+    document.addEventListener("keydown", escape);
+    return () => {
+      document.removeEventListener("pointerdown", outside);
+      document.removeEventListener("keydown", escape);
+    };
+  }, [open]);
+  useEffect(() => {
+    if (!open) return;
+    optionsRef.current?.querySelector('[data-option-index="' + activeIndex + '"]')?.focus();
+  }, [open, activeIndex]);
+
+  const choose = (option) => {
+    if (disabled || option.disabled) return;
+    const target = { value: option.value, name, id: triggerId };
+    onChange?.({ target, currentTarget: target });
+    setOpen(false);
+    triggerRef.current?.focus();
+  };
+  const openMenu = () => {
+    if (disabled) return;
+    const first = options.findIndex((option) => !option.disabled);
+    setActiveIndex(selectedIndex >= 0 && !options[selectedIndex].disabled ? selectedIndex : Math.max(0, first));
+    setOpen(true);
+  };
+  const handleKey = (event) => {
+    if (disabled) return;
+    if (event.key === "Tab") { setOpen(false); return; }
+    if (["ArrowDown", "ArrowUp", "Home", "End"].includes(event.key)) {
+      event.preventDefault();
+      if (!open) { openMenu(); return; }
+      const enabled = options.map((option, index) => option.disabled ? -1 : index).filter((index) => index >= 0);
+      if (!enabled.length) return;
+      const position = enabled.indexOf(activeIndex);
+      const next = event.key === "Home" ? enabled[0] : event.key === "End" ? enabled[enabled.length - 1]
+        : enabled[(position + (event.key === "ArrowDown" ? 1 : -1) + enabled.length) % enabled.length];
+      setActiveIndex(next);
+      return;
+    }
+    if (event.key.length === 1 && event.key !== " " && !event.ctrlKey && !event.metaKey && !event.altKey) {
+      const now = Date.now();
+      const text = (now - searchRef.current.time < 700 ? searchRef.current.text : "") + event.key.toLocaleLowerCase("fr-FR");
+      searchRef.current = { text, time: now };
+      const index = options.findIndex((option) => !option.disabled && option.text.trim().toLocaleLowerCase("fr-FR").startsWith(text));
+      if (index >= 0) {
+        event.preventDefault();
+        setActiveIndex(index);
+        setOpen(true);
+      }
+    }
+  };
+
+  return (
+    <div className="agenda-custom-select" ref={containerRef}
+      style={{ width: className.includes("compact-select") ? "460px" : "100%", maxWidth: "100%", margin: "10px 0 0", ...style,
+        padding: 0, border: "none", background: "transparent", boxShadow: "none", borderRadius: 0 }}
+      onBlur={(event) => {
+        if (!event.currentTarget.contains(event.relatedTarget)) setOpen(false);
+      }}>
+      <button {...attributes} id={triggerId} ref={triggerRef} type="button"
+        className="agenda-custom-trigger" disabled={disabled}
+        aria-haspopup="listbox" aria-expanded={open} aria-controls={listId}
+        onKeyDown={handleKey} onClick={() => open ? setOpen(false) : openMenu()}
+        style={{ opacity: disabled ? 0.6 : 1, cursor: disabled ? "not-allowed" : "pointer" }}>
+        <span className="agenda-custom-label">{selected?.label || "Sélectionner"}</span>
+        <span className={"agenda-custom-chevron" + (open ? " is-open" : "")} aria-hidden="true">▾</span>
+      </button>
+      {open && (
+        <div id={listId} className="agenda-custom-options" ref={optionsRef} role="listbox"
+          aria-labelledby={triggerId} onKeyDown={handleKey}>
+          {options.map((option, index) => (
+            <button key={option.value + "-" + index} type="button" role="option"
+              className={"agenda-custom-option" + (option.value === String(value ?? "") ? " is-selected" : "")}
+              aria-selected={option.value === String(value ?? "")} disabled={option.disabled}
+              data-option-index={index} tabIndex={index === activeIndex ? 0 : -1}
+              onFocus={() => setActiveIndex(index)} onClick={() => choose(option)}>
+              {option.label}
+              {option.value === String(value ?? "") && <span aria-hidden="true">✓</span>}
+            </button>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
@@ -4721,13 +4845,13 @@ if (cgvStatus !== "accepted") {
               <label htmlFor="checkout-artist-count" style={{ display: "block", marginBottom: 10 }}>
                 Nombre de membres de l’équipe
               </label>
-              <select id="checkout-artist-count" value={checkoutArtistCount}
+              <LogilyaDropdown id="checkout-artist-count" value={checkoutArtistCount}
                 onChange={(event) => setCheckoutArtistCount(Number(event.target.value))}
                 style={{ width: "100%", padding: 12, borderRadius: 10,
                   background: "#fffaf3", color: "#29231e", border: "1px solid #a99373" }}>
                 {Array.from({ length: Math.max(20, checkoutArtistCount) }, (_, index) => index + 1)
                   .map((count) => <option key={count} value={count}>{count} membre{count > 1 ? "s" : ""} de l’équipe</option>)}
-              </select>
+              </LogilyaDropdown>
               <p style={{ marginTop: 24, fontSize: 16 }}>Montant de votre forfait</p>
               <p style={{ fontSize: 31, fontWeight: 800, margin: "8px 0", color: "#29231e" }}>
                 {formatCurrency(
@@ -4768,12 +4892,12 @@ if (cgvStatus !== "accepted") {
           <h2>Quelle est votre activité professionnelle ?</h2>
           <p>Votre choix permet de vous suggérer des prestations adaptées. Vous pourrez toujours créer vos propres prestations.</p>
           <label htmlFor="profession-initiale">Votre métier</label>
-          <select id="profession-initiale" value={professionChoice} onChange={(event) => setProfessionChoice(event.target.value)}>
+          <LogilyaDropdown id="profession-initiale" value={professionChoice} onChange={(event) => setProfessionChoice(event.target.value)}>
             <option value="">Sélectionner votre activité</option>
             {PROFESSIONS.map((profession) => (
               <option key={profession.id} value={profession.id}>{profession.label}</option>
             ))}
-          </select>
+          </LogilyaDropdown>
           {professionError && <p role="alert" style={{ color: "#b42318" }}>{professionError}</p>}
           <button type="button" onClick={() => saveProfession()} disabled={!professionChoice || professionSaving} style={{ marginTop: 18 }}>
             {professionSaving ? "Enregistrement…" : "Valider mon activité"}
@@ -5014,7 +5138,7 @@ if (cgvStatus !== "accepted") {
           <strong>Nombre de membres de l’équipe</strong>
         </label>
 
-        <select
+        <LogilyaDropdown
           id="upgrade-artist-count"
           value={selectedUpgradeArtistCount}
           disabled={isUpdatingSubscription}
@@ -5043,7 +5167,7 @@ if (cgvStatus !== "accepted") {
               {artistCount} membres de l’équipe
             </option>
           ))}
-        </select>
+        </LogilyaDropdown>
       </div>
 
       <div className="subscription-modal-price">
@@ -5792,7 +5916,7 @@ if (cgvStatus !== "accepted") {
               </p>
             </div>
 
-            <select
+            <LogilyaDropdown
               value={revenueArtistFilter}
               onChange={(e) => setRevenueArtistFilter(e.target.value)}
               className="compact-select"
@@ -5803,7 +5927,7 @@ if (cgvStatus !== "accepted") {
                   {artist.name}
                 </option>
               ))}
-            </select>
+            </LogilyaDropdown>
           </div>
 
           <div className="action-buttons" style={{ marginBottom: "16px" }}>
@@ -6137,14 +6261,14 @@ if (cgvStatus !== "accepted") {
             </div>
             <div className="form-grid">
               <label>Langue
-                <select value={settingsLanguage} onChange={(e) => saveSettingsPreference("language", e.target.value)}>
+                <LogilyaDropdown value={settingsLanguage} onChange={(e) => saveSettingsPreference("language", e.target.value)}>
                   <option value="fr">Français</option>
-                </select>
+                </LogilyaDropdown>
               </label>
               <label>Devise
-                <select value={settingsCurrency} onChange={(e) => saveSettingsPreference("currency", e.target.value)}>
+                <LogilyaDropdown value={settingsCurrency} onChange={(e) => saveSettingsPreference("currency", e.target.value)}>
                   <option value="EUR">Euro (€)</option>
-                </select>
+                </LogilyaDropdown>
               </label>
             </div>
             <p className="muted-text">La traduction de l'interface et la conversion des montants ne sont pas encore disponibles : français et euro uniquement.</p>
@@ -6287,10 +6411,10 @@ if (cgvStatus !== "accepted") {
               <label>Date de début<input type="date" value={leaveStart} onChange={(e) => setLeaveStart(e.target.value)}/></label>
               <label>Date de fin<input type="date" min={leaveStart} value={leaveEnd} onChange={(e) => setLeaveEnd(e.target.value)}/></label>
               <label>Membre de l’équipe concerné
-                <select value={leaveArtist} onChange={(e) => setLeaveArtist(e.target.value)}>
+                <LogilyaDropdown value={leaveArtist} onChange={(e) => setLeaveArtist(e.target.value)}>
                   <option value="all">Tous les membres de l’équipe (établissement fermé)</option>
                   {artists.map((artist) => <option key={artist.id} value={artist.id}>{artist.name}</option>)}
-                </select>
+                </LogilyaDropdown>
               </label>
               <label>Motif (facultatif)<input type="text" value={leaveLabel} placeholder="Ex. Vacances d'été" onChange={(e) => setLeaveLabel(e.target.value)}/></label>
             </div>
@@ -6320,7 +6444,7 @@ if (cgvStatus !== "accepted") {
           {!editingServiceName && (
             <div style={{ marginBottom: 18 }}>
               <label htmlFor="suggested-service">Suggestion adaptée à votre métier</label>
-              <select id="suggested-service" value="" onChange={(event) => {
+              <LogilyaDropdown id="suggested-service" value="" onChange={(event) => {
                 if (!event.target.value) return;
                 const selected = event.target.value;
                 setServiceForm({ name: selected, category: selected === "VENTE" ? "VENTE" : "PRESTATION" });
@@ -6329,7 +6453,7 @@ if (cgvStatus !== "accepted") {
                 {(currentProfession?.suggestions || []).map((suggestion) => (
                   <option key={suggestion} value={suggestion}>{suggestion}</option>
                 ))}
-              </select>
+              </LogilyaDropdown>
             </div>
           )}
 
@@ -6343,7 +6467,7 @@ if (cgvStatus !== "accepted") {
               }
             />
 
-            <select
+            <LogilyaDropdown
               value={serviceForm.category}
               onChange={(e) =>
                 setServiceForm({
@@ -6355,7 +6479,7 @@ if (cgvStatus !== "accepted") {
               <option value="PRESTATION">Prestation</option>
               <option value="VENTE">Vente</option>
               <option value="PRESTATION + VENTE">Prestation + vente</option>
-            </select>
+            </LogilyaDropdown>
       
             <button type="button" onClick={saveService}>
               {editingServiceName ? "Modifier la prestation" : "Ajouter la prestation"}
@@ -6977,7 +7101,7 @@ if (cgvStatus !== "accepted") {
         onChange={(e) => setAppointmentClientSearch(e.target.value)}
       />
 
-      <select
+      <LogilyaDropdown
         value={appointmentForm.clientId}
         onChange={(e) =>
           setAppointmentForm({
@@ -6993,7 +7117,7 @@ if (cgvStatus !== "accepted") {
             {formatClientName(client)}
           </option>
         ))}
-      </select>
+      </LogilyaDropdown>
 
       {showQuickClientForm && (
         <div className="card inner-card">
@@ -7062,7 +7186,7 @@ if (cgvStatus !== "accepted") {
         </div>
       )}
 
-      <select
+      <LogilyaDropdown
         value={appointmentForm.artistId}
         onChange={(e) =>
           setAppointmentForm({
@@ -7080,9 +7204,9 @@ if (cgvStatus !== "accepted") {
               {artist.name}
             </option>
           ))}
-      </select>
+      </LogilyaDropdown>
 
-      <select
+      <LogilyaDropdown
         value={appointmentForm.title}
         onChange={(e) =>
           setAppointmentForm({
@@ -7097,11 +7221,11 @@ if (cgvStatus !== "accepted") {
             {type.name}
           </option>
         ))}
-      </select>
+      </LogilyaDropdown>
 
       {appointmentForm.title === ACOMPTE_TYPE && (
         <>
-          <select
+          <LogilyaDropdown
             value={appointmentForm.linkedAppointmentId}
             onChange={(e) =>
               setAppointmentForm({
@@ -7119,7 +7243,7 @@ if (cgvStatus !== "accepted") {
                   : "Sans tarif"}
               </option>
             ))}
-          </select>
+          </LogilyaDropdown>
         </>
       )}
 
@@ -7239,7 +7363,7 @@ if (cgvStatus !== "accepted") {
         </div>
       </div>
 
-      <select
+      <LogilyaDropdown
         value={appointmentForm.paymentMethod}
         onChange={(e) => {
           const paymentMethod = e.target.value;
@@ -7260,7 +7384,7 @@ if (cgvStatus !== "accepted") {
         <option value="ESPÈCES">Espèces</option>
         <option value="CB + ESPÈCES">CB + Espèces</option>
         <option value="VIREMENT">Virement</option>
-      </select>
+      </LogilyaDropdown>
 
       {appointmentForm.paymentMethod === "CB + ESPÈCES" && (
         <div className="form-field">
